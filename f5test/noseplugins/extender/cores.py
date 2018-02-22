@@ -130,20 +130,23 @@ class Cores(ExtendedPlugin):
     def options(self, parser, env):
         """Register commandline options."""
         parser.add_option('--with-qkview', action='store',
-                          dest='with_qkview', default=QKVIEW.ON_FAIL,
+                          dest='with_qkview', default=QKVIEW.NEVER,
                           help="Enable qkview collecting. (default: on failure)")
 
     def configure(self, options, noseconfig):
         """ Call the super and then validate and call the relevant parser for
         the configuration file passed in """
         super(Cores, self).configure(options, noseconfig)
-        self.data = ContextHelper().set_container(PLUGIN_NAME)
         self.enabled = not(noseconfig.options.with_qkview.upper() == QKVIEW.NEVER)
 
         # There's really no point in collecting just quickviews without other logs
         # For now, disable this plugin if --no-logcollect is present.
-        self.enabled = self.enabled and not(noseconfig.options.no_logcollect)
+        self.enabled = self.enabled and not noseconfig.options.no_logcollect
 
+        if not self.enabled:
+            return
+
+        self.data = ContextHelper().set_container(PLUGIN_NAME)
         self.data.cores = {}
         self.blocked_contexts = {}
 

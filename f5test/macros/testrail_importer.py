@@ -343,7 +343,7 @@ def main():
     u"""
 
   Examples:
-  %prog --host 10.10.10.1 -u root -p password -start 100 --testrail-user turturica --testrail-key blah
+  %prog --host 10.10.10.1 -u root -p password -start 100 --testrail-user user --testrail-key key
   """
 
     formatter = optparse.TitledHelpFormatter(indent_increment=2,
