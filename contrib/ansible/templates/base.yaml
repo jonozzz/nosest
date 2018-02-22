@@ -1,0 +1,27 @@
+testrun:
+    owner: you@domain.com
+    type: BVT
+
+testdata:
+  testimage: /path/to/base.iso
+
+selenium:
+    default:
+        default: true
+        address: http://127.0.0.1:4444/wd/hub
+        #browser: firefox
+        browser: phantomjs
+        platform: LINUX
+
+plugins:
+    # Define here what devices are considered DUTs, for reporting purposes.
+    _default_:
+        duts:
+            - bigip-*
+            - em-*
+            - bigiq-*
+            - iwf-*
+
+    json_reporter:
+        enabled: true
+        filename: results.json

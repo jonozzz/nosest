@@ -1,0 +1,17 @@
+$extends:
+    - base.yaml
+    - site.yaml
+    - harness/H01.yaml
+
+plugins:
+    email:
+      enabled: false
+
+    ansible:
+      verbosity: 3
+      logger_level: 10
+
+testrun:
+    product: MyProduct
+    project: MyProject
+    type: Private

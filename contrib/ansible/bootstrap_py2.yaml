@@ -1,0 +1,208 @@
+# First time run provide the sudo password:
+#
+# $ curl -Osk https://.../raw/master/contrib/ansible/bootstrap_py2.yaml
+# $ ansible-playbook -Ke venv_name=ansible-test -e first_time=true bootstrap_py2.yaml
+#
+# This will provide a 'bootstrap' script in your venv that will point to this 
+# playbook.
+---
+- hosts: localhost
+
+  vars:
+    # Make sure we're using the system's python
+    ansible_python_interpreter: "/usr/bin/env python"
+    venv_name: ansible-test
+    home_dir: "{{ ansible_user_dir }}"
+    venv_root: "{{ home_dir }}/.virtualenvs/{{ venv_name }}"
+    this_pb: "{{ playbook_dir }}/bootstrap_py2.yaml"
+    templates_dir: "{{ playbook_dir }}/templates"
+    first_time: false
+
+  tasks:
+
+# Ubuntu
+    - apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - python-dev
+        - python-virtualenv
+        - python-pip
+        - genisoimage
+        - libevent-dev
+        - libyaml-dev
+        - git
+        - sshfs
+      become: true
+      when: first_time|bool and (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+
+# CentOS
+    - yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - python-devel
+        - python-virtualenv
+        - genisoimage
+        - libevent-devel
+        - libyaml-devel
+        - git
+        - gcc
+        - make
+        - fuse-sshfs
+      become: true
+      when: first_time|bool and (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux')
+
+    - easy_install:
+        name: pip
+        state: latest
+      become: true
+      when: first_time|bool and (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux')
+
+    - file:
+        path: "{{ item }}"
+        state: directory
+        mode: 0755
+      with_items:
+        - /build
+      become: true
+      when: 0 and first_time|bool and ansible_virtualization_type != 'docker'
+
+    - mount:
+        path: /build
+        src: mount.server.com:/build
+        fstype: nfs
+        opts: ro
+        state: mounted
+      become: true
+      when: 0 and first_time|bool and ansible_virtualization_type != 'docker'
+
+    - pip:
+        name: virtualenvwrapper
+      become: true
+      when: first_time|bool
+
+    - pip:
+        name: "{{ item }}"
+        state: latest
+        virtualenv: "{{ venv_root }}"
+      with_items:
+        - pip
+        - setuptools
+        - wheel
+
+    - command:  "{{ item }} chdir={{ venv_root }}"
+      with_items:
+        - git config --global http.sslverify false
+
+    - git:
+        repo: 'git@github.com:jonozzz/nosest.git'
+        dest: "{{ venv_root }}/src"
+        force: yes
+        update: yes
+
+    - stat:
+        path: "{{ venv_root }}/.bootstrapped"
+      register: stat
+
+    # Once setup config and tests directories won't be touched.
+    - block:
+      - file:
+          path: "{{ item }}"
+          state: directory
+          recurse: yes
+          mode: 0755
+        with_items:
+          - "{{ venv_root }}/tmp"
+          - "{{ venv_root }}/config/harness"
+          - "{{ venv_root }}/tests"
+
+      - command:  "{{ venv_root }}/bin/python -c 'import {{ item }}'"
+        with_items:
+          - loggerglue, geventhttpclient, nose, SOAPpy, ansible_common_f5
+          - f5test
+        failed_when: pymodule_exists.rc not in (0, 1)
+        register: pymodule_exists
+
+      - pip:
+          name: "{{ item }}"
+          extra_args: -U --force-reinstall --src {{ venv_root }}/tmp
+          virtualenv: "{{ venv_root }}"
+        with_items:
+          - git+https://github.com/jonozzz/geventhttpclient.git#egg=geventhttpclient
+          - git+https://github.com/jonozzz/nose.git#egg=nose
+          - git+https://github.com/jonozzz/SOAPpy.git#egg=SOAPpy
+          - git+git://github.com/erjac77/ansible-common-f5.git#egg=ansible-common-f5
+        when: pymodule_exists.results[0].rc
+
+      - pip:
+          name: "{{ venv_root }}/src"
+          extra_args: "{{ '-U' if latest|default(false)|bool else omit }}"
+          editable: yes
+          virtualenv: "{{ venv_root }}"
+
+      - copy:
+          content: |
+              #!/bin/bash
+              ansible-playbook "$@" -e venv_name={{ venv_name }} {{ this_pb }}
+
+          dest: "{{ venv_root }}/bin/bootstrap"
+          mode: 0755
+
+      - file:
+          src: "{{ venv_root }}/bin/bootstrap"
+          dest: "{{ venv_root }}/bin/buildout"
+          state: link
+
+      - copy:
+          content: |
+            [nosetests]
+            config=.noserc
+          dest: "{{ home_dir }}/.noserc"
+
+      - template:
+          src: "{{ templates_dir }}/noserc.j2"
+          dest: "{{ venv_root }}/.noserc"
+
+      - copy:
+          src: "{{ templates_dir }}/test_sample.py"
+          dest: "{{ venv_root }}/tests/"
+
+      - copy:
+          src: "{{ templates_dir }}/{{ item }}"
+          dest: "{{ venv_root }}/config/"
+          mode: 0664
+          force: no
+        with_items:
+          - base.yaml
+          - site.yaml
+          - default.yaml
+          - logging.conf
+
+      - copy:
+          src: "{{ item }}"
+          dest: "{{ venv_root }}/config/harness/"
+          mode: 0664
+          force: no
+        with_fileglob:
+          - "{{ templates_dir}}/H*.yaml"
+
+      - command:  "{{ item }} chdir={{ venv_root }}"
+        with_items:
+          - bin/nosetests --no-logcollect tests/test_sample.py
+        register: output
+        run_once: true
+        failed_when: output.rc not in (0, 1)
+
+      - command: ansible-galaxy install erjac77.module-f5bigip
+
+      - file: path="{{ venv_root }}/.bootstrapped" state=touch
+
+      - debug:
+          msg:
+            - "Looks like everything went well, now do a:"
+            - source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
+            - or source /usr/local/bin/virtualenvwrapper.sh
+            - workon {{ venv_name }} && cdvirtualenv
+            - nosetests tests/test_sample.py
+      when: not stat.stat.exists

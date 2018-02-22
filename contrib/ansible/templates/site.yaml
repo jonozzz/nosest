@@ -1,0 +1,9 @@
+platform:
+    timezone: America/Los_Angeles
+    dmz:
+        - 172.16.0.0/12
+        - 192.168.0.0/16
+        - 'fd32:f5::/ffc0::'
+paths:
+    build:      /build
+    logs:       /tmp/testruns
