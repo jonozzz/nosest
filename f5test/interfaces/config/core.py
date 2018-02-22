@@ -48,7 +48,7 @@ class DeviceDoesNotExist(ConfigError):
 def expand_devices(specs, section=CFG_DEVICES):
     devices = []
     cfgifc = ConfigInterface()
-    all_devices = sorted(cfgifc.get_all_devices(kind=KIND_ANY),
+    all_devices = sorted(cfgifc.get_devices(kind=KIND_ANY),
                          key=lambda x: x.alias)
     aliases = specs.get(section) if isinstance(specs, dict) else specs
     aliases = [aliases] if isinstance(specs, basestring) else aliases
@@ -56,7 +56,7 @@ def expand_devices(specs, section=CFG_DEVICES):
         return
     for device in aliases:
         if device == '^all':  # Backward compatibility and deprecated
-            all_tmos = sorted(cfgifc.get_all_devices(kind=KIND_TMOS),
+            all_tmos = sorted(cfgifc.get_devices(kind=KIND_TMOS),
                               key=lambda x: x.alias)
             devices.extend(all_tmos)
             break
@@ -348,7 +348,7 @@ class ConfigInterface(Interface):
         return current
 
     def get_device_by_address(self, address):
-        for device in self.get_all_devices():
+        for device in self.get_devices():
             if device.address == address or device.discover_address == address:
                 return device
         LOG.warning('A device with address %s was NOT found in the configuration!', address)
@@ -357,7 +357,7 @@ class ConfigInterface(Interface):
         device_access = self.get_device(device)
         return device_access.address
 
-    def get_all_devices(self, kind=KIND_TMOS, only_enabled=True):
+    def get_devices(self, kind=KIND_TMOS, only_enabled=True):
         if not self.config.get(CFG_DEVICES):
             raise StopIteration
         for device in self.config[CFG_DEVICES]:
@@ -367,7 +367,7 @@ class ConfigInterface(Interface):
 
     def get_device_groups(self, devices=None):
         if devices is None:
-            devices = self.get_all_devices()
+            devices = self.get_devices()
         return inverse(dict((x, x.groups) for x in devices if x.groups))
 
     @staticmethod

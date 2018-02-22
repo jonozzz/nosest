@@ -43,7 +43,7 @@ class Ec2Stages(ExtendedPlugin):
 
         if self.enabled:
             instances = options.instances
-            for ec2 in self.cfgifc.get_all_devices(kind=F5D.KIND_CLOUD_EC2):
+            for ec2 in self.cfgifc.get_devices(kind=F5D.KIND_CLOUD_EC2):
                 instances = set(ec2.specs.instances).intersection(set(instances))
                 if instances:
                     self.ec2s[ec2] = [x.specs.instanceid for x in expand_devices(instances)]

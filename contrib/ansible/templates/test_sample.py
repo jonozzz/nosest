@@ -18,7 +18,7 @@ class Tests(InterfaceTestCase):
     def test_hello_world_01(self):
         """A passing test."""
         cfgifc = self.get_config()
-        cfgifc.get_all_devices()
+        cfgifc.get_devices()
         LOG.info('Hello world.')
 
     def test_fail(self):

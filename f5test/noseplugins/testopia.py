@@ -254,7 +254,7 @@ class Testopia(Plugin):
         note += "Test runner: %s\n" \
                 "DUT (%s): %s\n\n" % (my_ip, dut.alias, dut.address)
 
-        for device in self.config_ifc.get_all_devices():
+        for device in self.config_ifc.get_devices():
             note += "%s: %s\n" % (device.alias, device.address)
 
         config = self.config_ifc.open()

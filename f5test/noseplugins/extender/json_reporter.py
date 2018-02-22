@@ -93,7 +93,8 @@ class JsonReporter(ExtendedPlugin):
                             is_default=x.device.is_default(),
                             platform=x.platform, version=x.version.version,
                             build=x.version.build, product=x.version.product.to_tmos,
-                            project=x.project, has_cored=d.cores.data.get(x.device.alias, False) if d.cores.data else False)
+                            project=x.project, has_cored=d.cores.data.get(x.device.alias, False) if d.cores  and
+                       d.cores.data else False)
                        for x in d.duts]
         output.testrun_data = d.config.testrun
 

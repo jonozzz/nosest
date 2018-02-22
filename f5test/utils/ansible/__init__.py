@@ -180,7 +180,7 @@ def run_playbooks(playbook, tags=[], context=None, options=None):
         if address[1]:
             name = address[1].rsplit('.')[-1]
             a.set_variable('f5test_module_name', name)
-    for device in cfgifc.get_all_devices(KIND_ANY):
+    for device in cfgifc.get_devices(KIND_ANY):
         prev = a
         name = ''
         for sub_kind in device.kind.bits:

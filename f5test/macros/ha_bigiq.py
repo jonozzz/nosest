@@ -162,7 +162,7 @@ class HABigiqMacro(Macro):
         default_bigiq = context.get_icontrol(device=self.default).version
         session = context.get_config().get_session().name
 
-        for device in context.get_config().get_all_devices():
+        for device in context.get_config().get_devices():
             v = context.get_icontrol(device=device).version
             if v.product.is_bigip and v >= 'bigip 11.3.0':
                 bigips.append(device)

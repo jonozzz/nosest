@@ -25,7 +25,7 @@ class ApicTestcase(object):
     @staticmethod
     def set_web_pg(config, vcenter, pg_name, dvs_name=None, options=None):
         LOG.info("Setting Web PGs to Client VMs...")
-        clients = config.get_all_devices(kind=F5D.KIND_CLOUD_VCENTER_CLIENT)
+        clients = config.get_devices(kind=F5D.KIND_CLOUD_VCENTER_CLIENT)
         for client in clients:
             vcenter.assign_nic(client.address, client.specs.nic2.name,
                                pg_name, dvs_name=dvs_name)
@@ -33,7 +33,7 @@ class ApicTestcase(object):
     @staticmethod
     def set_app_pg(config, vcenter, pg_name, dvs_name=None, options=None):
         LOG.info("Setting App PGs to Server VMs...")
-        servers = config.get_all_devices(kind=F5D.KIND_CLOUD_VCENTER_SERVER)
+        servers = config.get_devices(kind=F5D.KIND_CLOUD_VCENTER_SERVER)
         for server in servers:
             vcenter.assign_nic(server.address, server.specs.nic2.name,
                                pg_name, dvs_name=dvs_name)
@@ -41,7 +41,7 @@ class ApicTestcase(object):
     def traffic(self, ip):
         # generate traffic via Apache Bench
         LOG.info("Generating traffic via ab...")
-        clients = self.get_config().get_all_devices(kind=F5D.KIND_CLOUD_VCENTER_CLIENT)
+        clients = self.get_config().get_devices(kind=F5D.KIND_CLOUD_VCENTER_CLIENT)
         for client in clients:
             with SSHInterface(device=client) as sshifc:
 

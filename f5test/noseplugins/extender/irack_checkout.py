@@ -94,7 +94,7 @@ class IrackCheckout(ExtendedPlugin):
 
         config = self.config_ifc.open()
         irackcfg = config.irack
-        devices = [x for x in self.config_ifc.get_all_devices()
+        devices = [x for x in self.config_ifc.get_devices()
                    if 'no-irack-reservation' not in x.tags]
 
         if not devices:
