@@ -143,9 +143,6 @@ class Cores(ExtendedPlugin):
         # For now, disable this plugin if --no-logcollect is present.
         self.enabled = self.enabled and not noseconfig.options.no_logcollect
 
-        if not self.enabled:
-            return
-
         self.data = ContextHelper().set_container(PLUGIN_NAME)
         self.data.cores = {}
         self.blocked_contexts = {}
