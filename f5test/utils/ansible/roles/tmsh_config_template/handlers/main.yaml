@@ -1,0 +1,21 @@
+---
+- name: merge bigip.conf
+  f5bigip_sys_config:
+    f5_hostname: "{{ f5test_mgmt_address }}"
+    f5_username: "{{ f5test_username }}"
+    f5_password: "{{ f5test_password }}"
+    command: load
+    merge: yes
+    file: "/tmp/bigip-{{ machine_fingerprint }}.conf"
+  delegate_to: localhost
+  when: > 
+    'tmos:bigip' == f5test_kind
+#
+#- name: load tmsh config
+#  f5bigip_util_bash:
+#    f5_hostname: "{{ f5test_hostname }}"
+#    f5_username: "{{ f5test_username }}"
+#    f5_password: "{{ f5test_password }}"
+#    args: -c 'tmsh load sys config partitions all'
+#  register: out
+#  delegate_to: localhost

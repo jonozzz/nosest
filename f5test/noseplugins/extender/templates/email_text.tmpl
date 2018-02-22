@@ -1,0 +1,56 @@
+TestRun report
+==============
+
+Good:    {{ result.bars.good }}
+Bad:     {{ result.bars.bad }}
+Skipped: {{ result.bars.unknown }}
+
+{% if time %}Duration: {{ time.delta_str }}{% endif %}
+
+{% if not nose_config.options.no_logcollect -%}
+Session logs: {{ session_url }}
+{%- endif %}
+{%- if config.testopia._testrun %}
+Testopia run: {{ config.testopia.address }}/tr_show_run.cgi?run_id={{ config.testopia._testrun }}
+{%- endif %}
+
+DUTs info:
+==========
+{%- for dut in duts %}
+ - {{ dut.device.alias }} - {{ dut.device.address }}: {{ dut.platform }} {{ dut.version.version }} {{ dut.version.build }} {{ dut.project or '' }} {% if cores and cores.data[dut.device.alias] %}[CORED]{% endif %}
+{%- endfor %}
+
+Skipped:
+=========
+{% for test, err in test_result.skipped -%}
+* {{ test.test.id() }}
+Author: {{ test.test.author }} 
+{{ err.1|string|trim|indent(2, true)  }}
+{% endfor %}
+
+Blocking:
+=========
+{% for label, contexts in result.blocked_groups.items() -%}
+{% for context, results in contexts.items() -%}
+* {{ context.id() }} ({{ results|length }} tests {{ label }})
+{{ results[0].1.1|string|trim|truncate(10000, true)|indent(2, true)|bzify  }}
+{% endfor -%}
+{% endfor %}
+
+Bad:
+====
+{% for test, err in test_result.failures + test_result.errors -%}
+* {{ test.id() }}
+Author: {{ test.author }} 
+{{ err.1|string|trim|truncate(10000, true)|indent(2, true)|bzify  }}
+{% endfor %}
+
+{%- if config.plugins.grafana %}
+Live metrics:
+=============
+{{ config.plugins.grafana.dashboard }}?var-Harness={{ config.testrun.harness }}&var-Host=All
+{%- endif %}
+
+Test Runner:
+============
+{{ test_runner_ip }} 
