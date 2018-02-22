@@ -52,7 +52,7 @@ class Query(WaitableCommand, SSHCommand):
         self.query = query
         self.database = database
         self.sql_username = sql_username
-        self.sql_password = sql_password
+        self.sql_password = sql_password or self.ifc.device.specs.get('mysql password')
 
     def __repr__(self):
         parent = super(Query, self).__repr__()
