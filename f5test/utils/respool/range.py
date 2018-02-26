@@ -38,6 +38,8 @@ class PortRange(Range):
         assert start >= 0
         if stop:
             assert stop <= MAXPORT
+        else:
+            stop = MAXPORT
         super(PortRange, self).__init__(start, stop)
 
 
