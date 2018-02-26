@@ -8,8 +8,8 @@
     merge: yes
     file: "/tmp/bigip-{{ machine_fingerprint }}.conf"
   delegate_to: localhost
-  when: > 
-    'tmos:bigip' == f5test_kind
+  #when: >
+  #  'tmos:bigip' == f5test_kind
 #
 #- name: load tmsh config
 #  f5bigip_util_bash:

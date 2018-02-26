@@ -3,10 +3,46 @@
     src: "{{ config }}"
     dest: "/tmp/bigip-{{ machine_fingerprint }}.conf"
   register: output 
-  when: > 
-    'tmos:bigip' == f5test_kind
+  #when: >
+  #  'tmos:bigip' == f5test_kind
   notify:
     - merge bigip.conf
+
+- shell: "{{ f5test_utils.format_list('socat TCP4-LISTEN:{0[port]},fork TCP4:{1[ip]}:{1[port]} & echo $!',
+pairs, expand=True) |join(' && ') }}"
+  register: output
+  vars:
+    pairs: '{{ resources.socats | zip(resources.vips) | list }}'
+  delegate_to: "{{ item.key }}"
+  async: 10
+  poll: 0
+  become: false
+  become_method: sudo
+  become_user: nobody
+  with_dict: "{{ dict(resources.members | groupby('docker')) }}"
+
+- async_status:
+    jid: "{{ item.ansible_job_id }}"
+  register: output
+  delegate_to: "{{ item._ansible_delegated_vars.ansible_delegated_host }}"
+  with_items: "{{ output.results }}"
+
+- async_status:
+    jid: "{{ item.ansible_job_id }}"
+    mode: cleanup
+  delegate_to: "{{ item._ansible_delegated_vars.ansible_delegated_host }}"
+  with_items: "{{ output.results }}"
+
+- file: path=/tmp/facts.d state=directory
+  delegate_to: "{{ item._ansible_delegated_vars.ansible_delegated_host }}"
+  with_items: "{{ output.results }}"
+
+- copy:
+    #content: "{{ dict(pids=item.stdout_lines) | to_json }}"
+    content: "{{ item.stdout_lines | to_json }}"
+    dest: /tmp/facts.d/pids.fact
+  delegate_to: "{{ item._ansible_delegated_vars.ansible_delegated_host }}"
+  with_items: "{{ output.results }}"
 
 - template:
     src: "{{ apache_config }}"
@@ -35,18 +71,22 @@
 #- debug: var=resources.members
 
 - shell:
-    test ! -e {{ item.value.remote_dir }} && mkdir -p {{ item.value.remote_dir }} || true
+    test ! -e {{ item.value.remote_dir }} && mkdir -p {{ item.value.remote_dir }}
 
   run_once: true
   delegate_to: "{{ item.key }}"
+  ignore_errors: yes
+  become: true
+  become_method: sudo
+  become_user: nobody
   with_dict_list: "{{ dict(resources.members | groupby('docker')) }}"
 
 - docker_container:
     name: "apache-{{ machine_fingerprint }}"
     image: bitnami/apache:latest
     state: started
-    #recreate: yes
-    #restart: yes
+    #recreate: no
+    restart: yes
     #cleanup: yes
     #auto_remove: yes
     volumes: "{{ volumes }} + {{ f5test_utils.format('{remote_dir}:{remote_dir}:ro', members)|list }}"
@@ -70,10 +110,10 @@
 #  #with_items: "{{ resources.members }}"
 #  with_dict_list: "{{ dict(resources.members | groupby('docker')) }}"
 
-- debug: var=hostvars[item.docker]
-  delegate_to: localhost
-  run_once: true
-  with_items: "{{ resources.members }}"
+#- debug: var=hostvars[item.docker]
+#  delegate_to: localhost
+#  run_once: true
+#  with_items: "{{ resources.members }}"
 
 - shell:
     test ! -e {{ item.local_dir }} && mkdir -p {{ item.local_dir }} &&

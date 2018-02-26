@@ -107,6 +107,11 @@ class JinjaUtils(object):
     def format(self, fmt, iterable):
         return (fmt.format(**x) for x in iterable)
 
+    def format_list(self, fmt, iterable, expand=False):
+        if expand:
+            return (fmt.format(*x) for x in iterable)
+        return (fmt.format(x) for x in iterable)
+
 
 class MyCallback(CallbackBase):
 

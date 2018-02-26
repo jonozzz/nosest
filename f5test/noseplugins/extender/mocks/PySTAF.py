@@ -227,8 +227,12 @@ class STAFHandle(object):
 
     def _update_respool(self):
         rp = self.cfgifc.get_respools()
-        for i, vip in enumerate(rp.vips.pool.items.values()):
-            self._handle_vars['name/vip%d/vip' % (i + 1)] = "{0.ip}:{0.port}".format(vip)
+        for i, item in enumerate(rp.vips.pool.items.values()):
+            self._handle_vars['name/vip%d/vip' % (i + 1)] = "{0.ip}:{0.port}".format(item)
+
+        if rp.socats:
+            for i, item in enumerate(rp.socats.pool.items.values()):
+                self._handle_vars['name/socat%d/vip' % (i + 1)] = "{0.ip}:{0.port}".format(item)
 
         docroots = []
         for i, member in enumerate(rp.members.pool.items.values()):
