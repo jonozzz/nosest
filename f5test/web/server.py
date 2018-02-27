@@ -113,7 +113,7 @@ def main():
     u"""
 
   Examples:
-  %prog 10.1.2.3 webb.yaml"""
+  %prog 10.1.2.3 web.yaml"""
 
     formatter = optparse.TitledHelpFormatter(indent_increment=2,
                                              max_help_position=60)
@@ -156,7 +156,10 @@ def main():
     app.merge(bigiq_app)
 
     app.install(ReloadConfigPlugin(CONFIG))
-    app.run(host='0.0.0.0', port=options.port, debug=DEBUG)
+    # TODO: make this configurable via web.yaml
+    import gevent.monkey
+    gevent.monkey.patch_all()
+    app.run(host='0.0.0.0', server='gevent', port=options.port, debug=DEBUG)
 
 if __name__ == '__main__':
     # app.run(host='0.0.0.0', server='gevent', port=PORT, debug=DEBUG)
