@@ -78,7 +78,7 @@ def bvt_bigiq_post():
     args[:] = NOSETESTS_ARGS
 
     args.append('--tc-file={VENV}/%s' % CONFIG_FILE)
-    args.append('--tc=stages.enabled:1')
+    args.append('--tc=group_vars.all.pave:true')
     args.append('--eval-attr=rank >= 1 and rank <= 10')
     args.append('--with-email')
     args.append('--with-irack')
@@ -152,7 +152,7 @@ def bvt_bigiq_post2():
         args[:] = NOSETESTS_ARGS
 
         args.append('--tc-file={VENV}/%s' % CONFIG_FILE)
-        args.append('--tc=stages.enabled:1')
+        args.append('--tc=group_vars.all.pave:true')
         args.append("--eval-attr=rank >= 5 and rank <= 10 and module and 'ASM' not in module")
         args.append('--with-email')
         args.append('--with-atom')
