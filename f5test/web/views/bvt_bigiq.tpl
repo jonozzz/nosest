@@ -19,7 +19,7 @@
                         <tr>
                             <td>Build</td>
                             <td colspan="2"><a href="#" id="build" data-bind="editable: inputs.build" data-type="text" data-placeholder="Required" data-original-title="Enter a build"></a></td>
-                            <td><span class="muted">e.g. 1102.0</span></td>
+                            <td><span class="muted">e.g. 1868.0</span></td>
                         </tr>
 
                         <tr>
