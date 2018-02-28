@@ -14,6 +14,7 @@ import time
 import nose
 from nose.plugins import logcapture
 
+from billiard.process import current_process
 import celery
 from celery.result import AsyncResult
 from celery.signals import setup_logging  # ,after_setup_task_logger
@@ -119,6 +120,9 @@ class DebugTask(celery.Task):
 
     def __call__(self, *args, **kwargs):
         LOG.info("TASKS-Running Shiraz DebugTask _call")
+        # XXX: See https://github.com/celery/celery/issues/1709
+        # This hack is required to allow ansible to run tasks otherwise it silently fails.
+        current_process()._config['daemon'] = False
         self._id = self.request.id
 
         if not self.request.is_eager:
