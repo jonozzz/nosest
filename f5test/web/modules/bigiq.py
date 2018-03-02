@@ -46,6 +46,7 @@ def bvt_bigiq_post():
     # Prepare placeholders in our config
     our_config.update({'group_vars': {'tmos.bigip': {'f5_install': {}}}})
     our_config.update({'plugins': {'email': {'to': [], 'variables': {}}}})
+    our_config.update({'testdata': {}})
 
     plugins = our_config.plugins
 
@@ -56,6 +57,7 @@ def bvt_bigiq_post():
 
     # Set version and build in the install stage
     params = our_config.group_vars['tmos.bigip'].f5_install
+    testdata = our_config.testdata
     match = re.match(BVTINFO_PROJECT_PATTERN, data['project'])
     if match:
         params['version'] = match.group(2)
@@ -64,8 +66,8 @@ def bvt_bigiq_post():
     else:
         params['version'] = data['project']
     params['build'] = data['build']
-    params['image'] = data.get('custom_iso')
-    params['hfimage'] = data.get('custom_hf_iso')
+    testdata.image = params['image'] = data.get('custom_iso')
+    testdata.hfimage = params['hfimage'] = data.get('custom_hf_iso')
     params.product = 'bigip'
 
     #if not min_version_validator(params.build, params.version, params.hotfix,
