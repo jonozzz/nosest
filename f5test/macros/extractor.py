@@ -70,7 +70,7 @@ class Extractor(Macro):
             self.api.run('rm -f {0}*'.format(output)).stdout
 
         LOG.info('Parsing...')
-        config = tmsh.parser(text)
+        config = tmsh.parser(unicode(text, errors='ignore'))
         LOG.debug(config)
         all_keys = config.keys()
         LOG.info('Last key: %s', all_keys[-1])

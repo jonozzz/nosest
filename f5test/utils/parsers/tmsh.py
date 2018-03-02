@@ -39,6 +39,7 @@ from pyparsing import (Literal, Word, Group, ZeroOrMore, printables, OneOrMore,
 
 from f5test.utils.decorators import synchronized_with
 from f5test.utils.parsers import PYPARSING_LOCK
+from .tcl import parse as tcl_parse
 #from ..decorators import synchronized_with
 #from . import PYPARSING_LOCK
 
@@ -110,7 +111,7 @@ class GlobDict(collections.OrderedDict):
 
 
 @synchronized_with(PYPARSING_LOCK)
-def parser(text, opener=BLOB_OPENER, closer=BLOB_CLOSER):
+def braces_parser(text, opener=BLOB_OPENER, closer=BLOB_CLOSER):
     cvtTuple = lambda toks: tuple(toks.asList())  # @IgnorePep8
     cvtRaw = lambda toks: RawString(' '.join(map(str, toks.asList())))  # @IgnorePep8
     #cvtDict = lambda toks: dict(toks.asList()) @IgnorePep8
@@ -196,8 +197,9 @@ def parser(text, opener=BLOB_OPENER, closer=BLOB_CLOSER):
 
     objEntry = Group(OneOrMore(identifier | quotedIdentifier, stopOn=opener).setParseAction(cvtRaw).ignore(pythonStyleComment) +
                      Optional(dictStr.ignore(pythonStyleComment) | blobStr).setParseAction(noneDefault))
+    objEntry = dictStr
     objStr << delimitedList(specials | objEntry, delim=LineEnd())
-    objStr.setParseAction(cvtGlobDict)
+    #objStr.setParseAction(cvtGlobDict)
     # objStr.setParseAction(cvtTuple)
     #objStr.ignore(pythonStyleComment)
     # objEntry.ignore(pythonStyleComment)
@@ -208,6 +210,40 @@ def parser(text, opener=BLOB_OPENER, closer=BLOB_CLOSER):
 
 def dumps(obj):
     return TMSHEncoder(indent=4).encode(obj)
+
+
+def parser(text):
+    ret = tcl_parse(text)
+    blacklist = ['ltm rule',
+                 'gtm rule',
+                 'cli script',
+                 'sys application',
+                 'rule',
+                 'sys icall',
+    ]
+
+    #from pprint import pprint
+    #pprint(ret)
+    #return ret
+
+    d = GlobDict()
+    for command in ret[2]:
+        if command[0] == 'Command':
+            start = command[1][0]
+            for bit in command[2]:
+                if bit[0] == 'BracedLiteral':
+                    stop = bit[1][0] - 1
+                    content = bit[1]
+                    break
+            else:
+                continue
+            key = text[start:stop]
+            value = text[content[0]:content[1]]
+            if any(key.startswith(x) for x in blacklist):
+                d[key] = RawString(value)
+            else:
+                d[key] = braces_parser(value)
+    return d
 
 
 ESCAPE_DCT = {
