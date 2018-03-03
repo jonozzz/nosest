@@ -31,6 +31,7 @@
         - genisoimage
         - libevent-dev
         - libyaml-dev
+        - libmemcached-dev
         - git
         - sshfs
       become: true
@@ -96,7 +97,7 @@
         - git config --global http.sslverify false
 
     - git:
-        repo: 'git@github.com:jonozzz/nosest.git'
+        repo: 'git://github.com/jonozzz/nosest.git'
         dest: "{{ venv_root }}/src"
         force: yes
         update: yes
