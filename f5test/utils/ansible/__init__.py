@@ -175,6 +175,7 @@ def run_playbooks(playbook, tags=[], context=None, options=None):
     inventory.add_group('all')
     a = inventory.groups['all']
     a.set_variable(VAR_F5TEST_CONFIG, cfgifc.api)
+    a.set_variable('f5test_itemd', {})
     if context:
         tmp = nose_selector(context)
         address = test_address(context)
@@ -185,6 +186,7 @@ def run_playbooks(playbook, tags=[], context=None, options=None):
         if address[1]:
             name = address[1].rsplit('.')[-1]
             a.set_variable('f5test_module_name', name)
+    a.set_variable('playbook_name', os.path.splitext(os.path.basename(playbook))[0])
     for device in cfgifc.get_devices(KIND_ANY):
         prev = a
         name = ''
