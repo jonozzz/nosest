@@ -1330,7 +1330,7 @@ class DisablePasswordPolicy(WaitableCommand, IcontrolRestCommand):  # @IgnorePep
             self.ifc.api.patch('/mgmt/tm/auth/password-policy',
                                payload={"policy-enforcement": "disabled"})
             return True
-        except self.ifc.EmapiResourceError, e:
+        except self.ifc.EmapiResourceError as e:
             if isinstance(e.response.data, dict) and e.response.data.code == 401 \
                and 'Password expired. Update password via' in e.response.data.message:
                 wait_args(self.ifc.api.patch, ['/mgmt/shared/authz/users/admin'],
