@@ -114,9 +114,7 @@ class GlobDict(collections.OrderedDict):
 def braces_parser(text, opener=BLOB_OPENER, closer=BLOB_CLOSER):
     cvtTuple = lambda toks: tuple(toks.asList())  # @IgnorePep8
     cvtRaw = lambda toks: RawString(' '.join(map(str, toks.asList())))  # @IgnorePep8
-    #cvtDict = lambda toks: dict(toks.asList()) @IgnorePep8
-    cvtGlobDict = lambda toks: GlobDict(toks.asList())  # @IgnorePep8
-    cvtDict = cvtGlobDict
+    cvtDict = lambda toks: GlobDict(toks.asList())  # @IgnorePep8
     extractText = lambda s, l, t: RawString(s[t._original_start:t._original_end])  # @IgnorePep8
 
     def pythonize(toks):
@@ -148,7 +146,6 @@ def braces_parser(text, opener=BLOB_OPENER, closer=BLOB_CLOSER):
     setStr = Forward()
     objStr = Forward()
 
-    # anyIdentifier = identifier | quotedIdentifier
     oddIdentifier = identifier + quotedIdentifier
     dictKey = quotedIdentifier | \
         Combine(oddIdentifier).setParseAction(cvtRaw)
@@ -163,18 +160,17 @@ def braces_parser(text, opener=BLOB_OPENER, closer=BLOB_CLOSER):
     else:
         dictKey |= identifier
         dictValue |= Or([delimitedList(identifier | quotedIdentifier, delim=White(' '), combine=True),
-                         Combine(delimitedList(identifier | quotedIdentifier, delim=White(' '), combine=True) + Optional(White(' ') + originalTextFor(nestedExpr('{', '}')).setParseAction(extractText))
+                         Combine(delimitedList(identifier | quotedIdentifier, delim=White(' '), combine=True) +
+                                 Optional(White(' ') + originalTextFor(nestedExpr('{', '}')).setParseAction(
+                                  extractText))
                                  ).setParseAction(cvtRaw)
                          ])
-        #dictValue |= White(' ') + setStr
 
     ParserElement.setDefaultWhitespaceChars(' \t')
-    # dictEntry = Group(Combine(OneOrMore(identifier | quotedIdentifier)).setParseAction(cvtRaw) +
     dictEntry = Group(dictKey +
                       Optional(White(' ').suppress() + dictValue).setParseAction(noneDefault) +
                       Optional(White(' ').suppress()) +
                       LineEnd().suppress())
-    # dictEntry = Group(SkipTo(dictKey + LineEnd() + dictKey))
     dictStr << (lbrace + ZeroOrMore(dictEntry) + rbrace)
     dictStr.setParseAction(cvtDict)
     ParserElement.setDefaultWhitespaceChars(' \t\r\n')
@@ -183,29 +179,10 @@ def braces_parser(text, opener=BLOB_OPENER, closer=BLOB_CLOSER):
     setStr << (lbrace + delimitedList(setEntry, delim=White()) + rbrace)
     setStr.setParseAction(cvtTuple)
 
-    # XXX: Not sure why it eats the whitespace after the opener
-    opener = Literal(opener).setParseAction(lambda: '{\n')
-    closer = Literal(closer).setParseAction(lambda: '}')
-    blobStr = (opener + SkipTo(closer) + closer).setParseAction(cvtRaw)
-
-    specials = Group(((Literal('ltm') + Literal('rule') + identifier) |
-                     (Literal('gtm') + Literal('rule') + identifier) |
-                     (Literal('cli') + Literal('script') + identifier) |
-                     (Literal('sys') + Literal('application') + Literal('template') + identifier) |
-                     (Literal('rule') + identifier)).setParseAction(cvtRaw) +
-                     originalTextFor(nestedExpr('{', '}', ignoreExpr=None)).setParseAction(extractText))
-
-    objEntry = Group(OneOrMore(identifier | quotedIdentifier, stopOn=opener).setParseAction(cvtRaw).ignore(pythonStyleComment) +
-                     Optional(dictStr.ignore(pythonStyleComment) | blobStr).setParseAction(noneDefault))
     objEntry = dictStr
-    objStr << delimitedList(specials | objEntry, delim=LineEnd())
-    #objStr.setParseAction(cvtGlobDict)
-    # objStr.setParseAction(cvtTuple)
-    #objStr.ignore(pythonStyleComment)
-    # objEntry.ignore(pythonStyleComment)
+    objStr << delimitedList(objEntry, delim=LineEnd())
 
     return objStr.parseString(text)[0]
-    # return AttrDict(objStr.parseString(text)[0])
 
 
 def dumps(obj):
