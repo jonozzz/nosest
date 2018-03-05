@@ -179,7 +179,7 @@ def braces_parser(text, opener=BLOB_OPENER, closer=BLOB_CLOSER):
     setStr << (lbrace + delimitedList(setEntry, delim=White()) + rbrace)
     setStr.setParseAction(cvtTuple)
 
-    objEntry = dictStr
+    objEntry = dictStr.ignore(pythonStyleComment)
     objStr << delimitedList(objEntry, delim=LineEnd())
 
     return objStr.parseString(text)[0]
