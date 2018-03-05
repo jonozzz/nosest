@@ -32,6 +32,7 @@
         - libevent-dev
         - libyaml-dev
         - libmemcached-dev
+        - libcurl4-openssl-dev
         - git
         - sshfs
       become: true
