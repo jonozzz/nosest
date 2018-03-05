@@ -1,0 +1,23 @@
+---
+#- debug: var=become_user
+- shell: "{{ f5test_utils.format_list('socat TCP4-LISTEN:{0[port]},fork TCP4:{1[ip]}:{1[port]} & echo $!',
+pairs, expand=True) |join(' && ') }}"
+  register: output
+  vars:
+    pairs: '{{ resources.socats | zip(resources.vips) | list }}'
+  async: 10
+  poll: 0
+
+- async_status:
+    jid: "{{ output.ansible_job_id }}"
+  register: output
+
+- async_status:
+    jid: "{{ output.ansible_job_id }}"
+    mode: cleanup
+
+- file: path=~/facts.d state=directory
+
+- copy:
+    content: "{{ output.stdout_lines | to_json }}"
+    dest: ~/facts.d/pids.fact

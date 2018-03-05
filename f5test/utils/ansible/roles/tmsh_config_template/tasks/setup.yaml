@@ -1,78 +1,33 @@
----  
+---
 - template:
     src: "{{ config }}"
     dest: "/tmp/bigip-{{ machine_fingerprint }}.conf"
   register: output 
-  #when: >
-  #  'tmos:bigip' == f5test_kind
+  when: config is defined
   notify:
     - merge bigip.conf
 
-- shell: "{{ f5test_utils.format_list('socat TCP4-LISTEN:{0[port]},fork TCP4:{1[ip]}:{1[port]} & echo $!',
-pairs, expand=True) |join(' && ') }}"
-  register: output
-  vars:
-    pairs: '{{ resources.socats | zip(resources.vips) | list }}'
+- include_tasks: setup_socats.yaml
   delegate_to: "{{ item.key }}"
-  async: 10
-  poll: 0
-  become: false
+  become: true
   become_method: sudo
-  become_user: nobody
+  become_user: "{{ hostvars[item.key].become_user }}"
   with_dict: "{{ dict(resources.members | groupby('docker')) }}"
-
-- async_status:
-    jid: "{{ item.ansible_job_id }}"
-  register: output
-  delegate_to: "{{ item._ansible_delegated_vars.ansible_delegated_host }}"
-  with_items: "{{ output.results }}"
-
-- async_status:
-    jid: "{{ item.ansible_job_id }}"
-    mode: cleanup
-  delegate_to: "{{ item._ansible_delegated_vars.ansible_delegated_host }}"
-  with_items: "{{ output.results }}"
-
-- file: path=/tmp/facts.d state=directory
-  delegate_to: "{{ item._ansible_delegated_vars.ansible_delegated_host }}"
-  with_items: "{{ output.results }}"
-
-- copy:
-    #content: "{{ dict(pids=item.stdout_lines) | to_json }}"
-    content: "{{ item.stdout_lines | to_json }}"
-    dest: /tmp/facts.d/pids.fact
-  delegate_to: "{{ item._ansible_delegated_vars.ansible_delegated_host }}"
-  with_items: "{{ output.results }}"
+  when: item.key != 'localhost'
 
 - template:
     src: "{{ apache_config }}"
     dest: "/tmp/apache-{{ item.key }}-{{ machine_fingerprint }}.conf"
   register: output
-  when: >
-    apache_config is defined
+  when: apache_config is defined
   run_once: true
   delegate_to: "{{ item.key }}"
   vars:
     members: "{{ item.value }}"
   with_dict: "{{ dict(resources.members | groupby('docker')) }}"
-#  notify:
-#    - merge bigip.conf
-
-#- copy:
-#    content: |
-#      <html><body><h1>Ansible works!</h1></body></html>
-#    dest: /tmp/apache.html
-#  run_once: true
-#  delegate_to: "{{ item.key }}"
-#  #vars:
-#  #  members: "{{ item.value }}"
-#  with_items: "{{ resources.members | groupby('docker') }}"
-
-#- debug: var=resources.members
 
 - shell:
     test ! -e {{ item.value.remote_dir }} && mkdir -p {{ item.value.remote_dir }}
-
   run_once: true
   delegate_to: "{{ item.key }}"
   ignore_errors: yes
@@ -98,22 +53,7 @@ pairs, expand=True) |join(' && ') }}"
     members: "{{ item.value }}"
     volumes:
       - "/tmp/apache-{{ item.key }}-{{ machine_fingerprint }}.conf:/bitnami/apache/conf/vhosts/my_vhost.conf:ro"
-#      - "/tmp/apache.html:/opt/bitnami/apache/htdocs/index.html:ro"
   with_dict: "{{ dict(resources.members | groupby('docker')) }}"
-
-
-#- debug:
-#    msg: "zzz: {{ item.key }} {{ item.value.name }}"
-#
-#  delegate_to: localhost
-#  run_once: true
-#  #with_items: "{{ resources.members }}"
-#  with_dict_list: "{{ dict(resources.members | groupby('docker')) }}"
-
-#- debug: var=hostvars[item.docker]
-#  delegate_to: localhost
-#  run_once: true
-#  with_items: "{{ resources.members }}"
 
 - shell:
     test ! -e {{ item.local_dir }} && mkdir -p {{ item.local_dir }} &&

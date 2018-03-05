@@ -1,17 +1,4 @@
 ---
-#- name: Clear bigip.conf
-#  file:
-#    state: "{{ item }}"
-#    path: /config/bigip.conf
-#  notify:
-#    - load tmsh config    
-#  with_items:
-#    - absent
-#    - touch 
-#- debug: var=resources
-
-#- debug: var=_
-
 - shell:
     test -e {{ item.local_dir }} && fusermount -u {{ item.local_dir }} &&
     rmdir {{ item.local_dir }}
@@ -22,22 +9,15 @@
   with_items: "{{ resources.members }}"
   when: True and item.docker != 'localhost'
 
-#- include_vars:
-#    file: /tmp/pids.json
-#  register: output
-#  delegate_facts: True
-#  delegate_to: docker-1
-#  #delegate_to: "{{ item.key }}"
-#  #with_dict_list: "{{ dict(resources.members | groupby('docker')) }}"
-
 - setup:
-    fact_path: /tmp/facts.d
+    fact_path: ~/facts.d
   delegate_to: "{{ item.key }}"
   register: output
+  become: true
+  become_method: sudo
+  become_user: "{{ hostvars[item.key].become_user }}"
   with_dict: "{{ dict(resources.members | groupby('docker')) }}"
-
-#- debug: var=ansible_local
-#  delegate_to: docker-1
+  when: item.key != 'localhost'
 
 - shell: "kill {{ f5test_utils.format_list('{}', ansible_local.pids) | join(' ') }}"
   register: output
