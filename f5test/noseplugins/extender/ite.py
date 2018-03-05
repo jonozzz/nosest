@@ -1,4 +1,4 @@
-"""docker
+"""
 Created on Jan 25, 2018
 
 @author: jono
@@ -39,6 +39,7 @@ class ITE(ExtendedPlugin):
         if not self.enabled:
             return
 
+        noseconfig.testMatch = re.compile('$^')
         self.attr_plugin = AttributeSelector()
         self.attr_plugin.configure(noseconfig.options, noseconfig)
 
@@ -71,6 +72,8 @@ class ITE(ExtendedPlugin):
         return tokens
 
     def loadTestsFromModule(self, module, path=None):
+        if not os.path.isfile(path):
+            return
         with open(path) as f:
             source = f.read()
             tokens = dict(self.mdparse(source))
