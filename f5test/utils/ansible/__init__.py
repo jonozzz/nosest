@@ -150,6 +150,7 @@ def run_playbooks(playbook, tags=[], context=None, options=None):
                             os.path.join(HERE, 'roles')]
     C.RETRY_FILES_ENABLED = False
     C.DEFAULT_HASH_BEHAVIOUR = 'merge'
+    C.ANSIBLE_PIPELINING = True
     action_loader.add_directory(os.path.join(HERE, 'action_plugins'))
     lookup_loader.add_directory(os.path.join(HERE, 'lookup_plugins'))
     loader = DataLoader()
