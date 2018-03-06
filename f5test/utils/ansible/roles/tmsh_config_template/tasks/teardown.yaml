@@ -42,3 +42,9 @@
   delegate_to: localhost
   run_once: true
   with_items: '{{ resources }}'
+
+- f5_unmerge:
+    address: "{{ ansible_host }}"
+    username: "{{ ansible_user }}"
+    password: "{{ ansible_ssh_pass }}"
+    filename: "/tmp/bigip-{{ machine_fingerprint }}.conf"

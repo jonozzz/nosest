@@ -8,9 +8,7 @@
     merge: yes
     file: "/tmp/bigip-{{ machine_fingerprint }}.conf"
   delegate_to: localhost
-  #when: >
-  #  'tmos:bigip' == f5test_kind
-#
+
 #- name: load tmsh config
 #  f5bigip_util_bash:
 #    f5_hostname: "{{ f5test_hostname }}"
@@ -19,3 +17,46 @@
 #    args: -c 'tmsh load sys config partitions all'
 #  register: out
 #  delegate_to: localhost
+
+- shell:
+    test ! -e {{ item.value.remote_dir }} && umask 0 && mkdir -p {{ item.value.remote_dir }}
+  run_once: true
+  delegate_to: "{{ item.key }}"
+  ignore_errors: yes
+  become: true
+  become_method: sudo
+  become_user: nobody
+  with_dict_list: "{{ dict(resources.members | groupby('docker')) }}"
+  listen: make docker apache
+
+- docker_container:
+    name: "apache-{{ machine_fingerprint }}"
+    image: bitnami/apache:latest
+    state: started
+    #recreate: no
+    restart: yes
+    #cleanup: yes
+    #auto_remove: yes
+    volumes: "{{ volumes }} + {{ f5test_utils.format('{remote_dir}:{remote_dir}:ro', members)|list }}"
+    ports: "{{ f5test_utils.format('{port}:{port}', members)|list }}"
+  register: output
+  run_once: true
+  delegate_to: "{{ item.key }}"
+  vars:
+    members: "{{ item.value }}"
+    volumes:
+      - "/tmp/apache-{{ item.key }}-{{ machine_fingerprint }}.conf:/bitnami/apache/conf/vhosts/my_vhost.conf:ro"
+  with_dict: "{{ dict(resources.members | groupby('docker')) }}"
+  listen: make docker apache
+
+- shell:
+    test ! -e {{ item.local_dir }} && mkdir -p {{ item.local_dir }} &&
+    chmod a+w {{ item.local_dir }} &&
+    echo {{ hostvars[item.docker].ansible_ssh_pass }} |
+    sshfs {{ hostvars[item.docker].ansible_user }}@{{ hostvars[item.docker].ansible_host }}:{{ item.remote_dir }}/
+      {{ item.local_dir }} -o password_stdin || true
+  delegate_to: localhost
+  run_once: true
+  with_items: "{{ resources.members }}"
+  when: item.docker != 'localhost'
+  listen: make docker apache
