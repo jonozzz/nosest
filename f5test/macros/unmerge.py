@@ -12,6 +12,7 @@ from f5test.utils.parsers.tmsh import parser
 
 LOG = logging.getLogger(__name__)
 TMSH_DELETE = 'delete {}'
+PROMPT = '# '
 __version__ = '1.0'
 
 
@@ -44,12 +45,29 @@ class Tool(Macro):
         with self.api.sftp().open(self.filename) as f:
             result = parser(f.read())
             shell = self.api.interactive()
+            shell.expect_exact(PROMPT)
             shell.sendline('tmsh')
-            shell.expect_exact('# ')
+            shell.expect_exact(PROMPT)
+            leftovers = set()
+
             for path in reversed(result.keys()):
+                if path.startswith('ltm pool'):
+                    for member in result[path]['members'].keys():
+                        if member.count('.') == 1:  # 2002::1.http
+                            leftovers.add('ltm node {}'.format(member.split('.')[0]))
+                        elif member.count(':') == 1:  # 1.1.1.1:21
+                            leftovers.add('ltm node {}'.format(member.split(':')[0]))
+                        else:
+                            raise ValueError(member)
                 shell.sendline(TMSH_DELETE.format(path))
-                shell.expect_exact('# ')
+                shell.expect_exact(PROMPT)
                 LOG.info(shell.before)
+
+            for path in leftovers:
+                shell.sendline(TMSH_DELETE.format(path))
+                shell.expect_exact(PROMPT)
+                LOG.info(shell.before)
+
         LOG.info('Done.')
 
 
