@@ -113,7 +113,7 @@ class IPAddressPortResourceItem(IPAddressResourceItem):
 
     def encode(self):
         return dict(name=self.name, ip=str(self.ip), port=int(self.port),
-                    prefix=self.prefix)
+                    prefix=self.prefix, key=self.key)
 
 
 class MemberResourceItem(IPAddressPortResourceItem):
@@ -142,7 +142,7 @@ class MemberResourceItem(IPAddressPortResourceItem):
     def encode(self):
         return dict(name=self.name, ip=str(self.ip), port=int(self.port),
                     remote_dir=self.remote_dir, local_dir=self.local_dir,
-                    docker=self.docker, prefix=self.prefix)
+                    docker=self.docker, prefix=self.prefix, key=self.key)
 
 
 class ResourcePool(object):
