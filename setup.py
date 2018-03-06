@@ -37,6 +37,7 @@ addl_args = dict(
             'f5.extractor = f5test.macros.extractor:main',
             'f5.ucs = f5test.macros.ucs_tool:main',
             'f5.testrail_importer = f5test.macros.testrail_importer:main',
+            'f5.unmerge = f5test.macros.unmerge:main',
             ],
         'nose.plugins.0.10': [
             'randomize = f5test.noseplugins.randomize:Randomize',
