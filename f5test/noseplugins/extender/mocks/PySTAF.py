@@ -3,6 +3,7 @@ Created on Jan 29, 2018
 
 @author: jono
 '''
+from f5test.defaults import KIND_TMOS_BIGIP
 from f5test.interfaces.testcase import ContextHelper
 import logging
 
@@ -220,10 +221,9 @@ class STAFHandle(object):
         rr = self.cfgifc.get_ranges()
         self.pools = self.cfgifc.get_respools()
         self.value_to_item = {}
-        # for i, node in enumerate(rr.http_nodes):
-        #     self._handle_vars['name/member%d/member/ip' % i] = node.ip
-        #     self._handle_vars['name/member%d/member' % i] = "{0.ip}:{0.port}".format(node)
-        # LOG.info('in __init__')
+        for device in self.cfgifc.get_devices(KIND_TMOS_BIGIP):
+            #f5ite/bigip.1/mgmt/ip
+            self._handle_vars['f5ite/{}.{}/mgmt/ip'.format(*device.alias.split('-'))] = device.address
 
     def _update_respool(self):
         rp = self.cfgifc.get_respools()
