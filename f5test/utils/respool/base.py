@@ -185,6 +185,10 @@ class ResourcePool(object):
     def __str__(self):
         return "{}<{}>{}".format(self.__class__.__name__, self.name, self.items)
 
+    @property
+    def local_items(self):
+        return {k: v for k, v in self.items.items() if k.startswith(self.prefix)}
+
     def update_with(self, values):
         tmp = dict((x.prefix + x.name, x) for x in values)
         map(self.items.pop, set(self.items) - set(tmp))
