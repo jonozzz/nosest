@@ -44,9 +44,9 @@ class IpPortResourcePool(IpResourcePool):
         '''
         if port_range is None:
             port_range = (MINPORT, MAXPORT)
-        if not isinstance(ip_range, tuple):
+        if not isinstance(ip_range, (tuple, list)):
             ip_range = (ip_range,)
-        if not isinstance(port_range, tuple):
+        if not isinstance(port_range, (tuple, list)):
             port_range = (port_range,)
         self.size = size
         iterable = itertools.product(IPRange(*ip_range), PortRange(*port_range))
@@ -65,9 +65,9 @@ class MemberResourcePool(IpResourcePool):
                  remote_dir='/tmp/pool-{key}', dockers=None, local_dir=None, prefix=''):
         if port_range is None:
             port_range = (MINPORT, MAXPORT)
-        if not isinstance(ip_range, tuple):
+        if not isinstance(ip_range, (tuple, list)):
             ip_range = (ip_range,)
-        if not isinstance(port_range, tuple):
+        if not isinstance(port_range, (tuple, list)):
             port_range = (port_range,)
         self.remote_dir = remote_dir
         self.local_dir = local_dir if local_dir else self.remote_dir
