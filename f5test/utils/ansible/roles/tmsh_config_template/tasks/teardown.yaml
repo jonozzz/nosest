@@ -48,3 +48,7 @@
     username: "{{ ansible_user }}"
     password: "{{ ansible_ssh_pass }}"
     filename: "/tmp/bigip-{{ machine_fingerprint }}.conf"
+
+- file:
+    path: "/tmp/bigip-{{ machine_fingerprint }}.conf"
+    state: absent
