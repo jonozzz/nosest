@@ -227,19 +227,19 @@ class STAFHandle(object):
 
     def _update_respool(self):
         rp = self.cfgifc.get_respools()
-        for i, item in enumerate(rp.vips.pool.local_items.values()):
-            self._handle_vars['name/vip%d/vip' % (i + 1)] = "{0.ip}:{0.port}".format(item)
+        for item in rp.vips.pool.local_items.values():
+            self._handle_vars['name/%s/vip' % item.name] = "{0.ip}:{0.port}".format(item)
 
         if rp.get('socats'):
-            for i, item in enumerate(rp.socats.pool.local_items.values()):
+            for item in rp.socats.pool.local_items.values():
                 #self._handle_vars['name/socat%d/vip' % (i + 1)] = "{0.ip}:{0.port}".format(item)
-                self._handle_vars['name/vip%d/vip' % (i + 1)] = "{0.ip}:{0.port}".format(item)
+                self._handle_vars['name/%s/vip' % item.name] = "{0.ip}:{0.port}".format(item)
 
         docroots = []
-        for i, member in enumerate(rp.members.pool.local_items.values()):
-            self._handle_vars['name/member%d/member/ip' % (i + 1)] = member.ip
-            self._handle_vars['name/member%d/member' % (i + 1)] = "{0.ip}:{0.port}".format(member)
-            self._handle_vars['name/member%d/docroot' % (i + 1)] = member.local_dir
+        for member in rp.members.pool.local_items.values():
+            self._handle_vars['name/%s/member/ip' % member.name] = member.ip
+            self._handle_vars['name/%s/member' % member.name] = "{0.ip}:{0.port}".format(member)
+            self._handle_vars['name/%s/docroot' % member.name] = member.local_dir
             docroots.append(member.local_dir)
 
         if docroots:
