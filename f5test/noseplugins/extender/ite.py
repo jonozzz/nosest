@@ -39,6 +39,7 @@ class ITE(ExtendedPlugin):
         if not self.enabled:
             return
 
+        self.curdir = os.getcwd()
         noseconfig.testMatch = re.compile('$^')
         self.attr_plugin = AttributeSelector()
         self.attr_plugin.configure(noseconfig.options, noseconfig)
@@ -70,6 +71,11 @@ class ITE(ExtendedPlugin):
         tokens = [(key.strip(), val.strip()) for key, val in
                   metadata_regex.findall(source)]
         return tokens
+
+    def beforeTest(self, test):
+        if hasattr(test.test.descriptor, ITE_METADATA):
+            os.chdir(os.path.dirname(test.test.descriptor.__file__))
+
 
     def loadTestsFromModule(self, module, path=None):
         if not os.path.isfile(path):
