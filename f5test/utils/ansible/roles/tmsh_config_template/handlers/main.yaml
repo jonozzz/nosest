@@ -24,7 +24,7 @@
   run_once: true
   delegate_to: "{{ item.key }}"
   ignore_errors: yes
-  become: "{{ ansible_user == 'root' }}"  # doesn't work with sudo enabled!
+  become: false
   become_method: sudo
   become_user: nobody
   with_dict_list: "{{ dict(resources.members | groupby('docker')) }}"

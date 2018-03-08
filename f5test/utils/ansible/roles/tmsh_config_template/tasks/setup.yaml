@@ -8,7 +8,7 @@
 
 - include_tasks: setup_socats.yaml
   delegate_to: "{{ item.key }}"
-  become: "{{ ansible_user == 'root' }}"
+  become: false
   become_method: sudo
   become_user: "{{ hostvars[item.key].become_user }}"
   with_dict: "{{ dict(resources.members | groupby('docker')) }}"
