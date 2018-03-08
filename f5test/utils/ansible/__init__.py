@@ -5,6 +5,8 @@ Created on Dec 28, 2017
 '''
 from __future__ import absolute_import
 
+import shutil
+
 import __main__
 import inspect
 import logging
@@ -256,7 +258,10 @@ def run_playbooks(playbook, tags=[], context=None, options=None):
     options = OptionsStrict(rc=-1, failed=[])
     cb = MyCallback(options=options)
     executor._tqm._callback_plugins.append(cb)
-    options.rc = executor.run()
+    try:
+        options.rc = executor.run()
+    finally:
+        shutil.rmtree(C.DEFAULT_LOCAL_TMP, True)
 
     # p.vips.sync()
     return options
