@@ -1,14 +1,14 @@
 ---
 - template:
     src: "{{ config }}"
-    dest: "/tmp/bigip-{{ machine_fingerprint }}.conf"
+    dest: "{{ tmp_bigip_conf }}"
   register: output 
   when: config is defined
   notify: merge bigip.conf
 
 - include_tasks: setup_socats.yaml
   delegate_to: "{{ item.key }}"
-  become: true
+  become: "{{ ansible_user == 'root' }}"
   become_method: sudo
   become_user: "{{ hostvars[item.key].become_user }}"
   with_dict: "{{ dict(resources.members | groupby('docker')) }}"
@@ -16,7 +16,7 @@
 
 - template:
     src: "{{ apache_config }}"
-    dest: "/tmp/apache-{{ item.key }}-{{ machine_fingerprint }}.conf"
+    dest: "{{ tmp_apache_conf }}"
     mode: 0666
   register: output
   when: apache_config is defined

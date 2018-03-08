@@ -6,7 +6,7 @@
     f5_password: "{{ f5test_password }}"
     command: load
     merge: yes
-    file: "/tmp/bigip-{{ machine_fingerprint }}.conf"
+    file: "{{ tmp_bigip_conf }}"
   delegate_to: localhost
 
 #- name: load tmsh config
@@ -18,18 +18,20 @@
 #  register: out
 #  delegate_to: localhost
 
-- shell:
+- name: make docker apache 1
+  shell:
     test ! -e {{ item.value.remote_dir }} && umask 0 && mkdir -p {{ item.value.remote_dir }}
   run_once: true
   delegate_to: "{{ item.key }}"
   ignore_errors: yes
-  become: true  # doesn't work with sudo enabled!
+  become: "{{ ansible_user == 'root' }}"  # doesn't work with sudo enabled!
   become_method: sudo
   become_user: nobody
   with_dict_list: "{{ dict(resources.members | groupby('docker')) }}"
   listen: make docker apache
 
-- docker_container:
+- name: make docker apache 2
+  docker_container:
     name: "apache-{{ machine_fingerprint }}"
     image: bitnami/apache:latest
     state: started
@@ -45,11 +47,12 @@
   vars:
     members: "{{ item.value }}"
     volumes:
-      - "/tmp/apache-{{ item.key }}-{{ machine_fingerprint }}.conf:/bitnami/apache/conf/vhosts/my_vhost.conf:ro"
+      - "{{ tmp_apache_conf }}:/bitnami/apache/conf/vhosts/my_vhost.conf:ro"
   with_dict: "{{ dict(resources.members | groupby('docker')) }}"
   listen: make docker apache
 
-- shell:
+- name: make docker apache 3
+  shell:
     test ! -e {{ item.local_dir }} && mkdir -p {{ item.local_dir }} &&
     chmod a+w {{ item.local_dir }} &&
     echo {{ hostvars[item.docker].ansible_ssh_pass }} |
@@ -60,3 +63,11 @@
   with_items: "{{ resources.members }}"
   when: item.docker != 'localhost'
   listen: make docker apache
+
+- name: kill socats
+  shell: "kill {{ f5test_utils.format_list('{}', ansible_local.pids) | join(' ') }}"
+  #register: output
+  ignore_errors: yes
+  delegate_to: "{{ item._ansible_delegated_vars.ansible_delegated_host }}"
+  with_items: "{{ output.results }}"
+  listen: kill socats
