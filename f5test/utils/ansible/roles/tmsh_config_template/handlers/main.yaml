@@ -51,6 +51,14 @@
   with_dict: "{{ dict(resources.members | groupby('docker')) }}"
   listen: make docker apache
 
+- name: wait for all members to come up
+  wait_for:
+    host: "{{ item.ip }}"
+    port: "{{ item.port }}"
+  with_items: "{{ resources.members }}"
+  #delegate_to: localhost
+  listen: make docker apache
+
 - name: make docker apache 3
   shell:
     test ! -e {{ item.local_dir }} && mkdir -p {{ item.local_dir }} &&
