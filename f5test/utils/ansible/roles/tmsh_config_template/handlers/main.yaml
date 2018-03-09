@@ -33,21 +33,22 @@
 - name: make docker apache 2
   docker_container:
     name: "apache-{{ machine_fingerprint }}"
-    image: bitnami/apache:latest
+    image: quay.pdsea.f5net.com/turturica/apache
     state: started
     #recreate: no
     restart: yes
+    network_mode: host
     #cleanup: yes
     #auto_remove: yes
     volumes: "{{ volumes }} + {{ f5test_utils.format('{remote_dir}:{remote_dir}:ro', members)|list }}"
-    ports: "{{ f5test_utils.format('{port}:{port}', members)|list }}"
+    #ports: "{{ f5test_utils.format('{port}:{port}', members)|list }}"
   register: output
   run_once: true
   delegate_to: "{{ item.key }}"
   vars:
     members: "{{ item.value }}"
     volumes:
-      - "{{ tmp_apache_conf }}:/bitnami/apache/conf/vhosts/my_vhost.conf:ro"
+      - "{{ tmp_apache_conf }}:/usr/local/apache2/conf/vhosts/my_vhost.conf:ro"
   with_dict: "{{ dict(resources.members | groupby('docker')) }}"
   listen: make docker apache
 
