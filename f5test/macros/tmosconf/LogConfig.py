@@ -43,7 +43,7 @@ class LogConfigDestinationRemoteHighspeed(BaseLogConfig, PropertiesStamp):
         v = ctx.version
         values = obj.values()[0]
         if v.product.is_bigip:
-            if v < 'bigip 11.6.0':  # failed on 11.5.5
+            if v < 'bigip 12.0':  # failed on 11.5.5, 11.6.3
                 values.pop('distribution')
             return self.get_full_path(), obj
 

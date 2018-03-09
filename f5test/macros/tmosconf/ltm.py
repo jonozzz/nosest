@@ -550,7 +550,7 @@ class VirtualServer2(PropertiesStamp):
                 values.pop('flow-eviction-policy')
                 values.pop('per-flow-request-access-policy')
                 values.pop('urldb-feed-policy')
-            if v < 'bigip 11.6.2':  # failed on 11.6, 11.6.1
+            if v < 'bigip 12.0':  # failed on 11.6, 11.6.1, 11.6.3
                 values.pop('service-down-immediate-action')
                 values.pop('service-policy')
             return self.get_full_path(), obj
