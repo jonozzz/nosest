@@ -50,7 +50,7 @@ import logging
 LOG = logging.getLogger(__name__)
 ROOT_PATH = '/build'
 BIGIP = Product.BIGIP
-PRODUCT_REGEX = r'[\w+-]+\b(?<!RECOVERY)'
+PRODUCT_REGEX = r'[\w+-]+'
 BRANCH_PATTERN = r'([\d+\.]+)-?(eng-?\w*|hf\d+|hf-\w+)?'
 
 
@@ -310,7 +310,7 @@ class CMFileFinder(object):
         for directory in ifilter(self._isdir, self.potential_locations()):
             LOG.debug('Potential directory: %s', directory)
             for potential_file in self.files_for(directory):
-                if self.matches(potential_file):
+                if self.matches(potential_file) and 'RECOVERY' not in potential_file:
                     # potential_file is only a relative path, but need to give
                     # the user the full path.
                     full_path = self._get_full_path(directory, potential_file)
