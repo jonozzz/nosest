@@ -211,7 +211,8 @@ def run_playbooks(playbook, tags=[], context=None, options=None):
         a.set_variable('f5test_ranges', session.get_respool_handler().ranges)
         a.set_variable('machine_fingerprint', fingerprint)
         # Colon must mean something for Ansible
-        inventory.add_host(device.alias, str(device.kind).replace(':', '.'))
+        if device.alias != 'localhost':
+            inventory.add_host(device.alias, str(device.kind).replace(':', '.'))
         h = inventory.get_host(device.alias)
         h.set_variable('f5test_device', device)
         h.set_variable('f5test_kind', device.kind)
