@@ -7,7 +7,8 @@ import logging
 
 from . import ExtendedPlugin
 from ...utils.respool import IpResourcePool, IpPortResourcePool
-from ...utils.respool.net import RangeResourcePool, ResourcePool, MemberResourcePool
+from ...utils.respool.net import (RangeResourcePool, ResourcePool,
+                                  MemberResourcePool, LazyMemberResourcePool)
 from ...utils.respool.range import PortRange, IPPortRange, IPRange
 from ...interfaces.testcase import ContextHelper
 
@@ -17,6 +18,7 @@ LOG = logging.getLogger(__name__)
 
 class PoolResourceTypes(object):
     member = MemberResourcePool
+    lazy_member = LazyMemberResourcePool
     ip = IpResourcePool
     ip_port = IpPortResourcePool
     range = RangeResourcePool

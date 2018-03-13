@@ -51,7 +51,6 @@ class IPRange(Range):
 
         if isinstance(start, IPNetwork):
             stop = IPAddress(start.last - 1)
-            #start = IPAddress(start.first + 1)  # First is the network
             start = start.ip
         else:
             start = IPAddress(start)
@@ -71,8 +70,7 @@ class IPRange(Range):
         if self.current > self.stop:
             raise StopIteration
         self.current += 1
-        #return ip
-        return str(ip)
+        return ip
     next = __next__
 
 

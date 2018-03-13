@@ -20,8 +20,9 @@ class ResourceItem(object):
     def key(self):
         return str(self.value)
 
-    def decode(self):
-        return self.value
+    @classmethod
+    def decode(cls, other):
+        return cls(other['value'])
 
     def encode(self):
         return dict(value=self.value)
@@ -77,12 +78,12 @@ class IPAddressResourceItem(NamedResourceItem):
     def __init__(self, address, name=None):
         if not isinstance(address, IPAddress):
             address = IPAddress(address)
-        self.ip = address
+        self.ip = str(address)
         super(IPAddressResourceItem, self).__init__(address, name)
 
     @property
     def key(self):
-        return str(self.ip)
+        return self.ip
 
     @classmethod
     def decode(cls, other):
@@ -91,15 +92,17 @@ class IPAddressResourceItem(NamedResourceItem):
         return i
 
     def encode(self):
-        return dict(name=self.name, ip=str(self.value), prefix=self.prefix)
+        return dict(name=self.name, ip=self.ip, prefix=self.prefix)
 
 
-class IPAddressPortResourceItem(IPAddressResourceItem):
+class IPAddressPortResourceItem(NamedResourceItem):
 
     def __init__(self, (address, port), name=None):
-        self.ip = address
-        self.port = port
-        super(IPAddressPortResourceItem, self).__init__(address, name)
+        if not isinstance(address, IPAddress):
+            address = IPAddress(address)
+        self.ip = str(address)
+        self.port = int(port)
+        super(IPAddressPortResourceItem, self).__init__((address, port), name)
 
     @property
     def key(self):
@@ -107,12 +110,12 @@ class IPAddressPortResourceItem(IPAddressResourceItem):
 
     @classmethod
     def decode(cls, other):
-        i = cls((other['ip'], other['port']), other.get('name'))
+        i = cls((other['ip'], int(other['port'])), other.get('name'))
         i.prefix = other.get('prefix', '')
         return i
 
     def encode(self):
-        return dict(name=self.name, ip=str(self.ip), port=int(self.port),
+        return dict(name=self.name, ip=self.ip, port=self.port,
                     prefix=self.prefix, key=self.key)
 
 
@@ -140,7 +143,7 @@ class MemberResourceItem(IPAddressPortResourceItem):
         return item
 
     def encode(self):
-        return dict(name=self.name, ip=str(self.ip), port=int(self.port),
+        return dict(name=self.name, ip=self.ip, port=self.port,
                     remote_dir=self.remote_dir, local_dir=self.local_dir,
                     docker=self.docker, prefix=self.prefix, key=self.key)
 
@@ -187,7 +190,8 @@ class ResourcePool(object):
 
     @property
     def local_items(self):
-        return {k: v for k, v in self.items.items() if k.startswith(self.prefix)}
+        return {k: v for k, v in self.items.items() if k.startswith(self.prefix)
+                                                    and isinstance(v, self.item_class)}
 
     def update_with(self, values):
         tmp = dict((x.prefix + x.name, x) for x in values)
@@ -195,16 +199,17 @@ class ResourcePool(object):
         self.items.update(tmp)
         self.values = set(x.key for x in self.items.values())
 
-    def get(self, name=None, prefix=None):
+    def get(self, name=None, prefix=None, iterable=None):
         s = self.values
         prefix = self.prefix + prefix if prefix else self.prefix
+        pool = iterable if iterable else iter(self.iterable)
 
         if name:
             key = prefix + name
-            if name and key in self.items:
+            if key in self.items:
                 return self.items[prefix + name]
 
-        for value in self.iterable:
+        for value in pool:
             item = self.item_class(value, name)
             item.prefix = prefix
             key = item.key
@@ -215,11 +220,11 @@ class ResourcePool(object):
         else:
             raise PoolExhausted(self.name)
 
-    def get_multi(self, num, name=None, prefix=None):
+    def get_multi(self, num, name=None, prefix=None, iterable=None):
         i = 0
         items = []
         s = self.values
-        pool = iter(self.iterable)
+        pool = iterable if iterable else iter(self.iterable)
         prefix = self.prefix + prefix if prefix else self.prefix
 
         while i < num:
