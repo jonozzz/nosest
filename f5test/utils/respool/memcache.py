@@ -161,44 +161,4 @@ class MemcachePool(object):
 
 
 if __name__ == '__main__':
-    from f5test.utils.respool.net import IpPortResourcePool, MemberResourcePool
-
-    print('Memcached IP/port pool on machine1:\n')
-    p = IpPortResourcePool('labenv1.vlan1.vips', '1.1.1.10')
-    p.prefix = 'machine1'
-    pool = MemcachePool(['localhost'], p, timeout=10)
-    i = pool.get('bip1')
-    print("Item by name:\n  %s\n" % pool.bip1)
-    pool.free(i)
-
-    pool.get_multi(2, name="vip_%d")
-    print("Multiple items by name:\n  %s %s\n" % (pool.vip_1.value, pool.vip_2))
-
-    i = pool.get()
-    pool.free(i)
-    print("Anonymous item:\n  %s\n\n" % i)
-
-    print('Memcached IP/port pool on machine2:')
-    p = IpPortResourcePool('labenv1.vlan1.vips', '1.1.1.10')
-    p.prefix = 'machine2'
-    pool = MemcachePool(['localhost'], p, timeout=10)
-    pool.sync()
-    i = pool.get('bip1')
-    pool.free_all()
-    print("Anonymous item:\n  %s\n" % i)
-
-    items = pool.get_multi(2000)
-    print("It's fairly scalable too:\n  %s\n" % items[-1])
-
-    print('Memcached member pool on machine2:')
-    p = MemberResourcePool('docker-1-members', '1.1.1.10', dockers=['docker-1', 'docker-2'])
-    #p.prefix = 'docker-1'
-    pool = MemcachePool(['localhost'], p, timeout=10)
-    pool.sync()
-    i = pool.get_multi(2, 'bip%d')
-    print("Anonymous item:\n  %s\n" % i[0].local_dir, i[1].docker)
-    i = pool.get('bip2')
-    print("Anonymous item:\n  %s\n" % i.local_dir, i.docker)
-    pool.free_all()
-
     print('Cool!')
