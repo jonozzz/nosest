@@ -47,7 +47,7 @@ class Grafana(ExtendedPlugin):
         if o:
             self.client = InfluxDBClient(o.host, o.port, o.user, o.password, o.db)
 
-    def setup_snmp(self, devices):
+    def setup_snmp_bigiq(self, devices):
         for device in devices:
             if device.kind != KIND_TMOS_BIGIQ:
                 continue
@@ -63,8 +63,8 @@ class Grafana(ExtendedPlugin):
             rstifc.api.post(SnmpV1V2cAccessRecords.URI, payload=payload)
 
     def startTest(self, test, blocking_context=None):
-        #if self.first_time:
-        #    self.setup_snmp(expand_devices(self.duts))
+        if self.first_time:
+            self.setup_snmp_bigiq(expand_devices(self.duts))
         self.first_time = False
 
     def graphite_start(self):
