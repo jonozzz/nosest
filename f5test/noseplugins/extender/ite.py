@@ -6,9 +6,11 @@ Created on Jan 25, 2018
 import logging
 import re
 
+from nose.failure import Failure
+
 from ...utils.convert import to_bool
 from . import ExtendedPlugin
-from nose.case import FunctionTestCase
+from nose.case import FunctionTestCase, Test
 from nose.plugins.attrib import AttributeSelector
 import os.path
 import sys
@@ -73,9 +75,9 @@ class ITE(ExtendedPlugin):
         return tokens
 
     def beforeTest(self, test):
-        if hasattr(test.test.descriptor, ITE_METADATA):
+        if not isinstance(test.test, Failure) and \
+                hasattr(test.test.descriptor, ITE_METADATA):
             os.chdir(os.path.dirname(test.test.descriptor.__file__))
-
 
     def loadTestsFromModule(self, module, path=None):
         if not os.path.isfile(path):
