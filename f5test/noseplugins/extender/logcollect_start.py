@@ -30,8 +30,6 @@ from nose.suite import ContextSuite
 import yaml
 
 from . import ExtendedPlugin
-from ...utils.stages import StageError
-from ...interfaces.config.core import CFG_SESSION
 
 LOG = logging.getLogger(__name__)
 STDOUT = logging.getLogger('stdout')
@@ -314,6 +312,7 @@ class LogCollect(ExtendedPlugin):
         self.setupLoghandler()
 
     def begin(self):
+        from ...interfaces.config.core import CFG_SESSION
         # setup our handler with root logger
         cfgifc = self.context.get_config()
         self.start()
@@ -375,6 +374,7 @@ class LogCollect(ExtendedPlugin):
         from ...interfaces.testcase import (InterfaceHelper,
                                             INTERFACES_CONTAINER,
                                             LOGCOLLECT_CONTAINER)
+        from ...utils.stages import StageError
         from ...base import Interface
 
         if context:
