@@ -35,7 +35,7 @@ class Respools(ExtendedPlugin):
     """
     Log when the session has started (after all plugins are configured).
     """
-    enabled = True
+    enabled = False
     score = 1000
 
     def configure(self, options, noseconfig):
