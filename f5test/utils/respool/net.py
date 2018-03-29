@@ -130,6 +130,8 @@ class LazyMemberResourcePool(MemberResourcePool):
                                          PortRange(*self.port_range))
             item = super(MemberResourcePool, self).get(name, prefix=prefix,
                                                        iterable=iterable)
+        else:
+            raise ValueError('ip_pool is required and has to be a list or tuple')
         item.set_remote_dir(self.remote_dir, **self.tokens)
         item.set_local_dir(self.local_dir, **self.tokens)
         item.docker = next(self.dockers)
@@ -145,6 +147,8 @@ class LazyMemberResourcePool(MemberResourcePool):
                                          PortRange(*self.port_range))
             items = super(MemberResourcePool, self).get_multi(num, name, prefix=prefix,
                                                               iterable=iterable)
+        else:
+            raise ValueError('ip_pool is required and has to be a list or tuple')
 
         for item in items:
             item.set_remote_dir(self.remote_dir, **self.tokens)
