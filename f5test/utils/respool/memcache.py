@@ -95,6 +95,12 @@ class MemcachePool(object):
             encode = self.encode
         return items if not encode else [x.encode() for x in items]
 
+    def gete(self, *args, **kwargs):
+        return self.get(*args, encode=True, **kwargs)
+
+    def get_multie(self, *args, **kwargs):
+        return self.get_multi(*args, encode=True, **kwargs)
+
     def free(self, item):
         pool = self.pool
         while True:
@@ -136,11 +142,11 @@ class MemcachePool(object):
     def sync(self):
         pool = self.pool
         while True:
-            self.mc.add(pool.name, pool.items)
+            self.mc.add(pool.name, pool.local_items)
             key_names, cas = self.mc.gets(pool.name)
             pool_ids = self.mc.get_multi(key_names or [])
             pool_ids = set(pool_ids)
-            for item in pool.items.values():
+            for item in pool.local_items.values():
                 key_name = self.item_key.format(pool.name, item.key)
                 self.mc.add(key_name, item, self.timeout)
                 pool_ids.add(key_name)
