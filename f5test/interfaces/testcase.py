@@ -337,7 +337,7 @@ class InterfaceTestCase(InterfaceHelper, TestCase):
         context = ContextHelper(name)
         # This is here for backwards compatibility
         cls.ih = context
-        cls.context = context
+        cls._context = context
 
     @classmethod
     def teardown_class(cls):
