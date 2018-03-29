@@ -27,7 +27,6 @@ class RespoolFactory(object):
 
     def get_memcached_pool(self, name, klass, *args, **kwargs):
         timeout = kwargs.pop('timeout', DEFAULT_TIMEOUT)
-        #prefix = self.prefix + kwargs.pop('prefix', '')
         if timeout is None:
             timeout = self.memcache_specs.timeout
         pool = self.pools[name] = MemcachePool(self.memcache_specs.servers,

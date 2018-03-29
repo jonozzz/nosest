@@ -388,6 +388,13 @@ class ConfigInterface(Interface):
             self.config[CFG_SESSION] = Session(self.config)
         return self.config[CFG_SESSION]
 
+    def get_respool(self, name):
+        pools = self.get_session().get_respool_handler().pools
+        pool = pools.get(name)
+        if hasattr(pool, 'sync'):
+            pool.sync()
+        return pool
+
     def get_respools(self):
         pools = self.get_session().get_respool_handler().pools
         for pool in pools.values():
