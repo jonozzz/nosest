@@ -53,7 +53,7 @@ from f5test.noseplugins.extender.report import nose_selector, test_address
 from f5test.noseplugins.extender.ite import ITE_METADATA
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FIXTURES_DIR = '.fixtures'
+FIXTURES_DIR = '.playbooks'
 HOST_VARS = 'vars'
 GROUP_VARS = 'group_vars'
 VAR_F5TEST_CONFIG = 'f5test_config'
