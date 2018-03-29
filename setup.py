@@ -45,7 +45,16 @@ addl_args = dict(
             'testopia = f5test.noseplugins.testopia:Testopia',
 #            'repeat = f5test.noseplugins.repeat:Repeat',
             'extender = f5test.noseplugins.extender:Extender',
-            ]
+            ],
+        'pytest11': [
+            'tcconfig = f5test.pytestplugins.config',
+            'email = f5test.pytestplugins.email',
+            'ite = f5test.pytestplugins.ite',
+            'ansible = f5test.pytestplugins.ansible',
+            'report = f5test.pytestplugins.report',
+            'respool = f5test.pytestplugins.respool',
+            'sidebyside = f5test.pytestplugins.side_by_side'
+        ]
     },
 )
 
