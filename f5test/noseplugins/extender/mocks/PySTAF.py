@@ -34,7 +34,8 @@ class STAFHandle(object):
                     'apache/docroots': '/ite-http/7980', 'name/vip2/vip': '10.22.40.1:20902',
                     'name/vip4/vip': '10.22.40.1:20171', 'name/vip3/vip': '10.22.40.1:20486',
                     'name/vip1/vip': '10.22.40.1:20007', 'name/member1/member': '10.22.3.1:20897',
-                    'name/doc/docroot': '/ite-http/7980'}
+                    'name/doc/docroot': '/ite-http/7980',
+                    'f5ite/sleuth/sleuth_dut_platform': 'Z101'}
 
     _system_vars = {'staf/env/staf_instance_name': 'STAF', 'staf/env/pwd': '/',
                     'staf/env/qtlib': '/usr/lib64/qt-3.3/lib', 'staf/env/shell': '/bin/bash',
@@ -221,9 +222,12 @@ class STAFHandle(object):
         rr = self.cfgifc.get_ranges()
         self.pools = self.cfgifc.get_respools()
         self.value_to_item = {}
+        count = 0
         for device in self.cfgifc.get_devices(KIND_TMOS_BIGIP):
-            #f5ite/bigip.1/mgmt/ip
+            count += 1
             self._handle_vars['f5ite/{}.{}/mgmt/ip'.format(*device.alias.split('-'))] = device.address
+
+        self._handle_vars['f5ite/bigip/count'] = count
 
     def _update_respool(self):
         rp = self.cfgifc.get_respools()
@@ -254,12 +258,16 @@ class STAFHandle(object):
         LOG.debug('STAF request: %s %s %s', request, service, location)
         if request.startswith('list handles'):
             # result.result = [{'handle': 666}]
-            result.result = [{'handle': 0}]
+            result.result = [{'handle': -1}]
             # result.result = []
         elif request.startswith('get shared var'):
             var = request.rsplit()[-1].lower()
             var = var.rsplit(':', 1)[-1]
             result.result = self._shared_vars.get(var, '')
+        elif request.startswith('get handle -1 var'):
+            var = request.rsplit()[-1].lower()
+            var = var.rsplit(':', 1)[-1]
+            result.result = self._handle_vars.get(var, '')
         elif request.startswith('list shared'):
             result.result = self._shared_vars
         elif request.startswith('list system'):
