@@ -70,10 +70,11 @@ class Plugin(object):
 
     @pytest.fixture(scope='session')
     def respool(self, request):
-        cfgifc = self.context.get_config()
+        sself = request.config.pluginmanager.get_plugin('respool-plugin')
+        cfgifc = sself.context.get_config()
         factory = cfgifc.get_session().get_respool_handler()
 
-        pools = self.options.get('pools', [])
+        pools = sself.options.get('pools', [])
         for pool in pools:
             name, specs = pool.popitem()
             klass = getattr(PoolResourceTypes, specs.get('type', 'ip'))

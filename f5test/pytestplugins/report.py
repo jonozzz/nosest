@@ -1,13 +1,18 @@
 '''
 Created on Mar 29, 2018
 
+Depends on pytest-json-report
+
 @author: jono
 '''
 
 
 def mark_to_str(marker):
     if marker.args:
-        return {marker.name: marker.args[0]}
+        if len(marker.args) == 1:
+            return {marker.name: marker.args[0]}
+        else:
+            return {marker.name: marker.args}
     else:
         return {marker.name: True}
 
@@ -20,7 +25,6 @@ def get_markers(item):
                 yield mark_to_str(marker)
 
 
-def pytest_runtest_call(item):
-    markers = list(get_markers(item))
-    if hasattr(item.config, '_json'):
-        item.config._json.nodes[item.nodeid]['markers'] = markers
+def pytest_json_modifytest(item, call, test):
+    if call.when == 'setup':
+        test['markers'] = list(get_markers(item))

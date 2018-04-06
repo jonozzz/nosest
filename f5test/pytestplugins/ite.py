@@ -3,6 +3,7 @@ Created on Mar 29, 2018
 
 @author: jono
 '''
+from __future__ import absolute_import
 import pytest
 from ..utils.convert import to_bool
 import logging
@@ -11,8 +12,7 @@ import os
 import sys
 
 
-logging.getLogger("paramiko").setLevel(logging.WARNING)
-logging.getLogger("selenium").setLevel(logging.WARNING)
+LOG = logging.getLogger(__name__)
 
 
 def mdparse(source):
@@ -49,7 +49,7 @@ class IteItem(pytest.Function):
             self.add_marker(mark)
 
         self.add_marker(getattr(pytest.allure, 'label')('suite', 'ITE'))
-        self.reporter = self.config.pluginmanager.get_plugin('terminalreporter')
+        #self.reporter = self.config.pluginmanager.get_plugin('terminalreporter')
 
     def runtest(self):
         g = globals()
@@ -64,7 +64,8 @@ class IteItem(pytest.Function):
                     os.setegid(0)
                     os.seteuid(0)
                 else:
-                    self.reporter.write_line('You need to run `pytest` the as root or else it will fail.')
+                    #self.reporter.write_line('You need to run `pytest` the as root or else it will fail.')
+                    LOG.warn('ITE test "%s" requires root!', self.nodeid)
 
             exec (compile(self.source, self.fspath.strpath, 'exec'), g)
         except SystemExit as e:

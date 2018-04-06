@@ -16,6 +16,41 @@ import os
 import sys
 
 
+def __run_ansible_playbooks(request, source=None):
+    # vip = respool.vips.get()
+    if source:
+        basename = '__init__'
+        basedir = os.path.dirname(source)
+    else:
+        basename = request.fspath.purebasename
+        basedir = request.fspath.dirname
+    playbook = os.path.join(basedir, FIXTURES_DIR, os.path.extsep.join(
+        [basename, 'yaml']))
+    plugin = request.config.pluginmanager.get_plugin('ansible-plugin')
+    if plugin and os.path.isfile(playbook):
+        print('Running module playbook=%s setup...' % (playbook,))
+        result = run_playbooks(playbook, tags=['setup'], context=request,
+                               options=plugin.options)
+        if result.rc:
+            raise AnsibleError(result)
+
+    yield
+
+    if plugin and os.path.isfile(playbook):
+        print('Running module playbook=%s teardown...' % (playbook,))
+        result = run_playbooks(playbook, tags=['teardown'], context=request,
+                               options=plugin.options)
+        if result.rc:
+            raise AnsibleError(result)
+
+
+@pytest.fixture(scope='module', autouse=True)
+def __module_ansible_playbooks(request):
+    from f5test.pytestplugins.ansible import __run_ansible_playbooks
+    for item in __run_ansible_playbooks(request):
+        yield item
+
+
 class AnsibleError(Exception):
 
     def __init__(self, result):
@@ -52,45 +87,28 @@ class Plugin(object):
         else:
             self.enabled = False
 
-    # def pytest_addoption(self, parser):
-    #     parser.addoption('--no-ansible', action='store_true',
-    #                      dest='no_ansible',
-    #                      help='look for ansible playbooks')
-
-    # def pytest_collection_modifyitems(self, session, config, items):
+    # @pytest.fixture(scope='module', autouse=True)
+    # def __look_for_ansible(self, request, respool):
+    #     #vip = respool.vips.get()
+    #     basename = request.fspath.purebasename
+    #     basedir = request.fspath.dirname
+    #     playbook = os.path.join(basedir, FIXTURES_DIR, os.path.extsep.join(
+    #         [basename, 'yaml']))
+    #     if os.path.isfile(playbook):
+    #         print('Running module playbook=%s setup...' % (playbook,))
+    #         result = run_playbooks(playbook, tags=['setup'], context=request,
+    #                                options=self.options)
+    #         if result.rc:
+    #             raise AnsibleError(result)
     #
-    #     def dummy_setup():
-    #         print "ansible module setup"
+    #     yield
     #
-    #     def dummy_teardown():
-    #         print "ansible module teardown"
-    #
-    #     for item in items:
-    #         item.parent.module.setup_module = dummy_setup
-    #         item.parent.module.teardown_module = dummy_teardown
-
-    @pytest.fixture(scope='module', autouse=True)
-    def __look_for_ansible(self, request, respool):
-        #vip = respool.vips.get()
-        basename = request.fspath.purebasename
-        basedir = request.fspath.dirname
-        playbook = os.path.join(basedir, FIXTURES_DIR, os.path.extsep.join(
-            [basename, 'yaml']))
-        if os.path.isfile(playbook):
-            print('Running module playbook=%s setup...' % (playbook,))
-            result = run_playbooks(playbook, tags=['setup'], context=request,
-                                   options=self.options)
-            if result.rc:
-                raise AnsibleError(result)
-
-        yield
-
-        if os.path.isfile(playbook):
-            print('Running module playbook=%s teardown...' % (playbook,))
-            result = run_playbooks(playbook, tags=['teardown'], context=request,
-                                   options=self.options)
-            if result.rc:
-                raise AnsibleError(result)
+    #     if os.path.isfile(playbook):
+    #         print('Running module playbook=%s teardown...' % (playbook,))
+    #         result = run_playbooks(playbook, tags=['teardown'], context=request,
+    #                                options=self.options)
+    #         if result.rc:
+    #             raise AnsibleError(result)
 
         #respool.vips.free(vip)
 

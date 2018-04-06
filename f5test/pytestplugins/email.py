@@ -1,6 +1,8 @@
 '''
 Created on Mar 29, 2018
 
+Depends on pytest-json-report
+
 @author: jono
 '''
 from __future__ import absolute_import
@@ -16,14 +18,15 @@ import pytest
 
 import jinja2
 
+from ..interfaces import ContextHelper
+import f5test.commands.icontrol as ICMD
+from ..utils import Version
 from ..base import AttrDict
 from ..utils.progress_bar import ProgressBar
-#from . import ExtendedPlugin, PLUGIN_NAME
-#from allure_pytest.utils import pytest_markers as get_markers
 
 
 LOG = logging.getLogger(__name__)
-DEFAULT_FROM = 'em-selenium@f5.com'
+DEFAULT_FROM = 'pytest-results@f5.com'
 DEFAULT_SUBJECT = 'Test Run'
 MAIL_HOST = 'mail'
 DUMP_EMAIL_FILENAME = 'email.html'
@@ -72,27 +75,10 @@ def customfilter_product(duts, product='bigip'):
     return result
 
 
-def mark_to_str(marker):
-    if marker.args:
-        return {marker.name: marker.args[0]}
-    else:
-        return {marker.name: True}
-
-def get_markers(item):
-    for keyword in item.keywords.keys():
-        if not any((keyword == 'parametrize',)):
-            marker = item.get_marker(keyword)
-            if marker:
-                yield mark_to_str(marker)
-
-
 class EmailPlugin(object):
     """
     Send email report.
     """
-    enabled = True
-    score = 475  # Right after DutSystemStatsGraphs executes
-
     def __init__(self, config):
         self.config = config
         if hasattr(config, '_tc'):
@@ -100,13 +86,33 @@ class EmailPlugin(object):
             self.enabled = self.options.enabled
         else:
             self.enabled = False
-        self.markers = {}
+        self.context = ContextHelper()
 
     def options(self, parser, env):
         """Register commandline options."""
         parser.add_option('--with-email', action='store_true',
                           dest='with_email', default=False,
                           help="Enable Email reporting. (default: no)")
+
+    def duts_details(self):
+        #self.data.duts = []
+        #d = self.data.duts
+        for device in self.context.get_config().get_devices():
+            info = AttrDict()
+            info.device = device
+            try:
+                info.platform = ICMD.system.get_platform(device=device)
+                info.version = ICMD.system.get_version(device=device)
+                v = ICMD.system.parse_version_file(device=device)
+                info.project = v.get('project')
+                info.edition = v.get('edition', '')
+            except Exception as e:
+                LOG.error("%s: %s", type(e), e)
+                info.version = Version()
+                info.platform = ''
+            #if device.is_default():
+            #    self.data.dut = info
+            yield info
 
     def make_bars(self):
         assert self.data.result is not None
@@ -187,7 +193,7 @@ class EmailPlugin(object):
             env.filters['product'] = customfilter_product
 
             template_subject = env.get_template('email_subject.tmpl')
-            headers['Subject'] = template_subject.render(dict(data=data), spec=spec)
+            headers['Subject'] = template_subject.render(data=data, spec=spec)
             headers['To'] = list(recipients)
 
             #if int(self.data.result.bars.good_no_skips.percent_done) == 0:
@@ -213,32 +219,18 @@ class EmailPlugin(object):
             with open(os.path.join(path, DUMP_EMAIL_FILENAME), 'wt') as f:
                 f.write(email.text.encode('utf-8'))
 
-    @pytest.hookimpl(trylast=True)
-    def pytest_runtest_logreport(self, report):
-        """ Add pytest markers to json report, after json created the node """
+    def pytest_json_modifyreport(self, json_report):
         if self.enabled is False:
             return
 
-        if report.when == 'setup':
-            self.config._json.nodes[report.nodeid]['markers'] = self.markers[report.nodeid]
+        json_report['environment']['duts'] = list(self.duts_details())
+        for dut in json_report['environment']['duts']:
+            if dut.device.is_default():
+                json_report['environment']['dut'] = dut
 
-    def pytest_runtest_protocol(self, item, nextitem):
-        """ Collect markers locally """
-        if self.enabled is False:
-            return
-
-        markers = list(get_markers(item))
-        self.markers.update(
-            {item.nodeid: markers}
-        )
-
-    def pytest_sessionfinish(self, session, exitstatus):
-        if self.enabled is False:
-            return
-
+        json_report['environment']['config'] = self.context.get_config().api
         mail_host = self.options.get('server', MAIL_HOST)
-        data = session.config._json
-        emails = self.compile_emails(data)
+        emails = self.compile_emails(json_report)
 
         server = None
         try:

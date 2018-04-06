@@ -53,7 +53,8 @@ addl_args = dict(
             'ansible = f5test.pytestplugins.ansible',
             'report = f5test.pytestplugins.report',
             'respool = f5test.pytestplugins.respool',
-            'sidebyside = f5test.pytestplugins.side_by_side'
+            'sidebyside = f5test.pytestplugins.side_by_side',
+            'logging2 = f5test.pytestplugins.logging'
         ]
     },
 )
