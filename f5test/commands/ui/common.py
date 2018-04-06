@@ -207,6 +207,7 @@ class ScreenShot(SeleniumCommand): #@IgnorePep8
         self.window = window
 
     def setup(self):
+        ret = []
         b = self.api
         if self.window is not None:
             b.switch_to_window(self.window)
@@ -214,6 +215,7 @@ class ScreenShot(SeleniumCommand): #@IgnorePep8
         filename = os.path.join(self.dir, '%s.png' % self.name)
         if b.get_screenshot_as_file(filename):
             LOG.debug('Screenshot dumped to: %s' % filename)
+            ret.append(filename)
 
         try:
             filename = os.path.join(self.dir, '%s.html' % self.name)
@@ -230,8 +232,48 @@ class ScreenShot(SeleniumCommand): #@IgnorePep8
             # Save the page source encoded as UTF-8
             with codecs.open(filename, "w", 'utf-8-sig') as f:
                 f.write(src)
+            ret.append(filename)
         except IOError, e:
             LOG.error('I/O error dumping source: %s', e)
+        return ret
+
+
+screen_shot2 = None
+class ScreenShot2(SeleniumCommand): #@IgnorePep8
+    """Take a screenshot capture the page source returning both as strings.
+
+    :param window: Window name (or tab, for example when browser has multiple tabs open).
+    :type window: str
+
+    :return Screenshot as a PNG string and the HTML page (top frame, no iframes)
+    :rtype list
+    """
+    def __init__(self, window=None, *args, **kwargs):  # @ReservedAssignment
+        super(ScreenShot2, self).__init__(*args, **kwargs)
+        self.window = window
+
+    def setup(self):
+        ret = []
+        b = self.api
+        if self.window is not None:
+            b.switch_to_window(self.window)
+
+        ret.append(b.get_screenshot_as_png())
+
+        try:
+            src = b.page_source
+            src = re.sub('<head>', '<HEAD><BASE href="%s"/>' % b.current_url,
+                         src, flags=re.IGNORECASE)
+
+            # Prevent javascript from being executed when the saved page is loaded.
+            src = re.sub('/xui/common/scripts/api.js', '', src)
+            src = re.sub(re.escape('$(document).ready( startup );'), '', src)
+            src = re.sub('<script.*</script>', '', src, flags=re.IGNORECASE)
+
+            ret.append(src.encode('utf-8'))
+        except IOError as e:
+            LOG.error('I/O error dumping source: %s', e)
+        return ret
 
 
 logout = None
