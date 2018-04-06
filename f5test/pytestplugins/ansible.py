@@ -5,19 +5,12 @@ Created on Mar 29, 2018
 '''
 
 import pytest
-from _pytest.python import PyobjMixin
-from ..interfaces.config import ConfigLoader, ConfigInterface
-from ..interfaces.testcase import ContextHelper
 from ..utils.convert import to_bool
 from ..utils.ansible import run_playbooks, FIXTURES_DIR
-import logging
-import re
 import os
-import sys
 
 
 def __run_ansible_playbooks(request, source=None):
-    # vip = respool.vips.get()
     if source:
         basename = '__init__'
         basedir = os.path.dirname(source)
@@ -83,7 +76,7 @@ class Plugin(object):
         self.config = config
         if hasattr(config, '_tc'):
             self.options = config._tc.plugins.ansible
-            self.enabled = to_bool(self.options.enabled)
+            self.enabled = to_bool(self.options and self.options.enabled)
         else:
             self.enabled = False
 

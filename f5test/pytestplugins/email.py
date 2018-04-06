@@ -20,16 +20,44 @@ import jinja2
 
 from ..interfaces import ContextHelper
 import f5test.commands.icontrol as ICMD
-from ..utils import Version
 from ..base import AttrDict
+from ..utils import Version
+from ..interfaces.config import DeviceAccess
 from ..utils.progress_bar import ProgressBar
-
 
 LOG = logging.getLogger(__name__)
 DEFAULT_FROM = 'pytest-results@f5.com'
 DEFAULT_SUBJECT = 'Test Run'
 MAIL_HOST = 'mail'
 DUMP_EMAIL_FILENAME = 'email.html'
+
+ROLE_NAMES = {0: 'ADMIN_ROLE', 1: 'ROOT_ROLE', 2: 'DEFAULT_ROLE'}
+
+
+def encode(obj):
+    """Transform some of the useful objects into JSON serializable types"""
+    ret = AttrDict()
+    if isinstance(obj, Version):
+        ret.version = obj.version
+        ret.build = obj.build
+        ret.product = obj.product.to_tmos
+
+    elif isinstance(obj, DeviceAccess):
+        ret.address = obj.address
+        ret.alias = obj.alias
+        ret.ports = obj.ports
+        ret.credentials = AttrDict()
+        for role, level_cred in obj.credentials.items():
+            role = ROLE_NAMES[role]
+            ret.credentials[role] = AttrDict()
+            for level, cred in level_cred.items():
+                ret.credentials[role][level] = AttrDict(username=cred.username,
+                                                        password=cred.password)
+        ret.is_default = obj.is_default()
+        ret.hostname = obj.hostname
+        ret.discovery_address = obj.get_discover_address()
+
+    return ret
 
 
 def pytest_configure(config):
@@ -95,23 +123,19 @@ class EmailPlugin(object):
                           help="Enable Email reporting. (default: no)")
 
     def duts_details(self):
-        #self.data.duts = []
-        #d = self.data.duts
         for device in self.context.get_config().get_devices():
             info = AttrDict()
-            info.device = device
+            info.device = encode(device)
             try:
                 info.platform = ICMD.system.get_platform(device=device)
-                info.version = ICMD.system.get_version(device=device)
+                info.version = encode(ICMD.system.get_version(device=device))
                 v = ICMD.system.parse_version_file(device=device)
                 info.project = v.get('project')
                 info.edition = v.get('edition', '')
             except Exception as e:
                 LOG.error("%s: %s", type(e), e)
-                info.version = Version()
+                info.version = encode(Version())
                 info.platform = ''
-            #if device.is_default():
-            #    self.data.dut = info
             yield info
 
     def make_bars(self):
@@ -225,7 +249,7 @@ class EmailPlugin(object):
 
         json_report['environment']['duts'] = list(self.duts_details())
         for dut in json_report['environment']['duts']:
-            if dut.device.is_default():
+            if dut.device.is_default:
                 json_report['environment']['dut'] = dut
 
         json_report['environment']['config'] = self.context.get_config().api

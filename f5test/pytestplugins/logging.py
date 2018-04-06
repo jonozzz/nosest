@@ -18,11 +18,6 @@ class Plugin(object):
     """
     def __init__(self, config):
         self.config = config
-        if hasattr(config, '_tc'):
-            self.options = config._tc.plugins.ansible
-            self.enabled = to_bool(self.options.enabled)
-        else:
-            self.enabled = False
         self.handler = None
 
     def pytest_sessionstart(self, session):
