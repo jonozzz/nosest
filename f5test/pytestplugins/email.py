@@ -248,12 +248,13 @@ class EmailPlugin(object):
         if self.enabled is False:
             return
 
+        cfgifc = self.context.get_config()
         json_report['environment']['duts'] = list(self.duts_details())
         for dut in json_report['environment']['duts']:
             if dut.device.is_default:
                 json_report['environment']['dut'] = dut
 
-        json_report['environment']['config'] = self.context.get_config().api
+        json_report['environment']['config'] = cfgifc.api
         mail_host = self.options.get('server', MAIL_HOST)
         emails = self.compile_emails(json_report)
 
