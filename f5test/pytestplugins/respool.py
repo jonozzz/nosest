@@ -5,6 +5,7 @@ from ..utils.respool.net import (RangeResourcePool, ResourcePool,
                                   MemberResourcePool, LazyMemberResourcePool)
 from ..utils.respool.range import PortRange, IPPortRange, IPRange
 from ..utils.convert import to_bool
+from ..base import AttrDict
 
 
 class PoolResourceTypes(object):
@@ -29,7 +30,7 @@ class Plugin(object):
     def __init__(self, config):
         self.config = config
         if hasattr(config, '_tc'):
-            self.options = config._tc.plugins.respool
+            self.options = config._tc.plugins.respool or AttrDict()
             self.enabled = to_bool(self.options.enabled)
         else:
             self.enabled = False

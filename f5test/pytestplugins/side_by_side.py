@@ -5,6 +5,8 @@ Created on Mar 28, 2018
 '''
 import sys
 import os
+from ..utils.convert import to_bool
+from ..base import AttrDict
 
 PATH = None
 SITE_PACKAGES = 'lib/python2.7/site-packages'
@@ -52,8 +54,8 @@ class Plugin(object):
     def __init__(self, config):
         self.config = config
         if hasattr(config, '_tc'):
-            self.options = config._tc.plugins.sidebyside
-            self.enabled = self.options.enabled
+            self.options = config._tc.plugins.sidebyside or AttrDict()
+            self.enabled = to_bool(self.options.enabled)
         else:
             self.enabled = False
 

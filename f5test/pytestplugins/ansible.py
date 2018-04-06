@@ -6,6 +6,7 @@ Created on Mar 29, 2018
 
 import pytest
 from ..utils.convert import to_bool
+from ..base import AttrDict
 from ..utils.ansible import run_playbooks, FIXTURES_DIR
 import os
 
@@ -75,8 +76,8 @@ class Plugin(object):
     def __init__(self, config):
         self.config = config
         if hasattr(config, '_tc'):
-            self.options = config._tc.plugins.ansible
-            self.enabled = to_bool(self.options and self.options.enabled)
+            self.options = config._tc.plugins.ansible or AttrDict()
+            self.enabled = to_bool(self.options.enabled)
         else:
             self.enabled = False
 

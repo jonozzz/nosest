@@ -6,6 +6,7 @@ Created on Mar 29, 2018
 from __future__ import absolute_import
 import pytest
 from ..utils.convert import to_bool
+from ..base import AttrDict
 import logging
 import re
 import os
@@ -87,8 +88,8 @@ class ItePlugin(object):
     def __init__(self, config):
         self.config = config
         if hasattr(config, '_tc'):
-            self.options = config._tc.plugins.ite
-            self.enabled = self.options.enabled
+            self.options = config._tc.plugins.ite or AttrDict()
+            self.enabled = to_bool(self.options.enabled)
         else:
             self.enabled = False
         self.markers = {}

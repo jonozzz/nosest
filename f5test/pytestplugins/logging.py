@@ -5,7 +5,6 @@ Created on Mar 29, 2018
 '''
 from __future__ import absolute_import
 import pytest
-from ..utils.convert import to_bool
 import logging
 
 logging.getLogger("paramiko").setLevel(logging.WARNING)

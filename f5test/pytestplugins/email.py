@@ -21,6 +21,7 @@ import jinja2
 from ..interfaces import ContextHelper
 import f5test.commands.icontrol as ICMD
 from ..base import AttrDict
+from ..utils.convert import to_bool
 from ..utils import Version
 from ..interfaces.config import DeviceAccess
 from ..utils.progress_bar import ProgressBar
@@ -110,8 +111,8 @@ class EmailPlugin(object):
     def __init__(self, config):
         self.config = config
         if hasattr(config, '_tc'):
-            self.options = config._tc.plugins.email
-            self.enabled = self.options.enabled
+            self.options = config._tc.plugins.email or AttrDict()
+            self.enabled = to_bool(self.options.enabled)
         else:
             self.enabled = False
         self.context = ContextHelper()

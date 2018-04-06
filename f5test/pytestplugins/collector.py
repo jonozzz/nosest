@@ -17,11 +17,6 @@ class Plugin(object):
 
     def __init__(self, config):
         self.config = config
-        if hasattr(config, '_tc'):
-            self.options = config._tc.plugins.sidebyside
-            self.enabled = self.options.enabled
-        else:
-            self.enabled = False
 
     def try_screenshots(self, interface):
         if isinstance(interface, SeleniumInterface):
