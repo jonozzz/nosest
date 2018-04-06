@@ -100,8 +100,7 @@ class EMDiscocveryStage(Stage, Macro):
                         summary += "%(access_address)s: " \
                                    "%(discovery_status)s - %(discovery_status_message)s\n" % detail
 
-                assert (task['status'] == 'complete' and
-                        task['error_count'] == 0), \
+                assert task['status'] == 'complete' and task['error_count'] == 0, \
                         'Discovery failed: [{0}] {1}'.format(task.status, summary)
 
                 # Look for impaired devices after discovery.
