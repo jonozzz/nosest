@@ -279,6 +279,10 @@ class ConfigInterface(Interface):
         self.api = self.get_config()
         return self.api
 
+    def copy(self):
+        config = dict((k, v) for k, v in self.api.items() if k != CFG_SESSION)
+        return config
+
     def get_default_key(self, collection):
         if not collection:
             return

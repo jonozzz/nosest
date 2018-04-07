@@ -253,8 +253,11 @@ class EmailPlugin(object):
         for dut in json_report['environment']['duts']:
             if dut.device.is_default:
                 json_report['environment']['dut'] = dut
+                break
+        else:
+            raise ValueError('No default DUT found')
 
-        json_report['environment']['config'] = cfgifc.api
+        json_report['environment']['config'] = cfgifc.copy()
         mail_host = self.options.get('server', MAIL_HOST)
         emails = self.compile_emails(json_report)
 
