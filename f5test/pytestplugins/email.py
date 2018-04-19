@@ -62,6 +62,9 @@ def encode(obj):
 
 
 def pytest_configure(config):
+    # Enable this hook only if json_report plugin is enabled too.
+    if config.option.json_report:
+        EmailPlugin.pytest_json_modifyreport = EmailPlugin.X_pytest_json_modifyreport
     config.pluginmanager.register(EmailPlugin(config), 'email-plugin')
 
 
@@ -244,7 +247,7 @@ class EmailPlugin(object):
             with open(os.path.join(path, DUMP_EMAIL_FILENAME), 'wt') as f:
                 f.write(email.text.encode('utf-8'))
 
-    def pytest_json_modifyreport(self, json_report):
+    def X_pytest_json_modifyreport(self, json_report):
         if self.enabled is False:
             return
 

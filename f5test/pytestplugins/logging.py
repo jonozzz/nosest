@@ -22,9 +22,12 @@ class Plugin(object):
     def pytest_sessionstart(self, session):
         reporter = session.config.pluginmanager.get_plugin('logging-plugin')
         formatter = reporter.formatter
-        level = reporter.log_file_level
-        handler = reporter.log_file_handler
+        level = getattr(reporter, 'log_file_level', None)
+        handler = getattr(reporter, 'log_file_handler')
         root_logger = logging.getLogger()
+
+        if handler is None:
+            return
 
         if formatter is not None:
             handler.setFormatter(formatter)

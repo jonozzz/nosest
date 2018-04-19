@@ -50,7 +50,6 @@ class IteItem(pytest.Function):
             self.add_marker(mark)
 
         self.add_marker(getattr(pytest.allure, 'label')('suite', 'ITE'))
-        #self.reporter = self.config.pluginmanager.get_plugin('terminalreporter')
 
     def runtest(self):
         g = globals()
@@ -65,7 +64,6 @@ class IteItem(pytest.Function):
                     os.setegid(0)
                     os.seteuid(0)
                 else:
-                    #self.reporter.write_line('You need to run `pytest` the as root or else it will fail.')
                     LOG.warn('ITE test "%s" requires root!', self.nodeid)
 
             exec (compile(self.source, self.fspath.strpath, 'exec'), g)
@@ -94,14 +92,6 @@ class ItePlugin(object):
             self.enabled = False
         self.markers = {}
 
-    # def pytest_addoption(self, parser):
-    #     parser.addoption(
-    #         '--with-ite',
-    #         action='store_true',
-    #         default=False,
-    #         type=bool,
-    #         help='look for ITE tests')
-
     def pytest_sessionstart(self, session):
         if self.enabled is False:
             return
@@ -122,9 +112,6 @@ class ItePlugin(object):
         with open(path.strpath) as f:
             if mdparse(f.read()):
                 return IteFile(path, parent)
-
-        module = pytest.Module(path, parent)
-        return module
 
 
 def pytest_configure(config):

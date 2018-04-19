@@ -25,6 +25,15 @@ def get_markers(item):
                 yield mark_to_str(marker)
 
 
-def pytest_json_modifytest(item, call, test):
-    if call.when == 'setup':
-        test['markers'] = list(get_markers(item))
+def pytest_configure(config):
+    # Enable this hook only if json_report plugin is enabled too.
+    if config.option.json_report:
+        Plugin.pytest_json_modifytest = Plugin.X_pytest_json_modifytest
+    config.pluginmanager.register(Plugin(), 'report-plugin')
+
+
+class Plugin(object):
+
+    def X_pytest_json_modifytest(self, item, call, test):
+        if call.when == 'setup':
+            test['markers'] = list(get_markers(item))
