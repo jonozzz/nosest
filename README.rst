@@ -33,6 +33,41 @@ VirtualEnv Installation (Ubuntu)
   sudo apt-get install curl ansible
   ansible-playbook -Ke venv_name=ansible-test -e first_time=true bootstrap_py2.yaml
 
+Quick Start
+===========
+Create a config:
+
+.. code-block:: yaml
+
+    # content of example.yaml
+    devices:
+      bigip-1:
+        default: true
+        kind: tmos:bigip
+        address: 10.144.10.196
+
+Create a test:
+
+.. code-block:: python
+
+    # content of hello.py
+    def test(context):
+        sshifc = context.get_ssh()
+        print(sshifc.api.run('echo hello world!').stdout)
+
+Run pytest::
+
+    $ pytest --tc example.yaml hello.py
+    ====================== test session starts =======================
+    platform linux2 -- Python 2.7.12, pytest-3.5.1.dev114+gdc90c91, py-1.5.3, pluggy-0.6.0
+    rootdir: /home/lab/.virtualenvs/ansible-testX, inifile:
+    plugins: metadata-1.7.0, json-report-0.7.0, f5-sdk-3.0.14, f5test-1.0.0
+    collected 1 item
+
+    hello.py .                                                 [100%]
+
+    ==================== 1 passed in 2.72 seconds ====================
+
 License
 =======
 
