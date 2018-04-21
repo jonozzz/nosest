@@ -21,7 +21,7 @@ def __run_ansible_playbooks(request, source=None):
     playbook = os.path.join(basedir, FIXTURES_DIR, os.path.extsep.join(
         [basename, 'yaml']))
     plugin = request.config.pluginmanager.get_plugin('ansible-plugin')
-    if plugin and os.path.isfile(playbook):
+    if plugin.enabled and os.path.isfile(playbook):
         print('Running module playbook=%s setup...' % (playbook,))
         result = run_playbooks(playbook, tags=['setup'], context=request,
                                options=plugin.options)
@@ -30,7 +30,7 @@ def __run_ansible_playbooks(request, source=None):
 
     yield
 
-    if plugin and os.path.isfile(playbook):
+    if plugin.enabled and os.path.isfile(playbook):
         print('Running module playbook=%s teardown...' % (playbook,))
         result = run_playbooks(playbook, tags=['teardown'], context=request,
                                options=plugin.options)
@@ -75,7 +75,7 @@ class Plugin(object):
     """
     def __init__(self, config):
         self.config = config
-        if hasattr(config, '_tc'):
+        if hasattr(config, '_tc') and config._tc.plugins:
             self.options = config._tc.plugins.ansible or AttrDict()
             self.enabled = to_bool(self.options.enabled)
         else:
@@ -107,11 +107,5 @@ class Plugin(object):
         #respool.vips.free(vip)
 
 
-def pytest_addoption(parser):
-    parser.addoption('--no-ansible', action='store_true',
-                     help='look for ansible playbooks')
-
-
 def pytest_configure(config):
-    if not config.option.no_ansible:
-        config.pluginmanager.register(Plugin(config), 'ansible-plugin')
+    config.pluginmanager.register(Plugin(config), 'ansible-plugin')

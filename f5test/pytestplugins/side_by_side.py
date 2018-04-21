@@ -53,7 +53,7 @@ class Plugin(object):
 
     def __init__(self, config):
         self.config = config
-        if hasattr(config, '_tc'):
+        if hasattr(config, '_tc') and config._tc.plugins:
             self.options = config._tc.plugins.sidebyside or AttrDict()
             self.enabled = to_bool(self.options.enabled)
         else:
