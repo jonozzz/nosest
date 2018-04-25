@@ -55,7 +55,8 @@ addl_args = dict(
             'respool = f5test.pytestplugins.respool',
             'sidebyside = f5test.pytestplugins.side_by_side',
             'logging2 = f5test.pytestplugins.logging',
-            'collector = f5test.pytestplugins.collector'
+            'collector = f5test.pytestplugins.collector',
+            'allure = f5test.pytestplugins.allure'
         ]
     },
 )

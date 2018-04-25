@@ -23,6 +23,7 @@ import f5test.commands.icontrol as ICMD
 from ..base import AttrDict
 from ..utils.convert import to_bool
 from ..utils import Version
+from ..utils.net import get_local_ip
 from ..interfaces.config import DeviceAccess
 from ..utils.progress_bar import ProgressBar
 
@@ -31,6 +32,7 @@ DEFAULT_FROM = 'pytest-results@f5.com'
 DEFAULT_SUBJECT = 'Test Run'
 MAIL_HOST = 'mail'
 DUMP_EMAIL_FILENAME = 'email.html'
+A_HOST = 'f5.com'
 
 ROLE_NAMES = {0: 'ADMIN_ROLE', 1: 'ROOT_ROLE', 2: 'DEFAULT_ROLE'}
 
@@ -252,15 +254,21 @@ class EmailPlugin(object):
             return
 
         cfgifc = self.context.get_config()
-        json_report['environment']['duts'] = list(self.duts_details())
-        for dut in json_report['environment']['duts']:
+        env = json_report['environment']
+        env['duts'] = list(self.duts_details())
+        for dut in env['duts']:
             if dut.device.is_default:
-                json_report['environment']['dut'] = dut
+                env['dut'] = dut
                 break
         else:
             raise ValueError('No default DUT found')
 
-        json_report['environment']['config'] = cfgifc.copy()
+        env['config'] = cfgifc.copy()
+        env['test_runner_ip'] = get_local_ip(A_HOST)
+        session = cfgifc.get_session()
+        env['session'] = session.name
+        env['session_url'] = session.get_url(env['test_runner_ip'])
+
         mail_host = self.options.get('server', MAIL_HOST)
         emails = self.compile_emails(json_report)
 

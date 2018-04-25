@@ -49,9 +49,6 @@ class Plugin(object):
     @pytest.hookimpl(trylast=True)
     def pytest_sessionfinish(self, session, exitstatus):
         root_logger = logging.getLogger()
-        #if level is not None:
-        #    root_logger.setLevel(orig_level)
-
         if self.handler:
             root_logger.removeHandler(self.handler)
 

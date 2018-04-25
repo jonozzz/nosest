@@ -15,6 +15,11 @@ DUTs info:
  href="https://{{ dut.device.address }}:{{ dut.device.ports['https'] }}">HTTPS</a> <a href="ssh://root@{{ dut.device.address }}:{{ dut.device.ports['ssh'] }}">SSH</a>: {{ dut.platform|ljust(4) }} {{ dut.version.product.to_tmos|rjust(7) }} {{ dut.version.version }} {{ dut.version.build }} {{ dut.project or '' }}
 {%- endfor %}
 
+<ul>
+    <li><a href="{{ data.environment.session_url }}/report/">Report</a></li>
+    <li><a href="{{ data.environment.session_url }}/">Logs</a></li>
+</ul>
+
 Failed:
 {% for test in data.tests if test.outcome == 'failed' -%}
 * <b>{{ test.nodeid }}</b>
