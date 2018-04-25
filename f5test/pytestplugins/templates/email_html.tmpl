@@ -1,3 +1,25 @@
+{% macro format_err(test) -%}
+    {% if test.setup.outcome != 'passed' %}
+        {% if test.setup.outcome == 'skipped' %}
+            {{ test.setup.skip[-1] }}
+        {% else %}
+            {{ test.setup.crash.message }}
+        {% endif %}
+    {% elif test.call.outcome != 'passed' %}
+        {% if test.call.outcome == 'skipped' %}
+            {{ test.call.skip[-1] }}
+        {% else %}
+            {{ test.call.crash.message }}
+        {% endif %}
+    {% elif test.teardown.outcome != 'passed' %}
+        {% if test.teardown.outcome == 'skipped' %}
+            {{ test.teardown.skip[-1] }}
+        {% else %}
+            {{ test.teardown.crash.message }}
+        {% endif %}
+    {% endif %}
+{%- endmacro %}
+
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -23,21 +45,21 @@ DUTs info:
 Failed:
 {% for test in data.tests if test.outcome == 'failed' -%}
 * <b>{{ test.nodeid }}</b>
-  {{ test.call and test.call.longrepr or test.setup.longrepr }}
+  {{ format_err(test)|trim }}
 
 {% endfor %}
 
 Error:
 {% for test in data.tests if test.outcome == 'error' -%}
 * <b>{{ test.nodeid }}</b>
-  {{ test.call and test.call.longrepr or test.setup.longrepr }}
+  {{ format_err(test)|trim }}
 
 {% endfor %}
 
 Skipped:
 {% for test in data.tests if test.outcome == 'skipped' -%}
 * <b>{{ test.nodeid }}</b>
-  {{ test.call and test.call.longrepr or test.setup.longrepr }}
+  {{ format_err(test)|trim }}
 
 {% endfor %}
 
