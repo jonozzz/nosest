@@ -34,6 +34,7 @@ URL_CM_ASM_SIGNATURES = "/mgmt/cm/asm/working-config/signatures"
 URL_CM_ASM_SIGNATURESETS = "/mgmt/cm/asm/working-config/signature-sets"
 URL_CM_ASM_SIGNATURESYSTEMS = "/mgmt/cm/asm/signature-systems"
 URL_CM_ASM_ATTACKTYPE = "/mgmt/cm/asm/attack-types/"
+URL_CM_ASM_SNAPSHOTS = "/mgmt/cm/asm/tasks/snapshot-config"
 
 LOG = logging.getLogger(__name__)
 
@@ -477,3 +478,35 @@ class DeleteVirtuals(IcontrolRestCommand):
         LOG.info("Ensure virtual servers no longer exist in ASM")
         wait(self.poll_virtuals_empty, interval=2, timeout=10,
              timeout_message="Virtual servers were not removed from bigiq in {0}s.")
+
+
+create_asm_snapshot_bigiq = None
+class CreateAsmSnapshotBigiq(IcontrolRestCommand):  # @IgnorePep8
+    """Create an ASM snapshot on a given bigiq.
+
+    Args:
+        name (str): The name of ASM snapshot created on BIG-IQ
+
+    Returns:
+         AttrDict: The whole state of ASM snapshot created.
+
+    """
+
+    def __init__(self, name='bigiqSnapshot', *args, **kwargs):
+        super(CreateAsmSnapshotBigiq, self).__init__(*args, **kwargs)
+        self.name = name
+        self.createChildTasks = kwargs.get("createChildTasks", True)
+
+    def setup(self):
+        try:
+            resp = self.api.post(
+                URL_CM_ASM_SNAPSHOTS,
+                payload={
+                    'name': self.name,
+                    'createChildTasks': True
+                }
+            )
+
+        except EmapiResourceError as e:
+            raise CommandError("Unexpected error: %s" % e.msg)
+        return resp
