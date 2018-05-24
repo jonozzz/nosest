@@ -96,17 +96,17 @@ class Plugin(object):
         return test_root
 
     def try_collect(self, item, interface):
+        collected = 0
         if not isinstance(interface, Interface):
-            return
+            return collected
 
         if isinstance(interface, ConfigInterface):
-            return
+            return collected
 
         if not interface.is_opened():
-            return
+            return collected
 
         sshifcs = []
-        collected = 0
         if SeleniumInterface and isinstance(interface, SeleniumInterface):
             for window in interface.api.window_handles:
                 credentials = interface.get_credentials(window)
@@ -130,7 +130,7 @@ class Plugin(object):
                 sshifcs.append(SSHInterface(device=interface.device))
         else:
             LOG.debug('Skip collection from interface: %s', interface)
-            return
+            return collected
 
         test_root = self.create_item_dir(item)
 
@@ -177,12 +177,14 @@ class Plugin(object):
             else:
                 fixture_values = [x for x in item.funcargs.values() if x is not None]
 
+            collected = 0
             for context in filter(lambda x: isinstance(x, ContextHelper), fixture_values):
                 interfaces = context.get_container(container=INTERFACES_CONTAINER).values()
                 for interface in interfaces:
                     self.try_screenshots(interface)
-                    self.try_collect(item, interface)
+                    collected += self.try_collect(item, interface)
 
+            if collected > 0:
                 test_name = sanitize_test_name(item)
                 url = self.session.get_url() + '/' + test_name
                 pytest.allure.attach(url, "logs", AttachmentType.URI_LIST)
