@@ -536,7 +536,7 @@ class CollectLogs(SSHCommand):  # @IgnorePep8
     @param last: how many lines to tail
     @type last: int
     """
-    LINE_COUNT = 100
+    LINE_COUNT = 200
     APIC_LINE_COUNT = 400
 
     def __init__(self, dir, *args, **kwargs):  # @ReservedAssignment
