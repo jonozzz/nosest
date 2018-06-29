@@ -144,6 +144,7 @@
           - git+https://github.com/jonozzz/pytest.git@features#egg=pytest
           - git+https://github.com/jonozzz/allure-python.git#egg=allure-pytest&subdirectory=allure-pytest
           - git+https://github.com/jonozzz/allure-python.git#egg=allure-python-commons&subdirectory=allure-python-commons
+          - git+https://github.com/jonozzz/pytest-json-report.git#egg=pytest-json-report
         when: pymodule_exists.results[0].rc
 
       - pip:
