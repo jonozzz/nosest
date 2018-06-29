@@ -102,7 +102,7 @@ class Plugin(object):
             config = self.context.get_config().api
             yaml.dump(config, f, indent=4, width=1024, default_flow_style=False)
 
-    def pytest_json_modifyreport(self, json_report):
+    def X_pytest_json_modifyreport(self, json_report):
         if self.enabled is False:
             return
         path = _get_session_dir(self.context)
@@ -138,4 +138,6 @@ def pytest_cmdline_main(config):
 
 
 def pytest_configure(config):
+    if config.option.json_report:
+        Plugin.pytest_json_modifyreport = Plugin.X_pytest_json_modifyreport
     config.pluginmanager.register(Plugin(config), 'alluregenerator-plugin')
