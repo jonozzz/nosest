@@ -3,6 +3,9 @@
 # $ curl -Osk https://.../raw/master/contrib/ansible/bootstrap_py2.yaml
 # $ ansible-playbook -Ke venv_name=ansible-test -e first_time=true bootstrap_py2.yaml
 #
+# OR
+# $ ansible-pull -Ke venv_name=ansible-test -e first_time=true -U https://xyz/f5test.git contrib/ansible/bootstrap_py2.yaml
+#
 # This will provide a 'bootstrap' script in your venv that will point to this 
 # playbook.
 ---
@@ -35,6 +38,7 @@
         - libcurl4-openssl-dev
         - libcap-dev
         - libsctp-dev  # for pysctp
+        - libz-dev
         - git
         - sshfs
       become: true
@@ -137,6 +141,9 @@
           - git+https://github.com/jonozzz/nose.git#egg=nose
           - git+https://github.com/jonozzz/SOAPpy.git#egg=SOAPpy
           - git+git://github.com/erjac77/ansible-common-f5.git#egg=ansible-common-f5
+          - git+https://github.com/jonozzz/pytest.git@features#egg=pytest
+          - git+https://github.com/jonozzz/allure-python.git#egg=allure-pytest&subdirectory=allure-pytest
+          - git+https://github.com/jonozzz/allure-python.git#egg=allure-python-commons&subdirectory=allure-python-commons
         when: pymodule_exists.results[0].rc
 
       - pip:
