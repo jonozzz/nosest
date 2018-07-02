@@ -31,7 +31,7 @@ VirtualEnv Installation (Ubuntu)
 ::
 
   sudo apt-get install curl ansible
-  ansible-playbook -Ke venv_name=ansible-test -e first_time=true bootstrap_py2.yaml
+  ansible-pull -Ke venv_name=ansible-test -e first_time=true -U https://<THIS REPO> contrib/ansible/bootstrap_py2.yaml
 
 Quick Start
 ===========
