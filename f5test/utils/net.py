@@ -17,7 +17,7 @@ def resolv(hostname):
 
 def get_local_ip(peer):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect((peer.split(':', 1)[0], 0))
+    s.connect((peer.split(':', 1)[0], 1))
     ip = s.getsockname()[0]
     s.close()
     return ip
