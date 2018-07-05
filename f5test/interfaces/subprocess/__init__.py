@@ -1,2 +1,2 @@
 from .core import ShellInterface
-from .subprocess import CalledProcessError, TimeoutExpired
+from subprocess32 import CalledProcessError, TimeoutExpired

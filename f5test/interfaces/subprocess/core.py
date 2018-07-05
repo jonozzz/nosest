@@ -1,14 +1,14 @@
 import shlex
 import shutil
 import glob
-from . import subprocess
+import subprocess32 as subprocess
 from ...base import Interface
 import logging
 
 LOG = logging.getLogger(__name__)
 
 
-class CalledProcessError(subprocess.SubprocessError):
+class CalledProcessError(Exception):
     """This exception is raised when a process run by check_call() or
     check_output() returns a non-zero exit status.
     The exit status will be stored in the returncode attribute;

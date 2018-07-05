@@ -96,6 +96,7 @@ setup(
         'mysql-connector-python-rf',  # noseplugins.extender.sql_reporter
         'ansible',  # Test fixtures
         'pylibmc'  # Resource pools
+        'subprocess32', # Backport of py3's subprocess with timeout
         # 'pysnmp',  # interfaces.snmp.driver
         #'xmltodict',  # interfaces.rest.driver
         #'boto',
