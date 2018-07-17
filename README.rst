@@ -1,19 +1,19 @@
 =================================
- NoseST - Nose for System Testing
+ pytestST - pytest for System Testing
 =================================
 
-:Version: 2.1
+:Version: 3.0
 :Web: https://github.com/jonozzz/nosest
-:Download: https://github.com/jonozzz/nosest/repository/archive.zip?ref=master
+:Download: https://github.com/jonozzz/nosest/archive/master.zip
 :Source: https://github.com/jonozzz/nosest
-:Keywords: test nose system test framework
+:Keywords: test pytest system test framework
 
 --
 
 Description
 ===========
 
-If you like Nose for unit testing, but would like to use it at a larger scale,
+If you like Pytest for unit testing, but would like to use it at a larger scale,
 then this might be interesting to you. At its core it's comprised of a few base
 building blocks:
 
@@ -71,12 +71,12 @@ Run pytest::
 License
 =======
 
-NoseST is distributed under the terms of the Apache
+pytestST is distributed under the terms of the Apache
 License, Version 2.0.  See docs/COPYING for more information.
 
 Credits
 =======
 
-NoseST has been created with the help of:
+pytestST has been created with the help of:
 
-- various testers and developers
+- various testers and developers in F5
