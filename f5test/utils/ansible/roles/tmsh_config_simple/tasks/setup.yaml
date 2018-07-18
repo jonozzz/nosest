@@ -1,0 +1,20 @@
+---
+- template:
+    src: "{{ config }}"
+    dest: "{{ tmp_bigip_conf }}"
+  register: output 
+  when: config is defined
+  notify: merge bigip.conf
+
+- template:
+    src: "{{ apache_config }}"
+    dest: "{{ tmp_apache_conf }}"
+    mode: 0666
+  register: output
+  when: apache_config is defined
+  run_once: true
+  delegate_to: "{{ item.key }}"
+  vars:
+    members: "{{ item.value }}"
+  with_dict: "{{ dict(resources.members | groupby('docker')) }}"
+  notify: make docker apache

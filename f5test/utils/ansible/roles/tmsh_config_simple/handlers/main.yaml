@@ -1,0 +1,18 @@
+---
+- name: merge bigip.conf
+  f5bigip_sys_config:
+    f5_hostname: "{{ f5test_mgmt_address }}"
+    f5_username: "{{ f5test_username }}"
+    f5_password: "{{ f5test_password }}"
+    command: load
+    merge: yes
+    file: "{{ tmp_bigip_conf }}"
+  delegate_to: localhost
+
+- name: wait for all members to come up
+  wait_for:
+    host: "{{ item.ip }}"
+    port: "{{ item.port }}"
+  with_items: "{{ resources.members }}"
+  #delegate_to: localhost
+  listen: make docker apache

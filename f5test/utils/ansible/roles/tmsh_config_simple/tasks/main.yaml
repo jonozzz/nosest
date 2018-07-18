@@ -1,0 +1,10 @@
+---
+- name: main
+  import_tasks: setup.yaml
+  #tags: ['setup']
+  when: setup is defined
+
+- name: main
+  import_tasks: teardown.yaml
+  #tags: ['teardown']
+  when: teardown is defined and teardown

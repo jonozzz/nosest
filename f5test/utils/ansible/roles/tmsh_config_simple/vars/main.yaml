@@ -1,0 +1,2 @@
+tmp_bigip_conf: "/tmp/bigip-{{ machine_fingerprint }}.conf"
+tmp_apache_conf: "/tmp/apache-{{ item.key }}-{{ machine_fingerprint }}.conf"
