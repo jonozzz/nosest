@@ -8,10 +8,12 @@ import inspect
 import logging.config
 from logging.handlers import BufferingHandler
 import os
+import pluggy
 import sys
 import time
 
 import nose
+import pytest
 from nose.plugins import logcapture
 
 from billiard.process import current_process
@@ -25,6 +27,7 @@ from f5test.macros.ictester import Ictester
 from f5test.macros.install import InstallSoftware
 from f5test.macros.tmosconf import ConfigPlacer
 from f5test.noseplugins.testconfig import TestConfig
+from f5test.pytestplugins import config as config_plugin
 from f5test.utils.dicts import merge
 
 logcapture.LogCapture.enabled = False
@@ -47,7 +50,7 @@ MAX_LOG_LINE = 1024
 def _setup_logging(**kw):
     logging.config.fileConfig(os.path.join(VENV, LOG_CONFIG))
 # after_setup_task_logger.connect(_setup_logging)
-setup_logging.connect(_setup_logging)
+#setup_logging.connect(_setup_logging)
 
 
 # This unloads all our modules, thus forcing nose to reload all tests.
@@ -208,6 +211,91 @@ def nosetests(data, args, user_input=None):
     logging.shutdown()
     # XXX: nose logger leaks handlers. See nose/config.py:362
     logging.getLogger('nose').handlers[:] = []
+
+    return status
+
+
+@celery.task(base=DebugTask)
+def pytests(data, args, user_input=None):
+    LOG.info("TASKS-Running Shiraz pytest")
+    _clean_sys_modules()
+    pytests.save_meta(user_input=user_input)
+    LOG.info("Started pytest")
+    LOG.info("data=%s", data)
+    LOG.info("args=%s", args)
+
+    from ..interfaces.config import ConfigLoader, ConfigInterface
+    from ..interfaces.config.driver import Signals
+
+    class MyConfigPlugin(object):
+
+        def before_extend(self, sender, config):
+            #raise
+            if data.get(EXTENDS_KEYWORD):
+                extend_list = config.setdefault(EXTENDS_KEYWORD, [])
+                extend_list += data[EXTENDS_KEYWORD]
+
+        def after_extend(self, sender, config):
+            merge(config, data)
+            v = config.plugins.email.variables
+            v.task_id = pytests._id
+            v.referer = "%s#%s" % (user_input._referer, pytests._id)
+
+        @pytest.hookimpl(trylast=True)
+        def X_pytest_configure(self, config):
+            import py
+            tr = config.pluginmanager.getplugin('terminalreporter')
+            # if no terminal reporter plugin is present, nothing we can do here;
+            # this can happen when this function executes in a slave node
+            # when using pytest-xdist, for example
+            if tr is not None:
+                # pastebin file will be utf-8 encoded binary file
+                #config._pastebinfile = tempfile.TemporaryFile('w+b')
+                oldwrite = tr._tw.write
+
+                def tee_write(s, **kwargs):
+                    #oldwrite(s, **kwargs)
+                    if py.builtin._istext(s):
+                        s = s.encode('utf-8')
+                    #config._pastebinfile.write(s)
+                    if s.strip():
+                        LOG.info(s)
+
+                tr._tw.write = tee_write
+
+        def pytest_cmdline_main(self, config):
+            if config.option.tc:
+                loader = ConfigLoader(config.option.tc)
+                with Signals.on_before_extend.connected_to(self.before_extend), \
+                     Signals.on_after_extend.connected_to(self.after_extend):
+                    cfgifc = ConfigInterface(loader=loader)
+                cfgifc.set_global_config()
+                config._tc = cfgifc.open()
+                self._tc = config._tc
+
+                # Override config args
+                for key, value in config._tc.get('pytest', {}).items():
+                    setattr(config.option, key, value)
+
+    p = MyConfigPlugin()
+    config_plugin.pytest_cmdline_main = p.pytest_cmdline_main
+    #LOG.info("TASKS-Running Shiraz nosetests args: " + str(args))
+    for i, arg in enumerate(args):
+        args[i] = arg.format(VENV=VENV)
+
+    #TestConfig.callbacks['on_before_extend'] = merge_config_before
+    #TestConfig.callbacks['on_after_extend'] = merge_config_after
+    # Connect the signal only during this iteration.
+    #status = _run(argv=args)
+    status = pytest.main(['-s', '--tc', 'config/example.yaml',
+                          #'--disable-pytest-warnings',
+                          'tests/cascade_pytest/test_template.py',
+                          ])
+
+    print p._tc
+    logging.shutdown()
+    # XXX: nose logger leaks handlers. See nose/config.py:362
+    #logging.getLogger('nose').handlers[:] = []
 
     return status
 

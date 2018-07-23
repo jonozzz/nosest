@@ -11,7 +11,7 @@ import yaml
 
 import bottle
 from f5test.base import AttrDict
-from f5test.web.tasks import nosetests
+from f5test.web.tasks import nosetests, pytests
 
 from ..validators import min_version_validator, sanitize_atom_path
 from .common import (CONFIG, TEMPLATE_DIR, get_harness, NOSETESTS_ARGS,
@@ -181,6 +181,92 @@ def bvt_bigiq_post2():
 
     # return dict(config=our_config, args=args)
     result = nosetests.delay(our_config, args, data)  # @UndefinedVariable
+    link = common_app.router.build('status', task_id=result.id)
+    atom_result = dict(status=result.status, id=result.id, link=link)
+    LOG.info("ATOM BIGIQBVT: Result: " + str(atom_result))
+    return atom_result
+
+
+@app.route('/bvt/pytest', method='POST')
+def bvt_bigiq_pytest():
+    """Handles requests from BIGIP teams for BIGIQ BVT, all parts but ASM.
+
+    All the logic needed to translate the user input into what makes sense to
+    us happens right here.
+    """
+    LOG.info("ATOM BIGIQBVT: Called")
+    HOOK_NAME = 'big-iq-bvt'
+    CONFIG_FILE = CONFIG.web.config['bigiq-tmos']
+
+    data = AttrDict(json.load(bottle.request.body))
+    data._referer = bottle.request.url
+    LOG.info("ATOM BIGIQBVT: POST Request: " + str(data))
+
+    try:
+        our_config = AttrDict(yaml.load(open(get_harness(CONFIG, 'bigiq-tmos')).read()))
+
+        # Prepare placeholders in our config
+        our_config.update({'group_vars': {'tmos.bigip': {'f5_install': {}}}})
+        our_config.update({'plugins': {'email': {'xto': [], 'variables': {}}}})
+        #our_config.update({'plugins': {'atom': {'bigip': {}}, 'bvtinfo': {}}})
+
+        # plugins = our_config.plugins
+        # # Set ATOM data
+        # plugins.atom.bigip.request_id = data.content.id
+        # plugins.atom.bigip.name = HOOK_NAME
+        #
+        # # Append submitter's email to recipient list
+        # if data.content.requestor.email:
+        #     plugins.email.to.append(data.content.requestor.email)
+        # plugins.email.to.extend(CONFIG.web.recipients)
+        #
+        # # Set version and build in the install stage
+        # params = our_config.group_vars['tmos.bigip'].f5_install
+        #
+        # branch = data.content.build.branch
+        # version = data.content.build.version
+        # LOG.info("ATOM BIGIQBVT: POST branch/version: " + str(branch) +
+        #          "/" + str(version))
+        # params['version'] = branch.name
+        # params['build'] = version.primary
+        # if int(version.level):
+        #     params['hf'] = version.level
+        #     params['hfimage'] = sanitize_atom_path(data.content.build.iso)
+        # else:
+        #     params['image'] = sanitize_atom_path(data.content.build.iso)
+        # params.product = 'bigip'
+
+        args = []
+        args[:] = NOSETESTS_ARGS
+
+        args.append('--tc-file={VENV}/%s' % CONFIG_FILE)
+        #args.append('--tc=group_vars.all.pave:true')
+        #args.append("--eval-attr=rank >= 5 and rank <= 10 and module and 'ASM' not in module")
+        #args.append('--with-email')
+        #args.append('--with-atom')
+        #if not min_version_validator(params.build, params.version, params.hf,
+        #                             params.product, iso=data.content.build.iso,
+        #                             min_ver=CONFIG.global_min_supported):
+        #    args.append('--with-atom-no-go=The requested product/version is not supported by this test suite.')
+        #args.append('--with-irack')
+        # args.append('--with-qkview=never')
+        args.append('{VENV}/%s' % CONFIG.paths.tc)
+        # args.append('{VENV}/tests/firestone/functional/standalone/adc/api/')
+
+        #v = plugins.email.variables
+        #v.args = args
+        #v.project = data.content.build.branch.name
+        #v.version = data.content.build.version.version
+        #v.build = data.content.build.version.build
+        LOG.info("ATOM BIGIQBVT: Nose Args: " + str(args))
+        LOG.info("ATOM BIGIQBVT: our_config: " + str(our_config))
+    except Exception:
+        result = dict(status=500, id=0, link="http://shiraz/")
+        LOG.exception("Exception during BIG-IQ BVT processing: " + str(result))
+        return result
+
+    # return dict(config=our_config, args=args)
+    result = pytests.delay(our_config, args, data)  # @UndefinedVariable
     link = common_app.router.build('status', task_id=result.id)
     atom_result = dict(status=result.status, id=result.id, link=link)
     LOG.info("ATOM BIGIQBVT: Result: " + str(atom_result))
