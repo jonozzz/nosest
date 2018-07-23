@@ -37,6 +37,9 @@ class Plugin(object):
         self.context = ContextHelper()
 
     def pytest_sessionstart(self, session):
+        if self.enabled is False:
+            return
+
         cfgifc = self.context.get_config()
         factory = cfgifc.get_session().get_respool_handler()
 
