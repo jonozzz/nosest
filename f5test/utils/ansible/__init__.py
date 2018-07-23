@@ -118,6 +118,8 @@ class JinjaUtils(object):
 class MyCallback(CallbackBase):
 
     def __init__(self, display=None, options=None):
+        # Not sure why this is needed.
+        self._load_name = 'mycallback'
         super(MyCallback, self).__init__(display, options)
 
     def v2_runner_on_failed(self, result, ignore_errors=False):
