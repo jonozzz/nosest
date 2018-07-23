@@ -30,11 +30,11 @@ class LookHere(object):
                     sys.modules.pop(module)
         for k, v in self.paths.items():
             sys.path.insert(0, os.path.join(PATH, k, v, SITE_PACKAGES))
-            # LOG.info(os.path.join(PATH, k, v, SITE_PACKAGES))
+            #sys.path.append(os.path.join(PATH, k, v, SITE_PACKAGES))
             self.inserts += 1
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        map(sys.modules.pop, set(sys.modules) - set(self.old))
+        #map(sys.modules.pop, set(sys.modules) - set(self.old))
         sys.modules.update(self.old)
         for _ in range(self.inserts):
             sys.path.pop(0)
