@@ -96,7 +96,7 @@ class ItePlugin(object):
         if self.enabled is False:
             return
 
-        for path in self.options.paths:
+        for i, path in enumerate(self.options.paths):
 
             if path.startswith('/'):
                 p = path
@@ -106,7 +106,8 @@ class ItePlugin(object):
             # Pull any existing paths to make sure our mocks come first.
             if p in sys.path:
                 sys.path.remove(p)
-            sys.path.append(p)
+            #sys.path.append(p)
+            sys.path.insert(i, p)
 
     def pytest_pycollect_makemodule(self, path, parent):
         with open(path.strpath) as f:
