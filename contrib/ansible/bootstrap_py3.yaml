@@ -141,7 +141,7 @@
           #- git+https://github.com/jonozzz/nose.git#egg=nose
           - git+https://github.com/jonozzz/SOAPpy.git@2to3#egg=SOAPpy
           - git+https://gitswarm.f5net.com/turturica/loggerglue.git
-          - git+https://gitswarm.f5net.com/turturica/restkit.git
+          - git+https://gitswarm.f5net.com/turturica/restkit.git@2to3
           - git+git://github.com/erjac77/ansible-common-f5.git#egg=ansible-common-f5
           - git+https://github.com/jonozzz/pytest.git@features#egg=pytest
           - git+https://github.com/jonozzz/allure-python.git#egg=allure-pytest&subdirectory=allure-pytest
