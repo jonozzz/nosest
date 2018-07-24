@@ -120,19 +120,22 @@ class MyCallback(CallbackBase):
     def __init__(self, display=None, options=None):
         # Not sure why this is needed.
         self._load_name = 'mycallback'
-        super(MyCallback, self).__init__(display, options)
+        super(MyCallback, self).__init__(display)
+        if options:
+            for k, v in options.items():
+                self.set_option(k, v)
 
     def v2_runner_on_failed(self, result, ignore_errors=False):
-        self._plugin_options.failed.append(result)
+        self.get_option('failed').append(result)
 
     def v2_runner_on_unreachable(self, result):
-        self._plugin_options.failed.append(result)
+        self.get_option('failed').append(result)
 
     def v2_runner_item_on_failed(self, result):
-        self._plugin_options.failed.append(result)
+        self.get_option('failed').append(result)
 
     def v2_runner_on_async_failed(self, result):
-        self._plugin_options.failed.append(result)
+        self.get_option('failed').append(result)
 
 
 def run_playbooks(playbook, tags=[], context=None, options=None):
