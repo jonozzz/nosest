@@ -13,7 +13,7 @@
 
   vars:
     # Make sure we're using the system's python
-    ansible_python_interpreter: "/usr/bin/env python"
+    ansible_python_interpreter: "/usr/bin/env python3"
     venv_name: ansible-test
     home_dir: "{{ ansible_user_dir }}"
     venv_root: "{{ home_dir }}/.virtualenvs/{{ venv_name }}"
