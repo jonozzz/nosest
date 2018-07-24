@@ -3,7 +3,7 @@ Created on Mar 29, 2018
 
 @author: jono
 '''
-from __future__ import absolute_import
+
 import pytest
 from ..utils.convert import to_bool
 from ..base import AttrDict
@@ -45,7 +45,7 @@ class IteItem(pytest.Function):
         self.source = source
         self.tokens = dict(mdparse(source))
         # Turn Metadata into markers
-        for name, value in self.tokens.items():
+        for name, value in list(self.tokens.items()):
             mark = getattr(pytest.mark, name)(value)
             self.add_marker(mark)
 

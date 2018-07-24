@@ -59,7 +59,7 @@ class TestBed(ExtendedPlugin):
                 if version >= 'BIG-IP_v11.5.0':
                     # Very basic health check via an REST API call
                     rstifc.api.get(DeviceInfo.URI)
-            except Exception, e:
+            except Exception as e:
                 device.enabled = False
                 # self.duts.remove(device)
                 LOG.warning('Disabling unreachable DUT: %s (%s)', device, e)

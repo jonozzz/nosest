@@ -143,7 +143,7 @@ class WebCert(Macro):
         req = crypto.X509Req()
         subj = req.get_subject()
 
-        for (key, value) in name.items():
+        for (key, value) in list(name.items()):
             setattr(subj, key, value)
 
         req.set_pubkey(pkey)
@@ -151,8 +151,7 @@ class WebCert(Macro):
         return req
 
     @staticmethod
-    def create_certificate(req, (issuer_key, issuer_cert), serial,
-                           (not_before, not_after), digest="sha256", extensions=None):
+    def create_certificate(req, xxx_todo_changeme, serial, xxx_todo_changeme1, digest="sha256", extensions=None):
         """
         Generate a certificate given a certificate request.
 
@@ -167,6 +166,8 @@ class WebCert(Macro):
                    digest     - Digest method to use for signing, default is md5
         Returns:   The signed certificate in an X509 object
         """
+        (issuer_key, issuer_cert) = xxx_todo_changeme
+        (not_before, not_after) = xxx_todo_changeme1
         cert = crypto.X509()
         cert.set_version(2)
         cert.set_serial_number(serial)

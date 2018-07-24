@@ -68,7 +68,7 @@ class Atom(ExtendedPlugin):
             resp = rstifc.api.post(url, payload=payload)
             site.run_id = resp.id
             LOG.info("ATOM: Response: " + str(resp))
-        except Exception, e:
+        except Exception as e:
             LOG.warning(e)
 
     def report_results(self, site):
@@ -98,7 +98,7 @@ class Atom(ExtendedPlugin):
         try:
             resp = rstifc.api.post(url, payload=payload)
             LOG.info("ATOM: Response: " + str(resp))
-        except Exception, e:
+        except Exception as e:
             LOG.warning(e)
 
     def prepareTest(self, test):

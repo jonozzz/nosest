@@ -55,7 +55,7 @@ class FilterDeviceInfo(Query): #@IgnorePep8
         self.query = query
 
     def setup(self):
-        return filter(self.filter, super(FilterDeviceInfo, self).setup())
+        return list(filter(self.filter, super(FilterDeviceInfo, self).setup()))
 
 
 get_device_info = None
@@ -92,7 +92,7 @@ class GetDeviceState(Query): #@IgnorePep8
         fields = ['d.uid', 'access_address', 'mgmt_address', 'refresh_failed_at',
                   'refresh_state', 'status', 'substatus_message', 'host_name']
 
-        if isinstance(mgmtip, basestring):
+        if isinstance(mgmtip, str):
             where = "WHERE access_address = '%s'" % mgmtip
         elif isinstance(mgmtip, (tuple, list)):
             where = "WHERE access_address IN (%s)" % ','.join(("'%s'" % str(x) for x in mgmtip))

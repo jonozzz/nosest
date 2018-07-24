@@ -304,12 +304,12 @@ class TeardownHa(IcontrolRestCommand):  # @IgnorePep8
                        for x in self.peers if uris_by_address.get(IPAddress(x.get_discover_address()).format(ipv6_full)))
 
         # Do a long 2 minute pause because of BZ484543 for BIG-IQ 4.5.0
-        if devices.values() and abs(self.ifc.version) == 'bigiq 4.5.0':
+        if list(devices.values()) and abs(self.ifc.version) == 'bigiq 4.5.0':
             LOG.info("Pausing for 2 minutes before removing HA per BZ484543...")
             import time
             time.sleep(120)
 
-        for item in devices.values():
+        for item in list(devices.values()):
             payload = HAPeerRemover()
             payload.peerReference = item
             if self.ifc.version <= 'bigiq 4.0' or \
@@ -374,12 +374,12 @@ class BzHelp1(IcontrolRestCommand):  # @IgnorePep8
         try:
             resp = wait(self.get_devices,
                         condition=lambda ret: peers.intersection(set(y.address
-                                                                     for x in ret.values()for y in x['items'])),
+                                                                     for x in list(ret.values())for y in x['items'])),
                         progress_cb=lambda ret: 'Peer BIGIQs: {0}; Default BIGIQ: {1}'
-                            .format(peers, set(y.address for x in ret.values()for y in x['items'])),
+                            .format(peers, set(y.address for x in list(ret.values())for y in x['items'])),
                         timeout=60)
 
-            for items in resp.values():
+            for items in list(resp.values()):
                 for item in items['items']:
                     if item.address in peers and v < 'bigiq 4.5.0':
                         LOG.warning("Deleting peer BIGIQ as it showed back up per BZ474786")
@@ -389,7 +389,7 @@ class BzHelp1(IcontrolRestCommand):  # @IgnorePep8
                         raise CommandFail("Peer BIG-IQ showed back up after HA removal (BZ474786).")
 
         except WaitTimedOut:
-            LOG.info("Peer BIG-IQ never appears in {0}".format(self.get_devices().keys()))
+            LOG.info("Peer BIG-IQ never appears in {0}".format(list(self.get_devices().keys())))
 
 add_aggregation_task = None
 class AddAggregationTask(IcontrolRestCommand):  # @IgnorePep8
@@ -434,11 +434,11 @@ class AddAggregationTask(IcontrolRestCommand):  # @IgnorePep8
 
         payload = EventAggregationTasks(name=self.name)
         if self.specs:
-            for item, value in self.specs.iteritems():
+            for item, value in self.specs.items():
                 payload[item] = value
         if self.logspecs:
             x = AttrDict()
-            for item, value in self.logspecs.iteritems():
+            for item, value in self.logspecs.items():
                 x[item] = value
             payload.sysLogConfig.update(x)
 
@@ -632,17 +632,17 @@ class AddAnalysisTask(IcontrolRestCommand):  # @IgnorePep8
                                        completionCheckIntervalSeconds=2,
                                        )
             if self.multitierspecs:
-                for item, value in self.multitierspecs.iteritems():
+                for item, value in self.multitierspecs.items():
                     multitierconfig[item] = value
             payload['multiTierConfig'] = multitierconfig
         if self.specs:
-            for item, value in self.specs.iteritems():
+            for item, value in self.specs.items():
                 payload[item] = value
         if self.histograms:
             payload['histograms'] = []
             for histogram in self.histograms:
                 x = AttrDict()
-                for item, value in histogram.iteritems():
+                for item, value in histogram.items():
                     x[item] = value
                 payload.histograms.extend([x])
 
@@ -1182,7 +1182,7 @@ class AddTaskSchedule(IcontrolRestCommand):  # @IgnorePep8
         if self.task.method:
             payload.taskRestMethodToRun = self.task.method
         if self.specs:
-            for item, value in self.specs.iteritems():
+            for item, value in self.specs.items():
                 payload[item] = value
 
         if self.stype == TaskScheduler.TYPE.BASIC_WITH_INTERVAL:  # @UndefinedVariable

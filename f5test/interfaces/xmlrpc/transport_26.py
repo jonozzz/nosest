@@ -3,35 +3,35 @@ Created on Jun 6, 2011
 
 @author: jono
 '''
-from cookielib import CookieJar
-import httplib
+from http.cookiejar import CookieJar
+import http.client
 import logging
-import urllib2
-import xmlrpclib
+import urllib.request, urllib.error, urllib.parse
+import xmlrpc.client
 
 
 DEFAULT_TIMEOUT = 90
 LOG = logging.getLogger(__name__)
 
 
-class TimeoutHTTPConnection(httplib.HTTPConnection):
+class TimeoutHTTPConnection(http.client.HTTPConnection):
 
     def connect(self):
-        httplib.HTTPConnection.connect(self)
+        http.client.HTTPConnection.connect(self)
         self.sock.settimeout(self.timeout)
 
 
-class TimeoutHTTP(httplib.HTTP):
+class TimeoutHTTP(http.client.HTTP):
     _connection_class = TimeoutHTTPConnection
 
     def set_timeout(self, timeout):
         self._conn.timeout = timeout
 
 
-class TimeoutTransport(xmlrpclib.Transport):
+class TimeoutTransport(xmlrpc.client.Transport):
 
     def __init__(self, timeout=DEFAULT_TIMEOUT, *args, **kwargs):
-        xmlrpclib.Transport.__init__(self, *args, **kwargs)
+        xmlrpc.client.Transport.__init__(self, *args, **kwargs)
         self.timeout = timeout
 
     def make_connection(self, host):
@@ -69,7 +69,7 @@ class CookieTransport(TimeoutTransport):
             h.set_debuglevel(1)
 
         request_url = "%s://%s/" % (self.scheme, host)
-        cookie_request = urllib2.Request(request_url)
+        cookie_request = urllib.request.Request(request_url)
 
         self.send_request(h, handler, request_body)
         self.send_host(h, host)
@@ -95,7 +95,7 @@ class CookieTransport(TimeoutTransport):
             self.cookiejar.save(self.cookiejar.filename)
 
         if errcode != 200:
-            raise xmlrpclib.ProtocolError(
+            raise xmlrpc.client.ProtocolError(
                 host + handler,
                 errcode, errmsg,
                 headers
@@ -111,6 +111,6 @@ class CookieTransport(TimeoutTransport):
         return self._parse_response(h.getfile(), sock)
 
 
-class SafeCookieTransport(xmlrpclib.SafeTransport, CookieTransport, object):
+class SafeCookieTransport(xmlrpc.client.SafeTransport, CookieTransport, object):
     '''SafeTransport subclass that supports cookies.'''
     scheme = 'https'

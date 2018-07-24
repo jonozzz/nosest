@@ -132,7 +132,7 @@ class Connection(paramiko.SSHClient):
         stderr = chan.makefile_stderr('rb', bufsize)
 
         try:
-            ret = SSHResult(-1, stdout.read(), stderr.read(), command)
+            ret = SSHResult(-1, stdout.read().decode(), stderr.read().decode(), command)
             ret.status = chan.recv_exit_status()
             if ret.status != 0:
                 LOG.debug(ret.stdout)
@@ -162,12 +162,12 @@ class Connection(paramiko.SSHClient):
         def read_channel(chan):
             chunkout = chunkerr = ''
             if chan.recv_ready():
-                chunkout = chan.recv(bufsize)
+                chunkout = chan.recv(bufsize).decode()
                 if chunkout:
                     stdout.append(chunkout)
 
             if chan.recv_stderr_ready():
-                chunkerr = chan.recv_stderr(bufsize)
+                chunkerr = chan.recv_stderr(bufsize).decode()
                 if chunkerr:
                     stderr.append(chunkerr)
 
@@ -380,7 +380,7 @@ def main():
     with Connection('10.10.10.10', username='root', password='default') as myssh:
         myssh.put('ssh.py')
         r = myssh.run('echo "test!" > test.txt && sleep 0 && b list')
-        print r.status
+        print(r.status)
         myssh.get('test.txt')
         myssh.exchange_key()
 

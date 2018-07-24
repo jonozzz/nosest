@@ -49,7 +49,7 @@ def simple_decrypter_post():
     try:
         i = data.input.decode('unicode_escape')
         ret = unpad(DES.new('GhVJDUfx').decrypt(b64decode(i)))
-    except Exception, e:
+    except Exception as e:
         result = dict(input=str(e))
         LOG.info("DEOBFUSCATOR: Exception when decoding: " + str(result))
         return result
@@ -76,7 +76,7 @@ def bvt_test_post():
     BVTINFO_PROJECT_PATTERN = '(\D+)?(\d+\.\d+\.\d+)-?(eng-?\w*|hf\d+|hf-\w+)?'
 
     # For people who don't like to set the application/json header.
-    print bottle.request.body.read()
+    print(bottle.request.body.read())
     data = AttrDict(json.load(bottle.request.body))
     LOG.info("BIG-IQ CM POST Request: " + str(data))
     data._referer = bottle.request.url

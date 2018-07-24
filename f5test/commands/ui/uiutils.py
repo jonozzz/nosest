@@ -3,7 +3,7 @@ Created on Aug 30, 2013
 
 @author: Andrei Dobre
 '''
-from base import SeleniumCommand
+from .base import SeleniumCommand
 # from ...interfaces.config import ConfigInterface, DeviceAccess
 # from ...interfaces.selenium import By
 from f5test.utils.wait import wait
@@ -212,7 +212,7 @@ def wait_for_text_in_webel(text, xpath=None, did=None, css=None,
             ftext = re.sub(
                 r'([^\w\s]|_)+(?=\s|$)|(\n|\(|\)|\+|\[|\]|\{|\}|\\|\/|\*)', \
                 ".*?", ftext)
-        except Exception, e:
+        except Exception as e:
             LOG.debug("{0}Error in re.sub:".format(usedin))
             raise e
         while ftext[-3:] == ".*?":
@@ -311,7 +311,7 @@ def wait_for_text_in_webel(text, xpath=None, did=None, css=None,
                 return negated
             else:
                 pass
-        except Exception, e:
+        except Exception as e:
             LOG.debug("{0}Error:".format(usedin))
             raise e
     wait(to_appear, interval=interval, timeout=timeout,
@@ -472,7 +472,7 @@ class WebelClick(SeleniumCommand):  # @IgnorePep8
                 LOG.warning("/WebelClick/{0}/'{1}'/ElementNotVisibleException! Passing."
                             .format(self.using, self.xpath or self.css or self.did))
                 pass
-            except Exception, e:
+            except Exception as e:
                 raise e
             return isit
         if self.retryit:
@@ -586,24 +586,24 @@ class InputSend(SeleniumCommand):  # @IgnorePep8
             raise WrongParameterPassedMethodCheck("/input_send/misuse - "
                                                   "one param: xpath/css/did and text.")
         self.using = None
-        if isinstance(text, basestring):
+        if isinstance(text, str):
             text = [text]
         if xpath:
-            if isinstance(xpath, basestring):
+            if isinstance(xpath, str):
                 xpath = [xpath]
             if len(xpath) != len(text):
                 raise WrongParameterPassedMethodCheck("/input_send/xpath passed [{0}]"
                                                       " vs [{1}] texts passed as param."
                                                       .format(len(xpath), len(text)))
         elif did:
-            if isinstance(did, basestring):
+            if isinstance(did, str):
                 did = [did]
             if len(did) != len(text):
                 raise WrongParameterPassedMethodCheck("/input_send/did passed [{0}]"
                                                       " vs [{1}] texts passed as param."
                                                       .format(len(did), len(text)))
         elif css:
-            if isinstance(css, basestring):
+            if isinstance(css, str):
                 css = [css]
             if len(css) != len(text):
                 raise WrongParameterPassedMethodCheck("/input_send/css passed [{0}]"

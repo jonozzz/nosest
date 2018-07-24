@@ -9,8 +9,8 @@ import collections
 
 def merge(dst, src, skip_prefix='$', modifier=None):
     if isinstance(dst, dict) and isinstance(src, dict):
-        for k, v in src.iteritems():
-            if skip_prefix and isinstance(k, basestring) and k.startswith(skip_prefix):
+        for k, v in src.items():
+            if skip_prefix and isinstance(k, str) and k.startswith(skip_prefix):
                 continue
             if callable(modifier):
                 k, v = modifier(k, v)
@@ -57,9 +57,9 @@ def inverse(src, keys=None):
     if keys is None:
         keys = {}
 
-    for k, lst in src.items():
-        if type(lst) not in (types.TupleType, types.ListType, set,
-                             types.DictType):
+    for k, lst in list(src.items()):
+        if type(lst) not in (tuple, list, set,
+                             dict):
             lst = [lst]
         for entry in lst:
             entry = keys.get(entry, entry)
@@ -113,7 +113,7 @@ def replace(dic, maxdepth=10, **params):
         if isinstance(obj, collections.Mapping):
             return T((params['new'] if k == params['old'] else k,
                       traverse(v, curdepth, maxdepth))
-                     for k, v in obj.iteritems())
+                     for k, v in obj.items())
         elif isinstance(obj, (list, tuple, collections.Set)):
             return T((traverse(elem, curdepth, maxdepth) for elem in obj))
         else:

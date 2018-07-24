@@ -10,7 +10,7 @@ Created on Jan 4, 2012
 #
 
 
-from __future__ import absolute_import
+
 import sys
 import time
 
@@ -29,12 +29,12 @@ class ProgressBar(object):
     def animate(self):
         for i in range(self.duration):
             if sys.platform.lower().startswith('win'):
-                print self, '\r',
+                print(self, '\r', end=' ')
             else:
-                print self, chr(27) + '[A'
+                print(self, chr(27) + '[A')
             self.update_time(i + 1)
             time.sleep(1)
-        print self
+        print(self)
 
     def update_time(self, elapsed_secs):
         elapsed_secs = min(max(0, elapsed_secs), self.duration)
@@ -55,7 +55,7 @@ class ProgressBar(object):
     def __str__(self):
         return str(self.prog_bar)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.percent_done)
 
 
@@ -65,30 +65,30 @@ if __name__ == '__main__':
     #  [##########       25%                  ]  15s/60s
     p = ProgressBar(60)
     p.update_time(15)
-    print 'static progress bar:'
-    print p
+    print('static progress bar:')
+    print(p)
     # print a static progress bar
     #  [=================83%============      ]  25s/30s
     p = ProgressBar(30)
     p.fill_char = '='
     p.update_time(25)
-    print 'static progress bar:'
-    print p
+    print('static progress bar:')
+    print(p)
     # print a dynamic updating progress bar on one line:
     #
     #  [################100%##################]  10s/10s
     #  done
     secs = 10
     p = ProgressBar(secs)
-    print 'dynamic updating progress bar:'
-    print 'please wait %d seconds...' % secs
+    print('dynamic updating progress bar:')
+    print('please wait %d seconds...' % secs)
 
     # spawn asych (threads/processes/etc) code here that runs for secs.
     # the call to .animate() blocks the main thread.
 
     p.animate()
 
-    print 'done'
+    print('done')
 
 
 """

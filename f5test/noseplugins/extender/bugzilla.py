@@ -8,10 +8,10 @@ import logging
 import os
 import re
 import traceback
-import xmlrpclib
+import xmlrpc.client
 
 from nose.case import Test
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 from . import ExtendedPlugin, PLUGIN_NAME
 from ...base import AttrDict
@@ -71,7 +71,7 @@ class Bugzilla(ExtendedPlugin):
         o = self.options
         test_id = test.id()
         for pair in o.components or []:
-            pattern, combo = pair.items().pop()
+            pattern, combo = list(pair.items()).pop()
             if re.search(pattern, test_id):
                 return combo.split('|', 1)
         raise ValueError('Unable to guess component for %s' % test_id)
@@ -126,7 +126,7 @@ class Bugzilla(ExtendedPlugin):
         # Search for an existing OPEN bug first.
         payload = AttrDict()
         # payload.token = self.bzifc.token  # For Bugzilla 4.4.6+
-        for pattern, field_value in o.version.items():
+        for pattern, field_value in list(o.version.items()):
             if re.search(pattern, str(dut.version)):
                 payload.version = field_value
                 break
@@ -207,7 +207,7 @@ class Bugzilla(ExtendedPlugin):
                 LOG.debug("payload: %s", payload)
                 ret = self.bzifc.api.Bug.create(payload)
                 LOG.info("Bug {} created.".format(ret.id))
-            except xmlrpclib.Fault, e:
+            except xmlrpc.client.Fault as e:
                 LOG.error("Bugzilla failure: {}".format(e))
 
     def begin(self):

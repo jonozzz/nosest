@@ -143,7 +143,7 @@ class LogGenerator(Macro):
                 # LOG.info(msg)
                 # LOG.info("\n:i:{0}".format(i))
                 l.log(msg)
-            except Exception, e:
+            except Exception as e:
                 LOG.warning(e)
                 time.sleep(1)
 

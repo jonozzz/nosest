@@ -13,7 +13,7 @@ class DiscoveryAPI(DeviceClient):
         discoverySpecsArray = Array()
         for spec in discoverySpecs:
             d = Dictionary()
-            for key in spec.keys():
+            for key in list(spec.keys()):
                 d.put(key, String(spec[key]))
             discoverySpecsArray.add(d)
         req.put('discoverySpecs', discoverySpecsArray)

@@ -3,7 +3,7 @@ Created on Feb 9, 2012
 
 @author: jono
 '''
-from __future__ import absolute_import
+
 from f5test.interfaces.config import (expand_devices, ConfigInterface)
 from f5test.macros.base import Macro, MacroThread
 from f5test.utils.stage.base import Stage, StageError
@@ -13,7 +13,7 @@ import os
 import random
 
 from f5test.base import Options
-from Queue import Queue
+from queue import Queue
 import traceback
 import logging
 
@@ -71,7 +71,7 @@ def carry_flag(d, flag=None):
     else:
         flag = d.get(ENABLE_KEY)
 
-    for v in d.itervalues():
+    for v in d.values():
         if isinstance(v, dict):
             carry_flag(v, flag)
 
@@ -86,7 +86,7 @@ def process_stages(stages, section, context, stop_on_error=True):
 
     # Build the stage map with *ALL* defined stage classes in this file.
     stages_map = {}
-    for value in globals().values():
+    for value in list(globals().values()):
         if inspect.isclass(value) and issubclass(value, Stage) and value != Stage:
             stages_map[value.name] = value
 
@@ -95,7 +95,7 @@ def process_stages(stages, section, context, stop_on_error=True):
         stages = stages.get(key, Options())
 
     # Sort stages by priority attribute and stage name.
-    stages = sorted(stages.iteritems(), key=lambda x: (isinstance(x[1], dict) and
+    stages = sorted(iter(stages.items()), key=lambda x: (isinstance(x[1], dict) and
                                                       x[1].get(PRIORITY_KEY,
                                                                DEFAULT_PRIORITY),
                                                       x[0]))
@@ -162,7 +162,7 @@ def process_stages(stages, section, context, stop_on_error=True):
 
                     # Cap the number parallel threads
                     if len(pool) >= specs.get('threads', MAX_THREADS):
-                        map(lambda x: x.join(), pool)
+                        list(map(lambda x: x.join(), pool))
                         pool[:] = []
 
         LOG.debug('Waiting for threads...')

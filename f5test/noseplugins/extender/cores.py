@@ -166,7 +166,7 @@ class Cores(ExtendedPlugin):
 
         ih = InterfaceHelper()
         ih._setup(test_name)
-        interfaces = ih.get_container(container=INTERFACES_CONTAINER).values()
+        interfaces = list(ih.get_container(container=INTERFACES_CONTAINER).values())
 
         #if not getattr(test.test, TESTCASE_FLAG, False):
         if not (isinstance(test, Test) and isinstance(test.test, CollectQkviewOnFail)):

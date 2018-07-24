@@ -50,9 +50,9 @@ class Tool(Macro):
             shell.expect_exact(PROMPT)
             leftovers = set()
 
-            for path in reversed(result.keys()):
+            for path in reversed(list(result.keys())):
                 if path.startswith('ltm pool'):
-                    for member in result[path]['members'].keys():
+                    for member in list(result[path]['members'].keys()):
                         if member.count('.') == 1:  # 2002::1.http
                             leftovers.add('ltm node {}'.format(member.split('.')[0]))
                         elif member.count(':') == 1:  # 1.1.1.1:21
@@ -76,7 +76,7 @@ def main():
     import sys
 
     usage = """%prog [options] <address> [scf]...""" \
-        u"""
+        """
   A tool that attempts to "unmerge" a SCF file.
 
   Examples:

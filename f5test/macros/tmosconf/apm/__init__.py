@@ -43,7 +43,7 @@ class UrlFilter(Stamp):
 
     def tmsh(self, obj):
         key = self.get_full_path()
-        print key
+        print(key)
         value = obj.rename_key('apm url-filter %(key)s', key=key)
         for category in self.blocked_cats:
             value['blocked-categories'].append(category.get_full_path())

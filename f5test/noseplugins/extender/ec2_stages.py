@@ -54,7 +54,7 @@ class Ec2Stages(ExtendedPlugin):
 
         LOG.info('EC2 Start Duts Nose Stage...')
 
-        for ec2, instances in self.ec2s.items():
+        for ec2, instances in list(self.ec2s.items()):
             LOG.info('Starting instances: {0}'.format(instances))
             LOG.info("Connecting to AWS EC2 API for [{0}]..."
                      .format(ec2))
@@ -66,7 +66,7 @@ class Ec2Stages(ExtendedPlugin):
 
         if not self.data.nose_config.options.no_dutstop:
             LOG.info('EC2 Stop Duts Nose Stage...')
-            for ec2, instances in self.ec2s.items():
+            for ec2, instances in list(self.ec2s.items()):
                 LOG.info('Stopping instances {0}'.format(instances))
                 LOG.info("Connecting to AWS EC2 API for [{0}]..."
                          .format(ec2))

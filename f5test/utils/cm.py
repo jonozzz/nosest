@@ -40,7 +40,7 @@ basic usage::
 """
 import os
 import re
-from itertools import ifilter
+
 from xml.etree.ElementTree import fromstring
 from .version import Version, Product
 from ..base import Options
@@ -101,7 +101,7 @@ def md5_file_for(filename):
     """
     try:
         directory_contents = os.listdir(os.path.dirname(filename))
-    except OSError, e:
+    except OSError as e:
         raise MD5NotFoundError('Could not find md5 file for file "%s" '
                                'because: %s' % (filename, e))
     filename_with_md5_added = filename + '.md5'
@@ -169,7 +169,7 @@ def ovafile(identifier, build=None, hotfix=None, product=BIGIP, disk='scsi'):
     """
     try:
         iso = isofile(identifier, build, hotfix, product=product)
-    except IsoNotFoundError, e:
+    except IsoNotFoundError as e:
         raise OVANotFoundError("Could not find ova file due to an error "
                                "locating the corresonding iso: %s" % e)
 
@@ -307,7 +307,7 @@ class CMFileFinder(object):
                                  given criteria.
 
         """
-        for directory in ifilter(self._isdir, self.potential_locations()):
+        for directory in filter(self._isdir, self.potential_locations()):
             LOG.debug('Potential directory: %s', directory)
             for potential_file in self.files_for(directory):
                 if self.matches(potential_file) and 'RECOVERY' not in potential_file:
@@ -339,7 +339,7 @@ class CMFileFinder(object):
     def _raise_not_found_error(self):
         param_str = ' '.join([
             '%s: %s' % (k, v) for k, v
-            in self.__dict__.iteritems() if not k.startswith('_')])
+            in self.__dict__.items() if not k.startswith('_')])
         raise FileNotFoundError("Could not find file that matches:"
                                 " %s" % (param_str))
 
@@ -411,7 +411,7 @@ class IsoFinder(CMFileFinder):
 
     def _raise_not_found_error(self):
             param_str = ' '.join(['%s: %s' % (k, v) for k, v
-                                  in self.__dict__.iteritems()
+                                  in self.__dict__.items()
                                   if not k.startswith('_')])
             raise IsoNotFoundError("Could not find ISO file that matches:"
                                    " %s" % param_str)

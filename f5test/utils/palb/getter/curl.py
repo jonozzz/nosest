@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 import sys
 import time
 import pycurl
@@ -6,7 +6,7 @@ import logging
 from ..core import URLGetter, Result
 from dns.resolver import Resolver
 import dns
-import urlparse
+import urllib.parse
 
 LOG = logging.getLogger(__name__)
 
@@ -63,7 +63,7 @@ class PyCurlURLGetter(URLGetter):
     def get_url(self, url):
         if self.dns:
             self.resolver.nameservers = [self.dns]
-            u = urlparse.urlparse(url)
+            u = urllib.parse.urlparse(url)
             qname = u.hostname
             answer = self.resolver.query(qname, rdtype=dns.rdatatype.A,
                                     rdclass=dns.rdataclass.IN, tcp=False,
@@ -74,14 +74,14 @@ class PyCurlURLGetter(URLGetter):
                     netloc = '%s:%d' % (ip, u.netloc.split(':')[1])
                 else:
                     netloc = ip
-                url = urlparse.urlunsplit((u[0], netloc, u[2], u[3], u[4]))
+                url = urllib.parse.urlunsplit((u[0], netloc, u[2], u[3], u[4]))
                 self.c.setopt(pycurl.HTTPHEADER, self.headers + ['Host: %s' % qname])
 
         url = str(url)
         self.c.setopt(pycurl.URL, url)
         try:
             self.c.perform()
-        except Exception, e:
+        except Exception as e:
             # to avoid hogging the CPU in case of repeated errors
             time.sleep(.1)
             LOG.warn("curl barfed on '%s': %s", url, e)

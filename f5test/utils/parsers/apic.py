@@ -16,8 +16,8 @@ def colon_pairs_list(string):
     try:
         for substring in strings:
             subdict = toplevel.parseString(substring).asDict()
-            ret.append(dict(zip(map(lambda x: x.lower(), subdict.keys()),
-                       subdict.values())))
+            ret.append(dict(list(zip([x.lower() for x in list(subdict.keys())],
+                       list(subdict.values())))))
 
         return ret
 

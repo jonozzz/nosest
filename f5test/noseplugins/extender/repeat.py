@@ -3,7 +3,7 @@ Created on Feb 20, 2014
 
 @author: jono
 '''
-from __future__ import absolute_import
+
 from . import ExtendedPlugin
 from ...interfaces.config import ConfigError
 from nose.case import Test
@@ -63,7 +63,7 @@ class Repeat(ExtendedPlugin):
                 #else:
                 #    return self.run(result, blocking_context)
                 if isinstance(self, (Test, ContextSuite)):
-                    for k, v in options.items():
+                    for k, v in list(options.items()):
                         if self.context and self.context != Failure:
                             id_ = self.id()
                         else:

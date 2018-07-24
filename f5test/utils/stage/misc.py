@@ -74,7 +74,7 @@ class TweaksStage(Stage, Macro):
         if self.specs.scp:
             params = self.specs.scp
 
-            source = params.source if isinstance(params.source, basestring) \
+            source = params.source if isinstance(params.source, str) \
                 else ' '.join(params.source)
 
             with SSHInterface(device=self.device) as sshifc:
@@ -90,7 +90,7 @@ class TweaksStage(Stage, Macro):
         # shell: Execute shell commands
         if self.specs.shell:
             commands = [self.specs.shell] if isinstance(self.specs.shell,
-                                                        basestring) \
+                                                        str) \
                 else self.specs.shell
             with SSHInterface(device=self.device) as sshifc:
                 for command in commands:

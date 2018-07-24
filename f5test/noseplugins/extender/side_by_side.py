@@ -3,7 +3,7 @@ Created on Mar 16, 2018
 
 @author: jono
 '''
-from __future__ import absolute_import
+
 from . import ExtendedPlugin
 import sys
 import os
@@ -31,13 +31,13 @@ class LookHere(object):
             for p in self.to_pop:
                 if module.startswith(p):
                     sys.modules.pop(module)
-        for k, v in self.paths.items():
+        for k, v in list(self.paths.items()):
             sys.path.insert(0, os.path.join(PATH, k, v, SITE_PACKAGES))
             # LOG.info(os.path.join(PATH, k, v, SITE_PACKAGES))
             self.inserts += 1
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        map(sys.modules.pop, set(sys.modules) - set(self.old))
+        list(map(sys.modules.pop, set(sys.modules) - set(self.old)))
         sys.modules.update(self.old)
         for _ in range(self.inserts):
             sys.path.pop(0)

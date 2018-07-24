@@ -3,6 +3,7 @@ Created on Mar 16, 2013
 
 @author: jono
 '''
+import io
 import logging
 import os
 import sys
@@ -69,7 +70,7 @@ class YamlLoader(yaml.Loader):
         self.add_constructor('!append', self._append)
         if 'root' in kwargs:
             self.root = kwargs['root']
-        elif isinstance(self.stream, file):
+        elif isinstance(self.stream, io.IOBase):
             self.root = os.path.dirname(self.stream.name)
         else:
             self.root = os.path.curdir
@@ -86,7 +87,7 @@ class YamlLoader(yaml.Loader):
         index = 0
         while index < len(node.value):
             key_node, value_node = node.value[index]
-            if key_node.tag == u'tag:yaml.org,2002:merge':
+            if key_node.tag == 'tag:yaml.org,2002:merge':
                 del node.value[index]
                 if isinstance(value_node, yaml.MappingNode):
                     self.flatten_mapping(value_node)
@@ -112,8 +113,8 @@ class YamlLoader(yaml.Loader):
                     value_node = self._load_node(value_node)
                     self.flatten_mapping(value_node)
                     merge.extend(value_node.value)
-            elif key_node.tag == u'tag:yaml.org,2002:value':
-                key_node.tag = u'tag:yaml.org,2002:str'
+            elif key_node.tag == 'tag:yaml.org,2002:value':
+                key_node.tag = 'tag:yaml.org,2002:str'
                 index += 1
             else:
                 index += 1
@@ -144,7 +145,7 @@ class YamlLoader(yaml.Loader):
             key = self.construct_object(key_node, deep=deep)
             try:
                 hash(key)
-            except TypeError, exc:
+            except TypeError as exc:
                 raise yaml.constructor.ConstructorError("while constructing a mapping", node.start_mark,
                         "found unacceptable key (%s)" % exc, key_node.start_mark)
             value = self.construct_object(value_node, deep=deep)
@@ -194,10 +195,10 @@ class ConfigLoader(object):
 
     def extend(self, cwd, config, extra=None):
         bases = config.get(EXTENDS_KEYWORD) or []
-        if bases and isinstance(bases, basestring):
+        if bases and isinstance(bases, str):
             bases = [bases]
 
-        if extra and isinstance(extra, basestring):
+        if extra and isinstance(extra, str):
             extra = [extra]
         else:
             extra = []
@@ -226,10 +227,10 @@ class ConfigLoader(object):
 #                 LOG.debug('Key %s cannot be formatted.', v)
 
         if isinstance(src, dict):
-            for k, v in src.iteritems():
+            for k, v in src.items():
                 if isinstance(v, dict):
                     self.subst_variables(v, root)
-                elif isinstance(v, basestring):
+                elif isinstance(v, str):
                     _subst(src, k)
                 elif isinstance(v, (list, tuple)):
                     for i in range(len(v)):
@@ -255,8 +256,8 @@ class ConfigLoader(object):
         """ Parse and collapse a ConfigParser-Style ini file into a nested,
         eval'ing the individual values, as they are assumed to be valid
         python statement formatted """
-        import ConfigParser
-        tmpconfig = ConfigParser.ConfigParser()
+        import configparser
+        tmpconfig = configparser.ConfigParser()
         tmpconfig.read(filename)
         config = {}
         for section in tmpconfig.sections():

@@ -53,13 +53,13 @@ class DeviceCloner(Macro):
         super(DeviceCloner, self).__init__()
 
     def do_prep_insert(self, row):
-        names = ['NULL' if x is None else unicode(x) for x in row.keys()]
+        names = ['NULL' if x is None else str(x) for x in list(row.keys())]
         values = []
-        for x in row.values():
+        for x in list(row.values()):
             if x is None:
                 values.append('NULL')
             else:
-                values.append("'%s'" % unicode(x))
+                values.append("'%s'" % str(x))
         return "(`%s`) VALUES(%s)" % ("`,`".join(names), ",".join(values))
 
     def do_get_template(self, mgmtip, ifc):
@@ -156,7 +156,7 @@ class DeviceCloner(Macro):
                 emapi.device.delete_device(deviceIds=uids)
                 #LOG.info('Enabling auto-refresh on EM...')
                 #EMAPI.device.set_config(auto_refresh=True, ifc=emicifc)
-            except ParsingError, e:
+            except ParsingError as e:
                 LOG.warning(e)
 
         if clones:
@@ -166,7 +166,7 @@ class DeviceCloner(Macro):
                 ic = bigipicifc.api
                 try:
                     ic.Networking.SelfIP.delete_self_ip(self_ips=self_ips)
-                except IControlFault, e:
+                except IControlFault as e:
                     LOG.warning(e)
 
         if devices:
@@ -200,7 +200,7 @@ class DeviceCloner(Macro):
                     LOG.info('Refresh %s', row.access_address)
                     try:
                         emapi.device.refresh_device(deviceIds=[row.uid])
-                    except IControlTransportError, e:
+                    except IControlTransportError as e:
                         LOG.error(e)
 
     def setup(self):

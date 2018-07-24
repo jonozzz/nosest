@@ -89,7 +89,7 @@ class Delete(IcontrolRestCommand):  # @IgnorePep8
                        for x in self.devices)
 
         self.v = self.ifc.version
-        for device, uri in devices.items():
+        for device, uri in list(devices.items()):
             if uri is None:
                 raise CommandError('Device %s was not found' % device)
             self.remove_one(device, uri)
@@ -190,7 +190,7 @@ class Discover(IcontrolRestCommand):  # @IgnorePep8
         def is_up(*args):
             try:
                 return self.api.get(*args)
-            except EmapiResourceError, e:
+            except EmapiResourceError as e:
                 if 'Authorization failed' in e.msg:
                     raise StopWait(e)
                 raise

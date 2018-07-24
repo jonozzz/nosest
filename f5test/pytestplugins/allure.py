@@ -1,7 +1,8 @@
-from __future__ import absolute_import
+
 import pytest
 
-from f5test.interfaces import ContextHelper
+from ..interfaces import ContextHelper
+from ..interfaces.config.core import CFG_SESSION
 from ..utils.convert import to_bool
 from ..base import AttrDict
 import subprocess
@@ -99,7 +100,8 @@ class Plugin(object):
         path = _get_session_dir(self.context)
         filename = os.path.join(path, 'config.yaml')
         with open(filename, "wt") as f:
-            config = self.context.get_config().api
+            config = dict((k, v) for k, v in self.context.get_config().api.items()
+                          if k != CFG_SESSION)
             yaml.dump(config, f, indent=4, width=1024, default_flow_style=False)
 
     def X_pytest_json_modifyreport(self, json_report):

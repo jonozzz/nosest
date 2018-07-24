@@ -52,7 +52,7 @@ class SNMPWrap(object):
                  auth_protocol=cmdgen.usmNoAuthProtocol,
                  priv_protocol=cmdgen.usmNoPrivProtocol,
                  security_name=None):
-        self.host = unicode(host)
+        self.host = str(host)
         self.version = version
         self.transport = cmdgen.UdpTransportTarget((host, port),
                                                    timeout=timeout)
@@ -96,8 +96,8 @@ class SNMPWrap(object):
     def _format_oids(args):
         oids = []
         for oid in args:
-            if isinstance(oid, basestring):
-                oid = map(lambda x: int(x), filter(None, oid.split('.')))
+            if isinstance(oid, str):
+                oid = [int(x) for x in [_f for _f in oid.split('.') if _f]]
             oids.append(oid)
         return oids
 

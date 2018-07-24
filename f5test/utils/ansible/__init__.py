@@ -3,7 +3,7 @@ Created on Dec 28, 2017
 
 @author: jono
 '''
-from __future__ import absolute_import
+
 
 import shutil
 
@@ -49,8 +49,8 @@ from ansible.plugins.loader import action_loader, lookup_loader
 
 from f5test.base import OptionsStrict
 from f5test.interfaces.testcase import ContextHelper
-from f5test.noseplugins.extender.report import nose_selector, test_address
-from f5test.noseplugins.extender.ite import ITE_METADATA
+#from f5test.noseplugins.extender.report import nose_selector, test_address
+#from f5test.noseplugins.extender.ite import ITE_METADATA
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = '.playbooks'
@@ -182,15 +182,11 @@ def run_playbooks(playbook, tags=[], context=None, options=None):
     a.set_variable(VAR_F5TEST_CONFIG, cfgifc.api)
     a.set_variable('f5test_itemd', {})
     if context:
-        tmp = nose_selector(context)
-        address = test_address(context)
-        a.set_variable('f5test_module', tmp.replace(':', '.'))
+        address = context.node.name
+        a.set_variable('f5test_module', address)
         # ITE compatibility: templates can refer to metadata values (e.g. TCID)
-        if hasattr(context, ITE_METADATA):
-            a.set_variable('f5test_itemd', getattr(context, ITE_METADATA))
-        if address[1]:
-            name = address[1].rsplit('.')[-1]
-            a.set_variable('f5test_module_name', name)
+        #if hasattr(context, ITE_METADATA):
+        #    a.set_variable('f5test_itemd', getattr(context, ITE_METADATA))
     a.set_variable('playbook_name', os.path.splitext(os.path.basename(playbook))[0])
     for device in cfgifc.get_devices(KIND_ANY):
         prev = a
@@ -226,7 +222,7 @@ def run_playbooks(playbook, tags=[], context=None, options=None):
         h.set_variable('ansible_ssh_port', device.ports['ssh'])
         h.set_variable('ansible_user', device.get_root_creds().username)
         h.set_variable('ansible_ssh_pass', device.get_root_creds().password)
-        for spec, v in device.specs.get(HOST_VARS, {}).items():
+        for spec, v in list(device.specs.get(HOST_VARS, {}).items()):
             h.set_variable(spec, v)
 
         for group in device.groups:
@@ -237,7 +233,7 @@ def run_playbooks(playbook, tags=[], context=None, options=None):
 
     names = [playbook] if isinstance(playbook, str) else playbook
 
-    for g, v in cfgifc.api.get(GROUP_VARS, {}).items():
+    for g, v in list(cfgifc.api.get(GROUP_VARS, {}).items()):
         group = inventory.groups.get(g)
         if group:
             group.vars.update(v)

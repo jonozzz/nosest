@@ -117,14 +117,14 @@ class CallRoutine(Query):
     def setup(self):
         params = []
         for param in self.params:
-            if isinstance(param, basestring):
+            if isinstance(param, str):
                 params.append("'%s'" % param)
             else:
                 params.append(param)
         
         if self.is_function:
             self.query = "SELECT %s(%s);" % (self.sp_name, ','.join(params))
-            return super(CallRoutine, self).setup()[0].values()[0]
+            return list(super(CallRoutine, self).setup()[0].values())[0]
         else:
             error_sql = '' #@UnusedVariable
             if self.handle_errors:

@@ -4,7 +4,7 @@ Created on Apr 17, 2013
 
 @author: jono
 '''
-from __future__ import absolute_import
+
 from f5test.macros.base import Macro
 from f5test.interfaces.ssh import SSHInterface
 from f5test.interfaces.config import ConfigInterface
@@ -155,7 +155,7 @@ class ConfigPlacer(Macro):
             device_row = None
             for row in reader:
                 # Clean up whitespaces
-                row = {x.strip(): y.strip() for x, y in row.iteritems()}
+                row = {x.strip(): y.strip() for x, y in row.items()}
                 if IPAddress(mgmtip) == IPNetwork(row['mgmtip']).ip:
                     device_row = row
                     break
@@ -262,16 +262,16 @@ class ConfigPlacer(Macro):
         if self.can.provision(ctx.version):
             ctx.provision = {}
             modules = SCMD.tmsh.get_provision(ifc=self.sshifc)
-            for k, v in modules.iteritems():
+            for k, v in modules.items():
                 if v:
                     ctx.provision[k] = v['level']
 
         try:
             tokens = SCMD.ssh.parse_license(ifc=self.sshifc, tokens_only=True)
-            ctx.modules = dict([(k[4:], v) for (k, v) in tokens.items()
+            ctx.modules = dict([(k[4:], v) for (k, v) in list(tokens.items())
                                 if k.startswith('mod_')])
 
-            ctx.features = dict([(k, v) for (k, v) in tokens.items()
+            ctx.features = dict([(k, v) for (k, v) in list(tokens.items())
                                 if not k.startswith('mod_')])
         except SCMD.ssh.LicenseParsingError as e:
             ctx.modules = {}
@@ -308,7 +308,7 @@ class ConfigPlacer(Macro):
             ret = SCMD.tmsh.list('sys management-route', ifc=self.sshifc)
             # Sometimes it's defined as "default" some other times it's "0.0.0.0"
             if ret:
-                o.gateway = IPAddress(ret.values()[0]['gateway'])
+                o.gateway = IPAddress(list(ret.values())[0]['gateway'])
         else:
             # Try to find the existing IP configuration on management interface.
             #ret = self.sshifc()
@@ -374,7 +374,7 @@ class ConfigPlacer(Macro):
         else:
             # Preserve provisioning.
             modules = SCMD.tmsh.get_provision(ifc=self.sshifc)
-            for module, level_kv in modules.iteritems():
+            for module, level_kv in modules.items():
                 if level_kv:
                     level = level_kv['level']
                     o.provision[module] = level
@@ -417,7 +417,7 @@ class ConfigPlacer(Macro):
             # VEs can may have a variable number of TMM interfaces.
             # Adjusting accordingly.
             ret = SCMD.tmsh.list('net interface', ifc=self.sshifc)
-            interfaces = sorted([x.split()[2] for x in ret.keys()
+            interfaces = sorted([x.split()[2] for x in list(ret.keys())
                                  if x.split()[2] != 'mgmt'])
             eth1, eth2 = (interfaces + [None, None])[:2]
         else:
@@ -429,7 +429,7 @@ class ConfigPlacer(Macro):
             # No trunks. They will be automatically generated on VCMP guests.
             eth1 = eth2 = None
             ret = SCMD.tmsh.list('net vlan', ifc=self.sshifc)
-            for key, obj in ret.items():
+            for key, obj in list(ret.items()):
                 s = Mirror(key, obj)
                 o.vlans[s.name] = s
 
@@ -834,10 +834,10 @@ class ConfigPlacer(Macro):
             self.call('SOAPLicenseClient --verbose --basekey %s' % regkey)
             # We need to re-set the modules based on the new license
             tokens = SCMD.ssh.parse_license(ifc=self.sshifc, tokens_only=True)
-            ctx.modules = dict([(k[4:], v) for (k, v) in tokens.items()
+            ctx.modules = dict([(k[4:], v) for (k, v) in list(tokens.items())
                                if k.startswith('mod_')])
 
-            ctx.features = dict([(k, v) for (k, v) in tokens.items()
+            ctx.features = dict([(k, v) for (k, v) in list(tokens.items())
                                 if not k.startswith('mod_')])
 
             # Tomcat doesn't like the initial licensing through CLI

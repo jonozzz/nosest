@@ -94,7 +94,7 @@ class AdcDeployConfigTask(CmTask):
         super(AdcDeployConfigTask, self).__init__(*args, **kwargs)
 
     def set_min_defaults(self):
-        self.update({x: y for (x, y) in self.ATTRIBUTE_DEFAULTS.items()
+        self.update({x: y for (x, y) in list(self.ATTRIBUTE_DEFAULTS.items())
                      if x in self.REQUIRED_REQUEST_ATTRIBUTES})
         return self
 
@@ -149,7 +149,7 @@ class WorkingLtmNode(BaseApiObject):
                           }
 
     def set_min_defaults(self):
-        self.update({x: y for (x, y) in self.ATTRIBUTE_DEFAULTS.items()
+        self.update({x: y for (x, y) in list(self.ATTRIBUTE_DEFAULTS.items())
                      if x in self.REQUIRED_REQUEST_ATTRIBUTES})
         return self
 
@@ -185,7 +185,7 @@ class WorkingLtmPool(BaseApiObject):
                           }
 
     def set_min_defaults(self):
-        self.update({x: y for (x, y) in self.ATTRIBUTE_DEFAULTS.items()
+        self.update({x: y for (x, y) in list(self.ATTRIBUTE_DEFAULTS.items())
                      if x in self.REQUIRED_REQUEST_ATTRIBUTES})
         return self
 
@@ -216,7 +216,7 @@ class WorkingLtmPoolMember(BaseApiObject):
                           }
 
     def set_min_defaults(self):
-        self.update({x: y for (x, y) in self.ATTRIBUTE_DEFAULTS.items()
+        self.update({x: y for (x, y) in list(self.ATTRIBUTE_DEFAULTS.items())
                      if x in self.REQUIRED_REQUEST_ATTRIBUTES})
         return self
 
@@ -253,7 +253,7 @@ class WorkingLtmVip(BaseApiObject):
                           }
 
     def set_min_defaults(self):
-        self.update({x: y for (x, y) in self.ATTRIBUTE_DEFAULTS.items()
+        self.update({x: y for (x, y) in list(self.ATTRIBUTE_DEFAULTS.items())
                      if x in self.REQUIRED_REQUEST_ATTRIBUTES})
         return self
 
@@ -293,7 +293,7 @@ class WorkingLtmVipProfile(BaseApiObject):
                           }
 
     def set_min_defaults(self):
-        self.update({x: y for (x, y) in self.ATTRIBUTE_DEFAULTS.items()
+        self.update({x: y for (x, y) in list(self.ATTRIBUTE_DEFAULTS.items())
                      if x in self.REQUIRED_REQUEST_ATTRIBUTES})
         return self
 
@@ -316,7 +316,7 @@ class WorkingLtmIrule(BaseApiObject):
                           }
 
     def set_min_defaults(self):
-        self.update({x: y for (x, y) in self.ATTRIBUTE_DEFAULTS.items()
+        self.update({x: y for (x, y) in list(self.ATTRIBUTE_DEFAULTS.items())
                      if x in self.REQUIRED_REQUEST_ATTRIBUTES})
         return self
 
@@ -339,7 +339,7 @@ class CurrentLtmIrule(BaseApiObject):
                           }
 
     def set_min_defaults(self):
-        self.update({x: y for (x, y) in self.ATTRIBUTE_DEFAULTS.items()
+        self.update({x: y for (x, y) in list(self.ATTRIBUTE_DEFAULTS.items())
                      if x in self.REQUIRED_REQUEST_ATTRIBUTES})
         return self
 
@@ -361,7 +361,7 @@ class WorkingNetSelfIp(BaseApiObject):
                           }
 
     def set_min_defaults(self):
-        self.update({x: y for (x, y) in self.ATTRIBUTE_DEFAULTS.items()
+        self.update({x: y for (x, y) in list(self.ATTRIBUTE_DEFAULTS.items())
                      if x in self.REQUIRED_REQUEST_ATTRIBUTES})
         return self
 

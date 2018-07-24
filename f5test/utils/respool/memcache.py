@@ -58,7 +58,7 @@ class MemcachePool(object):
         while True:
             key_names, cas = self.mc.gets(pool.name)
             pool_ids = self.mc.get_multi(key_names)
-            pool.update_with(pool_ids.values())
+            pool.update_with(list(pool_ids.values()))
             item = pool.get(name, **kwargs)
             key_name = self.item_key.format(pool.name, item.key)
             pool_ids = set(pool_ids)
@@ -78,7 +78,7 @@ class MemcachePool(object):
         while True:
             key_names, cas = self.mc.gets(pool.name)
             pool_ids = self.mc.get_multi(key_names)
-            pool.update_with(pool_ids.values())
+            pool.update_with(list(pool_ids.values()))
             items = []
             for item in pool.get_multi(num, name, **kwargs):
                 items.append(item)
@@ -106,7 +106,7 @@ class MemcachePool(object):
         while True:
             key_names, cas = self.mc.gets(pool.name)
             pool_ids = self.mc.get_multi(key_names)
-            pool.update_with(pool_ids.values())
+            pool.update_with(list(pool_ids.values()))
             item = pool.free(item)
             pool_ids = set(pool_ids)
             if item is not None:
@@ -124,7 +124,7 @@ class MemcachePool(object):
         while True:
             key_names, cas = self.mc.gets(pool.name)
             pool_ids = self.mc.get_multi(key_names)
-            pool.update_with(pool_ids.values())
+            pool.update_with(list(pool_ids.values()))
             items = pool.free_all()
             pool_ids = set(pool_ids)
             key_names = set()
@@ -146,13 +146,13 @@ class MemcachePool(object):
             key_names, cas = self.mc.gets(pool.name)
             pool_ids = self.mc.get_multi(key_names or [])
             pool_ids = set(pool_ids)
-            for item in pool.local_items.values():
+            for item in list(pool.local_items.values()):
                 key_name = self.item_key.format(pool.name, item.key)
                 self.mc.add(key_name, item, self.timeout)
                 pool_ids.add(key_name)
             if self.mc.cas(pool.name, pool_ids, cas):
                 pool_ids = self.mc.get_multi(set(key_names))
-                pool.update_with(pool_ids.values())
+                pool.update_with(list(pool_ids.values()))
                 break
             else:
                 warnings.warn('Collision. Retrying...')

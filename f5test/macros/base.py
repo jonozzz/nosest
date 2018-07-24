@@ -16,9 +16,7 @@ class MacroError(Exception):
     pass
 
 
-class Macro(object):
-
-    __metaclass__ = Aliasificator
+class Macro(object, metaclass=Aliasificator):
 
     def __init__(self, *args, **kwargs):
         self.commands = []

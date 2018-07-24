@@ -15,7 +15,7 @@ import dns
 import itertools
 import logging
 import time
-import urlparse
+import urllib.parse
 
 DEFAULT_TIMEOUT = 3
 DEFAULT_LIMIT = 90
@@ -60,7 +60,7 @@ class TrafficGen(Macro):
 
         if o.dns:
             resolver.nameservers = [o.dns]
-            u = urlparse.urlparse(url)
+            u = urllib.parse.urlparse(url)
             qname = u.hostname
             answer = resolver.query(qname, rdtype=dns.rdatatype.A,
                                     rdclass=dns.rdataclass.IN, tcp=False,
@@ -72,7 +72,7 @@ class TrafficGen(Macro):
                     netloc = '%s:%d' % (ip, u.netloc.split(':')[1])
                 else:
                     netloc = ip
-                url = urlparse.urlunsplit((u[0], netloc, u[2], u[3], u[4]))
+                url = urllib.parse.urlunsplit((u[0], netloc, u[2], u[3], u[4]))
                 headers['Host'] = qname
 
         client = HTTPClient.from_url(url, concurrency=o.concurrency,
@@ -96,7 +96,7 @@ class TrafficGen(Macro):
                         try:
                             response = client.get(qs)
                             break
-                        except Exception, e:
+                        except Exception as e:
                             LOG.debug("Connect %s: %s", url, e)
                             gevent.sleep(0.1)
                             continue
@@ -115,7 +115,7 @@ class TrafficGen(Macro):
                 try:
                     block = response.read(block_size)
                     self.stats.data.total += len(block)
-                except Exception, e:
+                except Exception as e:
                     LOG.warning("Read %s: %s", url, e)
                     self.stats.requests.failed += 1
                     break

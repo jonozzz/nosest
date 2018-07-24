@@ -1,6 +1,6 @@
 """Commands for Testopia.Build API."""
 from .base import TestopiaCommand
-from xmlrpclib import Fault
+from xmlrpc.client import Fault
 import logging
 
 LOG = logging.getLogger(__name__) 
@@ -24,7 +24,7 @@ class CreateBuild(TestopiaCommand):
         t = self.api
         try:
             ret = t.Build.check_build(self.build, self.product)
-        except Fault, e:
+        except Fault as e:
             if e.faultCode == 32000 and 'does not exist' in e.faultString:
                 ret = t.Build.create(dict(product=self.product, name=self.build))
             else:

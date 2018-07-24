@@ -67,7 +67,7 @@ class LTMConfig(BaseConfig):
                      monitors=default_monitors)
             n6 = Node(ip4to6(ipv4, prefix=16), name='Nodev6_%s' % _,
                       monitors=default_monitors)
-            folder = all_folders.next()
+            folder = next(all_folders)
             folder.hook(n, n6)
             all_nodes[folder.partition().name] += (n, n6)
 
@@ -79,7 +79,7 @@ class LTMConfig(BaseConfig):
         https_pools = dict((x.name, []) for x in all_partitions)
         all_nodes = cycle_partition_stamps(all_nodes)
         for _ in range(self.pools):
-            folder = all_folders.next()
+            folder = next(all_folders)
             nodes = take(self.members, all_nodes[folder.partition().name])
             p = Pool('Pool%d-a' % _, nodes, http_ports, monitors,
                      pool_monitors=default_monitors)
@@ -100,19 +100,19 @@ class LTMConfig(BaseConfig):
         if not self.vip1:
             self.vips = 0
         for _ in range(self.vips):
-            folder = all_folders.next()
-            http_pool = http_pools[folder.partition().name].next()
+            folder = next(all_folders)
+            http_pool = next(http_pools[folder.partition().name])
             ipv4 = next(v4vips)
             # profile = profiles.next()
             # http_port = http_ports.next()
             vs = VirtualServer('VS%d-a' % _, ipv4, 80,
                                http_pool, next(profiles))
 
-            https_pool = https_pools[folder.partition().name].next()
+            https_pool = next(https_pools[folder.partition().name])
             vs2 = VirtualServer('VS%d-b' % _, ip4to6(ipv4, prefix=16), 80,
                                 https_pool, next(profiles))
 
-            https_pool = https_pools[folder.partition().name].next()
+            https_pool = next(https_pools[folder.partition().name])
             vs3 = VirtualServer('VS%d-c' % _, ipv4, 443,
                                 https_pool, next(profiles))
 
@@ -746,7 +746,7 @@ def create_lsn_pools(rhsl_ip, rd, folder, pool_monitors, lsn_pools=[]):
         # LSN Pool
         pool_data = {'LSN_Pool': '6.6.6.0/28',
                      'LSN_Pool_Deterministic': '7.7.7.0/28'}
-        for (name, ipaddr) in pool_data.iteritems():
+        for (name, ipaddr) in pool_data.items():
             lsnpool = LsnPool(name)
             lsnpool.properties.egress_interfaces_enabled = RawEOL
             lsnpool.properties.egress_interfaces_disabled = lambda k, d: d.pop(k)

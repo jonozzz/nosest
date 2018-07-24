@@ -23,8 +23,8 @@ def simple(self, *arg, **kw):
     """
     for p, meth in self.plugins:
         # Unfortunate backward compatibility :(
-        if inspect.ismethod(meth) and meth.func_code.co_argcount - 1 != len(arg):
-            arg = arg[:meth.func_code.co_argcount - 1]
+        if inspect.ismethod(meth) and meth.__code__.co_argcount - 1 != len(arg):
+            arg = arg[:meth.__code__.co_argcount - 1]
         try:
             result = meth(*arg, **kw)
         except (SystemExit, KeyboardInterrupt):
@@ -85,7 +85,7 @@ class Extender(Plugin):
                 #LOG.warning('Unable to load plugin %s. Possible dependency issue.', module_name)
                 err = sys.exc_info()
                 tb = ''.join(traceback.format_exception(*err))
-                print('Unable to load plugin {} ({})'.format(module_name, tb))
+                print(('Unable to load plugin {} ({})'.format(module_name, tb)))
                 continue
             for _, klass in inspect.getmembers(module, lambda x: inspect.isclass(x)):
                 if issubclass(klass, ExtendedPlugin) and klass is not ExtendedPlugin:

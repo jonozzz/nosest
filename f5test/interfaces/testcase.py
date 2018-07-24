@@ -68,8 +68,8 @@ class InterfaceHelper(object):
         should be called from a teardown* method, __exit__ method of a context
         manager or a finally block.
         """
-        for name, interface in self.get_container(container=INTERFACES_CONTAINER,
-                                                  exact=True).items():
+        for name, interface in list(self.get_container(container=INTERFACES_CONTAINER,
+                                                  exact=True).items()):
             interface.close()
             self.unset_data(name, container=INTERFACES_CONTAINER)
 
@@ -160,7 +160,7 @@ class InterfaceHelper(object):
 
     def extend_stats(self, other):
         container = self.set_container('statistics', self._name)
-        for owner, stats in other.get_stat_counter().items():
+        for owner, stats in list(other.get_stat_counter().items()):
             array = container.setdefault(owner, [])
             array.extend(stats)
 
@@ -197,7 +197,7 @@ class InterfaceHelper(object):
             else:
                 parent = my_id
 
-            for key in self._config.keys():
+            for key in list(self._config.keys()):
                 if fnmatch.fnmatchcase(parent, key):
                     load = self._config.get(key)
                     if load and container in load and \
@@ -227,7 +227,7 @@ class InterfaceHelper(object):
         interface instance.
         :type name: string
         """
-        if isinstance(klass, basestring):
+        if isinstance(klass, str):
             raise ValueError(klass)
 
         interface = klass(*args, **kwargs)
@@ -373,7 +373,7 @@ class InterfaceTestCase(InterfaceHelper, TestCase):
                            callable_obj=None, *args, **kwargs):
         """Add the msg argument"""
         msg = kwargs.pop('msg', None)
-        if isinstance(expected_regexp, basestring):
+        if isinstance(expected_regexp, str):
             expected_regexp = re.compile(expected_regexp)
         context = AssertRaisesContext(expected_exception, self, expected_regexp,
                                       msg)

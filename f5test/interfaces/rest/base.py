@@ -48,7 +48,7 @@ class BaseApiObject(AttrDict):
         """
         def combine(d, n):
 
-            for k, v in n.items():
+            for k, v in list(n.items()):
                 t = type(d[k]) if k in d and d[k] is not None else type(v)
                 if t is type(None):
                     t = lambda x: x

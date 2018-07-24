@@ -54,8 +54,8 @@ class IrackProfile(Macro):
                 for o in map(AttrDict, ret.data.objects):
                     vlan = o.vlan.split('/')[-1]
                     if IPAddress(o.address).version == 4:
-                        print 'VLAN:', vlan
-                        print '    Last Assigned Address:', o.address
+                        print('VLAN:', vlan)
+                        print('    Last Assigned Address:', o.address)
 
     def do_lookup_by_mgmtip(self, irack):
         done = False
@@ -74,57 +74,57 @@ class IrackProfile(Macro):
                 ret = irack.api.from_uri(nextitem).filter()
             else:
                 ret = irack.api.staticbag.filter(asset__type=1, **params)
-            nextitem = ret.data.meta.next
+            nextitem = ret.data.meta.__next__
             if nextitem is None:
                 done = True
 
             for bag in map(AttrDict, ret.data.objects):
                 bagid = bag.id
 
-                print '=' * 80
+                print('=' * 80)
                 ret = irack.api.staticaddress.filter(bag=bagid, type=0, access=True)
                 assert ret.data.meta.total_count == 1, ret
                 mgmtip = ret.data.objects[0]['address']
                 asset_id = id_from_uri(bag.asset)
-                print 'ID:', asset_id
+                print('ID:', asset_id)
                 ret = irack.api.f5asset.get_by_id(asset_id)
-                print 'Available:', not ret.data.v_is_reserved
-                print 'Owner:', ret.data.v_owner
+                print('Available:', not ret.data.v_is_reserved)
+                print('Owner:', ret.data.v_owner)
 
                 ret = irack.api.asset.get_by_id(asset_id)
-                print 'IP:', mgmtip
+                print('IP:', mgmtip)
                 mgmtip_node = static[mgmtip] = AttrDict()
 
-                print '-' * 80
+                print('-' * 80)
                 ret = irack.api.staticaddress.filter(bag=bagid, type=1)
                 selfip_node = mgmtip_node.selfip = AttrDict()
                 for o in map(AttrDict, ret.data.objects):
                     vlan = o.vlan.split('/')[-1]
-                    print 'Vlan:', vlan
-                    print 'Address:', o.address
-                    print 'Netmask:', o.netmask
+                    print('Vlan:', vlan)
+                    print('Address:', o.address)
+                    print('Netmask:', o.netmask)
                     selfip_node[vlan] = AttrDict(address=o.address,
                                                  netmask=o.netmask)
 
-                print '-' * 80
+                print('-' * 80)
                 ret = irack.api.staticsystem.filter(bag=bagid)
                 assert ret.data.meta.total_count == 1
                 hostname = ret.data.objects[0]['hostname']
-                print 'Hostname:', hostname
+                print('Hostname:', hostname)
                 mgmtip_node.hostname = hostname
 
-                print '-' * 80
+                print('-' * 80)
                 ret = irack.api.staticlicense.filter(bag=bagid)
                 licenses_node = mgmtip_node.licenses = AttrDict()
                 licenses_node.reg_key = []
                 for o in map(AttrDict, ret.data.objects):
-                    print 'License desc:', o.description
-                    print 'Regkey:', o.reg_key
+                    print('License desc:', o.description)
+                    print('Regkey:', o.reg_key)
                     # licenses_node['description'] = o['description']
                     licenses_node.reg_key.append(o.reg_key)
 
                 # print '-' * 80
-                print
+                print()
         # print yaml.safe_dump(dump, default_flow_style=False)
 
     def setup(self):

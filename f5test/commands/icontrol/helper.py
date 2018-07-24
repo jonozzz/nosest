@@ -170,7 +170,7 @@ class GetVipNames(IcontrolCommand):
             ic.System.Session.set_active_folder(folder=self.partition)
             vip_names = ic.LocalLB.VirtualServer.get_list()
             # The VIP's name is a full path: return just the name
-            vip_names = map(lambda vip_name: vip_name.split('/')[-1], vip_names)
+            vip_names = [vip_name.split('/')[-1] for vip_name in vip_names]
             return vip_names
         finally:
             ic.System.Session.set_active_folder(folder='/Common')
@@ -695,8 +695,7 @@ class WaitPartitionDeleted(IcontrolCommand):
             just the names from the list
             '''
             partitions = ic.Management.Partition.get_partition_list()
-            return map(lambda partition: partition.get('partition_name'),
-                       partitions)
+            return [partition.get('partition_name') for partition in partitions]
 
         wait(_get_partition_names,
              condition=lambda partitions: self.partition not in partitions,

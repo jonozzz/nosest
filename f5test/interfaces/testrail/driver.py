@@ -11,7 +11,7 @@
 # Copyright Gurock Software GmbH. See license.md for details.
 #
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import json
 import base64
 from ...base import AttrDict
@@ -103,7 +103,7 @@ class APIClient:
             APIError: Description
         """
         url = self.__url + uri
-        request = urllib2.Request(url)
+        request = urllib.request.Request(url)
         if (method == 'POST'):
             request.add_data(json.dumps(data))
         auth = base64.b64encode('%s:%s' % (self.user, self.password))
@@ -111,13 +111,13 @@ class APIClient:
         request.add_header('Content-Type', 'application/json')
 
         if self.debug:
-            handler = urllib2.HTTPHandler(debuglevel=1)
-            opener = urllib2.build_opener(handler)
-            urllib2.install_opener(opener)
+            handler = urllib.request.HTTPHandler(debuglevel=1)
+            opener = urllib.request.build_opener(handler)
+            urllib.request.install_opener(opener)
         e = None
         try:
-            response = urllib2.urlopen(request).read()
-        except urllib2.HTTPError as e:
+            response = urllib.request.urlopen(request).read()
+        except urllib.error.HTTPError as e:
             response = e.read()
 
         if response:

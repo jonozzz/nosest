@@ -124,7 +124,7 @@ class TmosConfig(ConfigPlacer):
             self.reset_trust()
             return
 
-        for klass_path, specs in (self.specs.get('classes') or {}).iteritems():
+        for klass_path, specs in (self.specs.get('classes') or {}).items():
             path, klass_name = klass_path.rsplit('.', 1)
             module = importlib.import_module('f5test.macros.tmosconf.%s' % path,
                                              __package__)

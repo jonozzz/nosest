@@ -340,7 +340,7 @@ def main():
     import sys
 
     usage = """%prog [options] [file]...""" \
-    u"""
+    """
 
   Examples:
   %prog --host 10.10.10.1 -u root -p password -start 100 --testrail-user user --testrail-key key

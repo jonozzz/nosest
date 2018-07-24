@@ -96,12 +96,12 @@ class HABigiqMacro(Macro):
 
             return device
 
-        if isinstance(default, basestring):
+        if isinstance(default, str):
             self.default = convert_device(default)
 
         temp = list()
         for peer in peers:
-            if isinstance(peer, basestring):
+            if isinstance(peer, str):
                 temp.append(convert_device(peer))
 
         if temp:

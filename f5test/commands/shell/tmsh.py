@@ -101,6 +101,7 @@ class GetProvision(SSHCommand):
     """
 
     def setup(self):
+        from builtins import list
 
         v = get_version(ifc=self.ifc)
 
@@ -113,9 +114,9 @@ class GetProvision(SSHCommand):
         if not ret.status:
             ret = tmsh.parser(ret.stdout)
             if v.product.is_bigip and v < 'bigip 10.0.2':
-                modules = dict([(k.split(' ')[-1], v) for k, v in ret.glob('provision*').items()])
+                modules = dict([(k.split(' ')[-1], v) for k, v in list(ret.glob('provision*').items())])
             else:
-                modules = dict([(k.split(' ')[-1], v) for k, v in ret.glob('sys provision*').items()])
+                modules = dict([(k.split(' ')[-1], v) for k, v in list(ret.glob('sys provision*').items())])
             return Options(modules)
         else:
             LOG.error(ret)

@@ -30,7 +30,7 @@ class ReferenceList(list):
     def __init__(self, other=None):
         super(ReferenceList, self).__init__()
         if other:
-            map(self.append, other)
+            list(map(self.append, other))
 
     def append(self, other):
         if not isinstance(other, Reference):
@@ -38,7 +38,7 @@ class ReferenceList(list):
         return super(ReferenceList, self).append(other)
 
     def extend(self, others):
-        return map(self.append, others)
+        return list(map(self.append, others))
 
 
 class Link(AttrDict):

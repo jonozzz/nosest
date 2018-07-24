@@ -317,7 +317,7 @@ class Testopia(Plugin):
         ctx.session = self.config_ifc.get_session().name
         summary = self.options.testrun_summary % ctx or ''
         notes = self._render_notes()
-        case_ids = [x['case_id'] for x in self.tcs.values()]
+        case_ids = [x['case_id'] for x in list(self.tcs.values())]
         ret = t.TestRun.create(dict(plan_id=c.testplan,
                                     environment=c._environment,
                                     build=c._build,
@@ -338,7 +338,7 @@ class Testopia(Plugin):
             adr = "%s:%s" % ('.'.join(module.split('.')[strip:]), method)
             tc = self.tcs.get(adr)
             LOG.debug(self.tcs.get(adr))
-        elif isinstance(test, basestring):
+        elif isinstance(test, str):
             adr = test
             tc = self.tcs.get(test)
         else:
@@ -388,7 +388,7 @@ class Testopia(Plugin):
 
         t = self.testopia_ifc.open()
 
-        case_ids = dict(((x['case_id'], x['script']) for x in self.tcs.values()))
+        case_ids = dict(((x['case_id'], x['script']) for x in list(self.tcs.values())))
         if self.options.syncplan:
             if self.options.remove_cases:
                 LOG.warn('Removing %s from Testopia!', case_ids)

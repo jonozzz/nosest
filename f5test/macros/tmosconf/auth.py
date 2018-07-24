@@ -90,6 +90,6 @@ class PasswordPolicy(PropertiesStamp):
     def tmsh(self, obj):
         ctx = self.folder.context
         v = ctx.version
-        values = obj.values()[0]
+        values = list(obj.values())[0]
         if v.product.is_bigip:
             return self.get_full_path(), obj

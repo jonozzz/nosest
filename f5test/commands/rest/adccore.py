@@ -4,7 +4,7 @@ Created on December 4, 2015
 @author: langer
 '''
 import logging
-from httplib import HTTP_PORT
+from http.client import HTTP_PORT
 
 from f5test.commands.rest.biqmgmtcm.system import (CM_GLOBAL_ADC_NAME, import_service_config, get_machine_id,
                                                    DEFAULT_CM_ADC_DEVICE_GROUP)

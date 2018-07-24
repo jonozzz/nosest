@@ -56,7 +56,7 @@ class AFMConfig(BaseConfig):
         all_vlans = dict((x.name, []) for x in all_partitions)
         all_vlans_nord = dict((x.name, []) for x in all_partitions)
         for _ in range(self.vlans):
-            folder = all_folders.next()
+            folder = next(all_folders)
             v1 = Vlan('Vlan%d-u' % _)
             v2 = Vlan('Vlan%d-n' % _)
             folder.hook(v1, v2)
@@ -70,7 +70,7 @@ class AFMConfig(BaseConfig):
                              ('2002::1', 'baad::/16', 'dead:beef::/32')])
         all_address_lists = dict((x.name, []) for x in all_partitions)
         for _ in range(self.address_lists):
-            folder = all_folders.next()
+            folder = next(all_folders)
             a = AddressList('AddressList%d' % _, next(addresses))
             folder.hook(a)
             all_address_lists[folder.partition().name] += (a,)
@@ -82,7 +82,7 @@ class AFMConfig(BaseConfig):
                          ('1-65535',)])
         all_port_lists = dict((x.name, []) for x in all_partitions)
         for _ in range(self.port_lists):
-            folder = all_folders.next()
+            folder = next(all_folders)
             p = PortList('PortList%d' % _, next(ports))
             folder.hook(p)
             all_port_lists[folder.partition().name] += (p,)
@@ -90,13 +90,13 @@ class AFMConfig(BaseConfig):
         LOG.info('Generating rules...')
         ipv4addresses = count_ip('10.0.0.1')
         ipv6addresses = count_ip('2001::1')
-        ports = IT.cycle(xrange(1, 65536))
+        ports = IT.cycle(range(1, 65536))
         address_lists = cycle_partition_stamps(all_address_lists)
         port_lists = cycle_partition_stamps(all_port_lists)
         all_rules = dict((x.name, []) for x in all_partitions)
         vlans = cycle_partition_stamps(all_vlans)
         for _ in range(self.rules):
-            folder = all_folders.next()
+            folder = next(all_folders)
 
             # IPv4 rules
             destination = RuleDestination()
@@ -168,7 +168,7 @@ class AFMConfig(BaseConfig):
         rd_ids = IT.count(RD_START)
         if v >= 'bigip 11.5.1':
             for _ in range(self.route_domains):
-                folder = all_folders.next()
+                folder = next(all_folders)
 
                 p = Policy('RouteDomain_Policy%d' % _)
                 p.properties.rules = flatten(*[x.get_for_firewall() for x in take_f(2, rules, folder) +
@@ -185,7 +185,7 @@ class AFMConfig(BaseConfig):
                 all_route_domains[folder.partition().name] += (rd,)
         else:
             for _ in range(self.route_domains):
-                folder = all_folders.next()
+                folder = next(all_folders)
                 _ = take_f(3, vlans, folder)
                 rd = RouteDomain(next(rd_ids), rules=take_f(2, rules, folder) +
                                  take_f(3, rule_lists, folder), vlans=_)
@@ -200,7 +200,7 @@ class AFMConfig(BaseConfig):
         selfv6 = cycle_ip_network('dead:beef::1/128')
         if v >= 'bigip 11.5.1':
             for _ in range(self.self_ips):
-                folder = all_folders.next()
+                folder = next(all_folders)
 
                 vlan = next_f(vlans, folder)
 
@@ -229,7 +229,7 @@ class AFMConfig(BaseConfig):
                 folder.hook(s, p)
         else:
             for _ in range(self.self_ips):
-                folder = all_folders.next()
+                folder = next(all_folders)
     
                 vlan = next_f(vlans, folder)
                 s1 = SelfIP(next(selfv4), vlan=vlan, rd=vlan_to_rd[vlan],
@@ -246,7 +246,7 @@ class AFMConfig(BaseConfig):
         route_domains = cycle_partition_stamps(all_route_domains)
         if v >= 'bigip 11.5.1':
             for _ in range(self.vips):
-                folder = all_folders.next()
+                folder = next(all_folders)
 
                 p = Policy('VSa_Policy%d' % _)
                 p.properties.rules = flatten(*[x.get_for_firewall() for x in take_f(5, all_rules, folder)])
@@ -257,7 +257,7 @@ class AFMConfig(BaseConfig):
                 folder.hook(p, v1)
         else:
             for _ in range(self.vips):
-                folder = all_folders.next()
+                folder = next(all_folders)
     
                 v1 = VirtualServer('VS%d-a' % _, next(ipv4addresses), 80,
                                    rules=take_f(5, all_rules, folder),

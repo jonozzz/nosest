@@ -31,7 +31,7 @@ class SetSecureStorageMasterKey(IcontrolRestCommand):  # @IgnorePep8
         resp = None
         try:
             resp = self.api.post(SecureStorageInterface.URI, payload)
-        except Exception, e:
+        except Exception as e:
             LOG.debug("BIG-IQ secure storage master key has already been set.")
             LOG.debug("Exception: " + str(e))
         return resp

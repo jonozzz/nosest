@@ -67,10 +67,10 @@ class WaitHa(SSHCommand):  # @IgnorePep8
             api = self.context.get_icontrol_rest(device=device).api
 
             ret = wait(lambda: api.get(WaitHa.COMMAND),
-                       condition=lambda ret: 'status' in ret.keys() and
+                       condition=lambda ret: 'status' in list(ret.keys()) and
                        not ret['status'] in FailoverState.PENDING_STATES,
                        progress_cb=lambda ret: "{0}: {1}".format(device,
-                                                                 ret['status'] if 'status' in ret.keys()
+                                                                 ret['status'] if 'status' in list(ret.keys())
                                                                  else None),
                        timeout=self.timeout, timeout_message='BZ492375')
 

@@ -97,7 +97,8 @@ class IPAddressResourceItem(NamedResourceItem):
 
 class IPAddressPortResourceItem(NamedResourceItem):
 
-    def __init__(self, (address, port), name=None):
+    def __init__(self, xxx_todo_changeme, name=None):
+        (address, port) = xxx_todo_changeme
         if not isinstance(address, IPAddress):
             address = IPAddress(address)
         self.ip = str(address)
@@ -121,7 +122,8 @@ class IPAddressPortResourceItem(NamedResourceItem):
 
 class MemberResourceItem(IPAddressPortResourceItem):
 
-    def __init__(self, (address, port), name=None):
+    def __init__(self, xxx_todo_changeme1, name=None):
+        (address, port) = xxx_todo_changeme1
         self.local_dir = None
         self.remote_dir = None
         self.docker = None
@@ -190,14 +192,14 @@ class ResourcePool(object):
 
     @property
     def local_items(self):
-        return {k: v for k, v in self.items.items() if k.startswith(self.prefix)
+        return {k: v for k, v in list(self.items.items()) if k.startswith(self.prefix)
                                                     and isinstance(v, self.item_class)}
 
     def update_with(self, values):
         tmp = dict((x.prefix + x.name, x) for x in values)
-        map(self.items.pop, set(self.items) - set(tmp))
+        list(map(self.items.pop, set(self.items) - set(tmp)))
         self.items.update(tmp)
-        self.values = set(x.key for x in self.items.values())
+        self.values = set(x.key for x in list(self.items.values()))
 
     def get(self, name=None, prefix=None, iterable=None):
         s = self.values
@@ -266,7 +268,7 @@ class ResourcePool(object):
 
     def free_all(self):
         items = []
-        for name in self.items.keys():
+        for name in list(self.items.keys()):
             if name.startswith(self.prefix):
                 item = self.items.pop(name)
                 items.append(item)
@@ -289,7 +291,7 @@ class RangeResourcePool(ResourcePool):
         self.start = start
         self.size = size
         self.template = template
-        r = range(start, start + self.size)
+        r = list(range(start, start + self.size))
         if template:
             r = (template.format(x) for x in range(start, start + self.size))
         super(RangeResourcePool, self).__init__(name, r, prefix=prefix)
@@ -301,19 +303,19 @@ if __name__ == '__main__':
     rp.get('item1')
     i = rp.get()
     rp.get_multi(2, 'num_%d')
-    print(rp.item1)
+    print((rp.item1))
     print(i)
-    print(rp.num_1, rp.num_2)
-    print('-' * 80)
+    print((rp.num_1, rp.num_2))
+    print(('-' * 80))
 
     print('RangeResource pool examples:')
     rp = RangeResourcePool('pool1', 1, 10, template="item_{}")
     rp.get('item1')
     i = rp.get()
     rp.get_multi(2, 'num_%d')
-    print(rp.item1)
+    print((rp.item1))
     print(i)
-    print(rp.num_1, rp.num_2)
-    print('-' * 80)
+    print((rp.num_1, rp.num_2))
+    print(('-' * 80))
 
     print("Cool!")

@@ -84,7 +84,7 @@ class FailoverMacro(Macro):
             count = 0
             for specs in src:
                 count += 1
-                if isinstance(specs, basestring):
+                if isinstance(specs, str):
                     device = parse_spec(specs)
                 else:
                     device = specs
@@ -119,7 +119,7 @@ class FailoverMacro(Macro):
 
     def do_reset_all(self):
         devices = self.cas + self.peers
-        groups = self.groups.keys()
+        groups = list(self.groups.keys())
 
         for device in devices:
             cred = device.get_admin_creds()
@@ -156,7 +156,7 @@ class FailoverMacro(Macro):
                 try:
                     if self.options.floatingip:
                         icifc.api.Networking.SelfIPV2.delete_self_ip(self_ips=[SELFIP_NAME])
-                except IControlFault, e:
+                except IControlFault as e:
                     if 'was not found' not in e.faultstring:
                         raise
 
@@ -264,7 +264,7 @@ class FailoverMacro(Macro):
             ic.Management.DeviceGroup.remove_all_devices(device_groups=dgs)
             ic.Management.DeviceGroup.delete_device_group(device_groups=dgs)
 
-        for group_name, group_type in groups.items():
+        for group_name, group_type in list(groups.items()):
             LOG.info('Creating %s on %s...', group_name, device.alias)
             ic.Management.DeviceGroup.create(device_groups=[group_name],
                                              types=[group_type])
@@ -281,7 +281,7 @@ class FailoverMacro(Macro):
 
     def do_get_active(self):
         device_accesses = self.cas + self.peers
-        devices_map = dict(map(lambda x: (x.alias, x), device_accesses))
+        devices_map = dict([(x.alias, x) for x in device_accesses])
 
         cred = device_accesses[0].get_admin_creds()
         with IcontrolInterface(address=device_accesses[0].address,
@@ -293,10 +293,9 @@ class FailoverMacro(Macro):
             fostates = ic.Management.Device.get_failover_state(devices=devices)
             mgmtaddrs = ic.Management.Device.get_management_address(devices=devices)
 
-        trios = map(lambda x: (devices_map.get(x[0].rsplit('/', 1)[-1]), x[1], x[0]),
-                    zip(devices, fostates, mgmtaddrs))
+        trios = [(devices_map.get(x[0].rsplit('/', 1)[-1]), x[1], x[0]) for x in zip(devices, fostates, mgmtaddrs)]
         LOG.debug(trios)
-        active_devices = list(filter(lambda x: x[1] == 'HA_STATE_ACTIVE', trios))
+        active_devices = list([x for x in trios if x[1] == 'HA_STATE_ACTIVE'])
         return active_devices
 
     def do_wait_valid_state(self):
@@ -338,7 +337,7 @@ class FailoverMacro(Macro):
             LOG.info('There are BIG-IPs that are older than 11.5.0. Skipping wait...')
 
     def do_config_sync(self):
-        groups = self.groups.keys()
+        groups = list(self.groups.keys())
 
         self.do_wait_valid_state()
         # If so_config_all() is called, use cas[0] device, otherwise sync using
@@ -506,7 +505,7 @@ class FailoverMacro(Macro):
                     group_2_devices.setdefault(group, [])
                     group_2_devices[group].append(device.alias)
 
-            device_groups, devices = zip(*group_2_devices.items())
+            device_groups, devices = list(zip(*list(group_2_devices.items())))
 
             LOG.info('Adding devices %s to %s...', devices, device_groups)
             ca_api.Management.DeviceGroup.add_device(device_groups=device_groups,

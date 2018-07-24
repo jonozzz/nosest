@@ -1,5 +1,5 @@
 # Add your TestCase mixins here...
-from __future__ import absolute_import
+
 import os
 import re
 import sys
@@ -89,9 +89,9 @@ class AsmTestCase(object):
 
                     # Compare if the hash with same pk value has same keys
                     # As hash keys compared here isn't huge, iterates through multiple times
-                    same_keys = [key for key in hash_a.keys() if key in hash_e.keys()]
-                    missing_keys = [key for key in hash_e.keys() if key not in hash_a.keys()]
-                    additional_keys = [key for key in hash_a.keys() if key not in hash_e.keys()]
+                    same_keys = [key for key in list(hash_a.keys()) if key in list(hash_e.keys())]
+                    missing_keys = [key for key in list(hash_e.keys()) if key not in list(hash_a.keys())]
+                    additional_keys = [key for key in list(hash_a.keys()) if key not in list(hash_e.keys())]
                     if missing_keys:
                         OK = 0 if strict else 1
                         missing_key_value_pair = [(key, hash_e[key]) for key in missing_keys]
@@ -131,7 +131,7 @@ class AsmTestCase(object):
         """Checks whether actual is a superset of expected."""
         missing = []
         mismatched = []
-        for key, value in expected.iteritems():
+        for key, value in expected.items():
             if key not in actual:
                 missing.append(key)
             elif isinstance(value, list) and isinstance(actual[key], list):
@@ -223,5 +223,5 @@ class SplitTestCase(object):
         if overlook:
             expected = expected.copy()
             assert isinstance(overlook, (tuple, list))
-            map(expected.pop, [x for x in overlook if x in expected])
+            list(map(expected.pop, [x for x in overlook if x in expected]))
         super(SplitTestCase, self).assertDictContainsSubset(expected, actual, msg)

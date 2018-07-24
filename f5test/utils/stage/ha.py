@@ -25,7 +25,7 @@ class HAStage(Stage, FailoverMacro):
         configifc = ConfigInterface()
         authorities = [device] + list(expand_devices(specs, 'authorities') or [])
         peers = list(expand_devices(specs, 'peers') or [])
-        groups = specs.groups or configifc.get_device_groups(authorities + peers).keys()
+        groups = specs.groups or list(configifc.get_device_groups(authorities + peers).keys())
 
         options = Options(specs.options)
         options.setdefault('ha_vlan', HA_VLAN)

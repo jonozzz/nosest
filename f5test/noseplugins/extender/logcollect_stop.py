@@ -29,7 +29,7 @@ class LogCollectStop(ExtendedPlugin):
 
     def _logging_leak_check(self, root_logger):
         LOG.debug("Logger leak check...ugh!")
-        loggers = [('*root*', root_logger)] + root_logger.manager.loggerDict.items()
+        loggers = [('*root*', root_logger)] + list(root_logger.manager.loggerDict.items())
         loggers.sort(key=lambda x: x[0])
         for name, logger in loggers:
             LOG.debug("%s:%s", name, logger)

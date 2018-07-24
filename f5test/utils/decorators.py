@@ -4,7 +4,7 @@ Source: http://theorangeduck.com/page/synchronized-python
 
 @author: jono
 '''
-import thread
+import _thread
 import threading
 import types
 from functools import wraps
@@ -41,7 +41,7 @@ def synchronized_with(lock):
                     return obj(*args, **kws)
             return func
 
-        elif type(obj) is types.ClassType:
+        elif type(obj) is type:
             orig_init = obj.__init__
 
             def __init__(self, *args, **kws):
@@ -62,11 +62,11 @@ def synchronized_with(lock):
 
 def synchronized(item):
 
-    if type(item) is types.StringType:
+    if type(item) is bytes:
         decorator = synchronized_with_attr(item)
         return decorator(item)
 
-    if type(item) is thread.LockType:
+    if type(item) is _thread.LockType:
         decorator = synchronized_with(item)
         return decorator(item)
 
@@ -102,5 +102,5 @@ def retry(timeout=180, interval=5, negated=False):
 if __name__ == '__main__':
     @repeat(2)
     def f():
-        print 'a'
+        print('a')
     f()

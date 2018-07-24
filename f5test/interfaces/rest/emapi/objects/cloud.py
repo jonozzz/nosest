@@ -154,13 +154,13 @@ class TenantService(Task):
             # Need to wait until the key we are looking for populates on BIG-IQ
             import logging
             LOG = logging.getLogger(__name__)
-            LOG.debug("Current stats: {}".format(ret.entries.keys()))
+            LOG.debug("Current stats: {}".format(list(ret.entries.keys())))
             for stat in health_stats:
-                if stat not in ret.entries.keys():
+                if stat not in list(ret.entries.keys()):
                     return False
 
             resp = []
-            for key in ret.entries.keys():
+            for key in list(ret.entries.keys()):
                 if key in health_stats and not ret.entries[key].value.is_integer():
                     resp.append(ret.entries[key])
             return len(resp) == 0
@@ -170,7 +170,7 @@ class TenantService(Task):
                    progress_cb=lambda ret: 'Waiting until iApp is placed...',
                    *args, **kwargs)
 
-        for key in ret.entries.keys():
+        for key in list(ret.entries.keys()):
             if key in health_stats and ret.entries[key].value != 1:
                 resp = rest.get(TenantPlacement.URI)
                 # The above URI can return a huge response. Below will show
@@ -530,7 +530,7 @@ class VcmpGuest(AttrDict):
         @return: None
         """
         assert isinstance(adict, dict)
-        for key, value in adict.iteritems():
+        for key, value in adict.items():
             self.set_property(key, value)
 #        for n, each in enumerate(self['properties']):
 #            value = adict.get(each['id'], None)
@@ -655,7 +655,7 @@ class IAppBaseTemplate(BaseApiObject):
         expected_device_machineId_list = [item.split('/')[-1] for item in expected_device_ref_list]
         for tmpl_device in tmpl_devices:
             actual_tmpl_dev_list.append(tmpl_device.selfLink)
-        if len(actual_tmpl_dev_list) <> len(expected_device_machineId_list):
+        if len(actual_tmpl_dev_list) != len(expected_device_machineId_list):
             return False
         for item in actual_tmpl_dev_list:
             if item.split('/')[-1] not in expected_device_machineId_list:

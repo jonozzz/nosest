@@ -3,14 +3,14 @@ Created on Mar 15, 2017
 
 @author: jono
 '''
-import BaseHTTPServer
+import http.server
 import json
 import logging
 import requests
 import socket
 from threading import Thread
 import time
-import urlparse
+import urllib.parse
 
 
 WAIT_TIME = 10
@@ -44,7 +44,7 @@ class HttpListener(Thread):
     def run(self):
         server_address = ('', self.port)
 
-        server = BaseHTTPServer.HTTPServer(server_address, self.handler_class)
+        server = http.server.HTTPServer(server_address, self.handler_class)
         self.server = server
         server.running = True
         server.serve_forever()
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     import optparse
 
     usage = """%prog [options] <config>...""" \
-    u"""
+    """
     Usage:
     %prog [URL]
 
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     LOG.setLevel(level)
     logging.basicConfig(level=level)
 
-    class HandlePost(BaseHTTPServer.BaseHTTPRequestHandler):
+    class HandlePost(http.server.BaseHTTPRequestHandler):
         def do_POST(self):
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
@@ -136,7 +136,7 @@ if __name__ == '__main__':
     if ret.status_code != 200:
         t.server.running = False
         t.server.shutdown()
-    status_url = urlparse.urljoin(ret.url, ret.json()['link'])
+    status_url = urllib.parse.urljoin(ret.url, ret.json()['link'])
 
     end = time.time() + WAIT_TIME
     while time.time() < end and t.server.running:

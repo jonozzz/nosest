@@ -28,10 +28,10 @@ class PickBestHarness(RestCommand):
         for yaml_file in self.files:
             mapping[yaml_file] = yaml.load(open(yaml_file).read())
 
-        rmapping = dict((b['address'], k) for k, v in mapping.iteritems()
-                                          for _, b in v['devices'].iteritems())
+        rmapping = dict((b['address'], k) for k, v in mapping.items()
+                                          for _, b in v['devices'].items())
 
-        ret = self.ifc.api.f5asset.filter(v_accessaddress__in=rmapping.keys())
+        ret = self.ifc.api.f5asset.filter(v_accessaddress__in=list(rmapping.keys()))
 
         # The harnesses with the lowest due_date are preferred.
         highest_due = {}

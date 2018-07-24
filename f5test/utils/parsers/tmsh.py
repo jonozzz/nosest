@@ -49,7 +49,7 @@ BLOB_OPENER = '[BEGIN]'
 BLOB_CLOSER = '[END]'
 
 
-class RawString(unicode):
+class RawString(str):
     pass
 
 
@@ -62,8 +62,8 @@ class Meta(type):
         return '<EOL>'
 
 
-class RawEOL(object):
-    __metaclass__ = Meta
+class RawEOL(object, metaclass=Meta):
+    pass
 
 
 class GlobDict(collections.OrderedDict):
@@ -74,24 +74,24 @@ class GlobDict(collections.OrderedDict):
     def rename_key(self, old, **kwargs):
         """Not optimum, but it should work fine for small dictionaries"""
         value = self[old]
-        items = [(k % kwargs, v) if k == old else (k, v) for k, v in self.iteritems()]
+        items = [(k % kwargs, v) if k == old else (k, v) for k, v in self.items()]
         self.clear()
         self.update(items)
         return value
 
     def glob(self, match):
         """@match should be a glob style pattern match (e.g. '*.txt')"""
-        return GlobDict([(k, v) for k, v in self.items() if fnmatch(k, match)])
+        return GlobDict([(k, v) for k, v in list(self.items()) if fnmatch(k, match)])
 
     def match(self, pattern):
         """@pattern should be a re style pattern match (e.g. VS\d+)"""
-        return GlobDict([(k, v) for k, v in self.items() if re.match(pattern, k)])
+        return GlobDict([(k, v) for k, v in list(self.items()) if re.match(pattern, k)])
 
     def dumps(self):
         return dumps(self)
 
     def glob_keys(self, match):
-        return [k.split(' ')[-1] for k in self.keys() if fnmatch(k, match)]
+        return [k.split(' ')[-1] for k in list(self.keys()) if fnmatch(k, match)]
 
     def format(self, _maxdepth=10, **fmt):
         def traverse(obj, curdepth, maxdepth):
@@ -100,11 +100,11 @@ class GlobDict(collections.OrderedDict):
             curdepth += 1
             T = type(obj)
             if isinstance(obj, collections.Mapping):
-                return T((k % fmt, traverse(v, curdepth, maxdepth)) for k, v in obj.iteritems())
+                return T((k % fmt, traverse(v, curdepth, maxdepth)) for k, v in obj.items())
             elif isinstance(obj, (list, tuple, collections.Set)):
                 return T((traverse(elem, curdepth, maxdepth) for elem in obj))
             else:
-                if isinstance(obj, basestring):
+                if isinstance(obj, str):
                     obj = T(obj % fmt)
                 return obj
         return traverse(self, 0, _maxdepth)
@@ -135,7 +135,7 @@ def braces_parser(text, opener=BLOB_OPENER, closer=BLOB_CLOSER):
         return t if len(t) else [RawEOL]
 
     # define punctuation as suppressed literals
-    lbrace, rbrace = map(Suppress, "{}")
+    lbrace, rbrace = list(map(Suppress, "{}"))
 
     identifier = Word(printables, excludeChars='{}"\'')
     quotedStr = QuotedString('"', escChar='\\', multiline=True) | \
@@ -240,7 +240,7 @@ class TMSHEncoder(json.JSONEncoder):
 
     def default(self, o):
         """By default use the string representation of the object."""
-        return unicode(o)
+        return str(o)
 
     def iterencode(self, o, _one_shot=False):
         """Encode the given object and yield each string
@@ -270,7 +270,7 @@ class TMSHEncoder(json.JSONEncoder):
                 return s
 
         def floatstr(o, allow_nan=self.allow_nan,
-                     _repr=json.encoder.FLOAT_REPR, _inf=json.encoder.INFINITY,
+                     _repr=lambda o: format(o, '.2f'), _inf=json.encoder.INFINITY,
                      _neginf=-json.encoder.INFINITY):
             # Check for specials.  Note that this type of test is processor
             # and/or platform-specific, so do tests which don't depend on the
@@ -294,7 +294,7 @@ class TMSHEncoder(json.JSONEncoder):
 
         _iterencode = _make_iterencode(
             markers, self.default, _encoder, self.indent, floatstr,
-            self.key_separator, self.item_separator, self.sort_keys,
+            TMSHEncoder.key_separator, TMSHEncoder.item_separator, self.sort_keys,
             self.skipkeys, _one_shot)
         return _iterencode(o, -1)
 
@@ -309,7 +309,7 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
         int=int,  # @ReservedAssignment
         isinstance=isinstance,  # @ReservedAssignment
         list=list,  # @ReservedAssignment
-        long=long,  # @ReservedAssignment
+        long=int,  # @ReservedAssignment
         str=str,  # @ReservedAssignment
         tuple=tuple,  # @ReservedAssignment
     ):
@@ -339,7 +339,7 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
                 first = False
             else:
                 buf = separator
-            if isinstance(value, basestring):
+            if isinstance(value, str):
                 yield buf + _encoder(value)
             elif value is None:
                 yield buf
@@ -347,7 +347,7 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
                 yield buf + 'true'
             elif value is False:
                 yield buf + 'false'
-            elif isinstance(value, (int, long)):
+            elif isinstance(value, int):
                 yield buf + str(value)
             elif isinstance(value, float):
                 yield buf + _floatstr(value)
@@ -392,11 +392,11 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
             item_separator = _item_separator
         first = True
         if _sort_keys:
-            items = sorted(dct.items(), key=lambda kv: kv[0])
+            items = sorted(list(dct.items()), key=lambda kv: kv[0])
         else:
-            items = dct.iteritems()
+            items = iter(dct.items())
         for key, value in items:
-            if isinstance(key, basestring):
+            if isinstance(key, str):
                 pass
             # JavaScript is weakly typed for these, so it makes sense to
             # also allow them.  Many encoders seem to do something like this.
@@ -408,7 +408,7 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
                 key = 'false'
             elif key is None:
                 key = 'null'
-            elif isinstance(key, (int, long)):
+            elif isinstance(key, int):
                 key = str(key)
             elif _skipkeys:
                 continue
@@ -421,7 +421,7 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
             yield _encoder(key)
             if value is not RawEOL:
                 yield _key_separator
-            if isinstance(value, basestring):
+            if isinstance(value, str):
                 yield _encoder(value)
             elif value is None:
                 yield 'none'
@@ -431,7 +431,7 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
                 yield 'true'
             elif value is False:
                 yield 'false'
-            elif isinstance(value, (int, long)):
+            elif isinstance(value, int):
                 yield str(value)
             elif isinstance(value, float):
                 yield _floatstr(value)
@@ -454,7 +454,7 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
             del markers[markerid]
 
     def _iterencode(o, _current_indent_level):
-        if isinstance(o, basestring):
+        if isinstance(o, str):
             yield _encoder(o)
         elif o is None:
             yield 'null'
@@ -462,7 +462,7 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
             yield 'true'
         elif o is False:
             yield 'false'
-        elif isinstance(o, (int, long)):
+        elif isinstance(o, int):
             yield str(o)
         elif isinstance(o, float):
             yield _floatstr(o)
@@ -586,12 +586,12 @@ if __name__ == '__main__':
     #test = file('/tmp/a.conf').read()
     #print "Input:", test.strip()
     result = parser(test)
-    print "Result:"
+    print("Result:")
     pprint.pprint(dict(result))
 
-    print "Encoded:"
+    print("Encoded:")
     #print dumps(result)
 
-    print "Filter:"
-    print dumps(result.glob('cli script *'))
-    print dumps(result.glob('ltm rule *'))
+    print("Filter:")
+    print(dumps(result.glob('cli script *')))
+    print(dumps(result.glob('ltm rule *')))

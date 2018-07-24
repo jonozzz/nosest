@@ -43,8 +43,6 @@ class EmpyTester(Macro):
 
             params = []
             for param in self.params[1:]:
-                param = param.decode('utf-8')
-
                 if '=' in param:
                     name, value = param.split('=', 1)
                     # Convert the command-line arguments to Python objects.
@@ -65,9 +63,9 @@ class EmpyTester(Macro):
                         params.append(repr(param))
 
             api = ic.get_by_name("%sAPI" % apiname)
-            LOG.debug(u"Calling: {2}.{0}({1})".format(method, ', '.join(params),
+            LOG.debug("Calling: {2}.{0}({1})".format(method, ', '.join(params),
                                                      apiname))
-            x = eval(u"api.{0}({1})".format(method, ','.join(params)),
+            x = eval("api.{0}({1})".format(method, ','.join(params)),
                      limited_globals, {'api': api})
             pprint(x)
 
@@ -77,7 +75,7 @@ def main():
     import sys
 
     usage = """%prog [options] <address> <API>.<method> [param]...""" \
-    u"""
+    """
   Examples:
   %prog 172.1.2.2 SmtpConfig.smtpConfigGetNames
   %prog 172.1.2.2 SmtpConfig.smtpConfigSetName /Common/mail

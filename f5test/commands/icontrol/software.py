@@ -170,8 +170,7 @@ class GetSoftwareStatus(WaitableCommand, IcontrolCommand):
 
         ic = self.api
         if self.volume is None:
-            volumes = map(lambda x: x['installation_id']['install_volume'],
-              ic.System.SoftwareManagement.get_all_software_status())
+            volumes = [x['installation_id']['install_volume'] for x in ic.System.SoftwareManagement.get_all_software_status()]
         else:
             volumes = [self.volume]
 
@@ -198,8 +197,7 @@ class GetActiveVolume(WaitableCommand, IcontrolCommand):
 
     def setup(self):
         ic = self.api
-        _ = list(filter(lambda x: x['active'],
-                        ic.System.SoftwareManagement.get_all_software_status()))
+        _ = list([x for x in ic.System.SoftwareManagement.get_all_software_status() if x['active']])
         return _[0]['installation_id']['install_volume']
 
 
@@ -236,8 +234,7 @@ class GetInactiveVolume(WaitableCommand, IcontrolCommand):
             else:
                 raise CommandError('You need to manually create a second volume.')
 
-        _ = list(filter(lambda x: not x['active'] and (x['status'] == 'complete' or
-                                                       x['status'].startswith('failed')),
-                        ic.System.SoftwareManagement.get_all_software_status()))
+        _ = list([x for x in ic.System.SoftwareManagement.get_all_software_status() if not x['active'] and (x['status'] == 'complete' or
+                                                       x['status'].startswith('failed'))])
         assert _, "BUG: No available slots found! Manual intervention is required."
         return _[0]['installation_id']['install_volume']

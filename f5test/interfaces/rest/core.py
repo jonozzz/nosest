@@ -8,8 +8,8 @@ from ...base import Interface
 from ...defaults import DEFAULT_PORTS
 from .driver import RestResource
 from ...base import enum
-import urllib
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 
 AUTH = enum('NONE', 'BASIC', 'TOKEN')
 
@@ -24,7 +24,7 @@ class RestInterface(Interface):
         super(RestInterface, self).__init__()
 
         if url:
-            bits = urlparse.urlparse(url)
+            bits = urllib.parse.urlparse(url)
 
             if bits.username and bits.password:
                 auth = AUTH.BASIC
@@ -42,7 +42,7 @@ class RestInterface(Interface):
             if bits.password:
                 password = bits.password
             if bits.query:
-                params = urlparse.parse_qs(bits.query)
+                params = urllib.parse.parse_qs(bits.query)
                 if params.get('timeout'):
                     timeout = params['timeout'][0]
 
@@ -77,14 +77,12 @@ class RestInterface(Interface):
             return self.api
 
         if self.auth == AUTH.BASIC:
-            quoted = dict(map(lambda (k, v): (k, urllib.quote_plus(str(v))),
-                              self.__dict__.iteritems()))
+            quoted = dict([(k_v[0], urllib.parse.quote_plus(str(k_v[1]))) for k_v in iter(self.__dict__.items())])
             url = "{0[proto]}://{0[username]}:{0[password]}@{0[address]}:{0[port]}".format(quoted)
             self.api = self.api_class(url, timeout=self.timeout)
             return self.api
         elif self.auth == AUTH.NONE:
-            quoted = dict(map(lambda (k, v): (k, urllib.quote_plus(str(v))),
-                              self.__dict__.iteritems()))
+            quoted = dict([(k_v1[0], urllib.parse.quote_plus(str(k_v1[1]))) for k_v1 in iter(self.__dict__.items())])
             url = "{0[proto]}://{0[address]}:{0[port]}".format(quoted)
             self.api = self.api_class(url, timeout=self.timeout)
             return self.api

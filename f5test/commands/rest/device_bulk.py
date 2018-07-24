@@ -80,7 +80,7 @@ class Discover(IcontrolRestCommand):  # @IgnorePep8
         def is_up(*args):
             try:
                 return self.api.get(*args)
-            except EmapiResourceError, e:
+            except EmapiResourceError as e:
                 if 'Authorization failed' in e.msg:
                     raise StopWait(e)
                 raise

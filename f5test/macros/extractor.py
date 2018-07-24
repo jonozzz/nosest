@@ -70,9 +70,9 @@ class Extractor(Macro):
             self.api.run('rm -f {0}*'.format(output)).stdout
 
         LOG.info('Parsing...')
-        config = tmsh.parser(unicode(text, errors='ignore'))
+        config = tmsh.parser(str(text, errors='ignore'))
         LOG.debug(config)
-        all_keys = config.keys()
+        all_keys = list(config.keys())
         LOG.info('Last key: %s', all_keys[-1])
         all_ids = {}
         for x in all_keys:
@@ -115,7 +115,7 @@ class Extractor(Macro):
                 if deps is None:
                     deps = {}
                 if isinstance(root, dict):
-                    for k, v in root.iteritems():
+                    for k, v in root.items():
                         guess_key(k, deps)
                         rec(v, deps)
                 elif isinstance(root, (set, list, tuple)):
@@ -123,13 +123,13 @@ class Extractor(Macro):
                         rec(v, deps)
                 else:
                     root = str(root)
-                    assert isinstance(root, basestring), root
+                    assert isinstance(root, str), root
                     guess_key(root, deps)
                 return deps
             d = rec(root)
             if d:
                 # Try to avoid circular dependencies
-                map(lambda x: d.pop(x), [x for x in d if x in deps])
+                list(map(lambda x: d.pop(x), [x for x in d if x in deps]))
                 deps.update(d)
                 rec2(d, deps)
             return deps
@@ -137,7 +137,7 @@ class Extractor(Macro):
         ret = rec2(vip)
         # Sort keys
         if self.options.sort:
-            ret = tmsh.GlobDict(sorted(ret.iteritems(), key=lambda x: x[0]))
+            ret = tmsh.GlobDict(sorted(iter(ret.items()), key=lambda x: x[0]))
         return tmsh.dumps(ret)
 
 
@@ -146,7 +146,7 @@ def main():
     import sys
 
     usage = """%prog [options] <address> [regex]...""" \
-        u"""
+        """
   Extract TMOS configuration recursively from existing systems.
 
   Examples:
@@ -199,7 +199,7 @@ def main():
 
     cs = Extractor(options=options, address=args[0],
                    params=args[1:])
-    print cs.run()
+    print(cs.run())
 
 if __name__ == '__main__':
     main()

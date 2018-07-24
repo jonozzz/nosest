@@ -22,7 +22,7 @@ class Ictester(Macro):
     def __init__(self, options, method, address=None, params=None):
         self.options = Options(options)
         self.method = method
-        if isinstance(params, basestring):
+        if isinstance(params, str):
             self.params = []
             if params.strip():
                 for name, value in parser(params):
@@ -53,7 +53,6 @@ class Ictester(Macro):
 
             params = []
             for param in self.params:
-                param = param.decode('utf-8')
                 name, value = param.split('=', 1)
                 # Convert the command-line arguments to Python objects.
                 try:
@@ -65,8 +64,8 @@ class Ictester(Macro):
                         LOG.warning("Did you forget quotes around %s?", value)
                     params.append("%s=%s" % (name, repr(value)))
 
-            LOG.debug(u"Calling: {0}({1})".format(method, ', '.join(params)))
-            x = eval(u"ic.{0}({1})".format(method, ','.join(params)),
+            LOG.debug("Calling: {0}({1})".format(method, ', '.join(params)))
+            x = eval("ic.{0}({1})".format(method, ','.join(params)),
                      limited_globals, {'ic': ic})
             # print "--- RETURN ---"
             if self.options.yaml:
@@ -91,7 +90,7 @@ def main():
     import sys
 
     usage = """%prog [options] <address> <method> [param]...""" \
-    u"""
+    """
 
   Examples:
   %prog 10.1.2.3 System.SystemInfo.get_version
@@ -148,7 +147,7 @@ def main():
 
     cs = Ictester(options=options, method=args[1], address=args[0],
                   params=args[2:])
-    print cs.run()
+    print(cs.run())
 
 if __name__ == '__main__':
     main()

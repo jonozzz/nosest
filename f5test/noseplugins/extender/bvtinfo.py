@@ -4,8 +4,8 @@ Created on Aug 29, 2014
 @author: jono
 '''
 import logging
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 
 from . import ExtendedPlugin, PLUGIN_NAME
 
@@ -64,7 +64,7 @@ class BvtInfo(ExtendedPlugin):
                abs(dut.version) == 'em 3.0':
                 project = 'Em3.0.0'
 
-            params = urllib.urlencode(dict(
+            params = urllib.parse.urlencode(dict(
                 bvttool=site.name,
                 project=self.options.get('project', project),
                 buildno=self.options.get('build', dut.version.build),
@@ -75,16 +75,16 @@ class BvtInfo(ExtendedPlugin):
             ))
 
             LOG.debug(params)
-            opener = urllib2.build_opener()
-            urllib2.install_opener(opener)
+            opener = urllib.request.build_opener()
+            urllib.request.install_opener(opener)
             try:
                 f = opener.open(site.url, params)
                 data = f.read()
                 f.close()
                 LOG.info('BVTInfo result report successful: (%s)', data)
-            except urllib2.HTTPError, e:
+            except urllib.error.HTTPError as e:
                 LOG.error('BVTInfo result report failed: %s (%s)', e, e.read())
-            except Exception, e:
+            except Exception as e:
                 LOG.error('BVTInfo result report failed: %s', e)
 
     def finalize(self, result):

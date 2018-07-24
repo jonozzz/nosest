@@ -30,7 +30,7 @@ class Client:
             LOG.debug('response: %s', ret)
             try:
                 return to_python(parseResult(ret))
-            except ParsingError, e:
+            except ParsingError as e:
                 if e.errno == 19:
                     LOG.info('EM returned locked status')
                     time.sleep(self.retry_interval)

@@ -5,7 +5,7 @@ Monkey patches for restkit (which seems to be abandoned as of Aug 2013).
 
 @author: jono
 '''
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import restkit
 from restkit.util import encode, url_quote
@@ -34,8 +34,8 @@ def url_encode(obj, charset="utf8", encode_keys=False, safe='/:'):
                 v1 = encode(v1(), charset)
             else:
                 v1 = encode(v1, charset)
-            tmp.append('%s=%s' % (urllib.quote(k, safe),
-                                  urllib.quote_plus(v1, safe)))
+            tmp.append('%s=%s' % (urllib.parse.quote(k, safe),
+                                  urllib.parse.quote_plus(v1, safe)))
     return '&'.join(tmp)
 
 
@@ -60,7 +60,7 @@ def make_uri(base, *args, **kwargs):
     _path = []
     trailing_slash = False
     for s in args:
-        if s is not None and isinstance(s, basestring):
+        if s is not None and isinstance(s, str):
             if len(s) > 1 and s.endswith('/'):
                 trailing_slash = True
             else:

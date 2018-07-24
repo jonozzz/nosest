@@ -6,7 +6,7 @@ Source: https://github.com/vpelletier/python-memcachelock
 @author: jono
 '''
 
-import thread
+import _thread
 import threading
 import time
 
@@ -125,7 +125,7 @@ class RLock(object):
     def release(self):
         owner, count = self.__get()
         if owner != self.uid:
-            raise thread.error('release unlocked lock')
+            raise _thread.error('release unlocked lock')
         assert count > 0
         self.__set(count - 1)
 
@@ -236,7 +236,7 @@ ThreadMemcacheRLock = ThreadRLock
 if __name__ == '__main__':
     # Run simple tests.
     # Only verifies the API, no race test is done.
-    import memcache
+    from . import memcache
     HOSTS = ['127.0.0.1:11211']
     TEST_KEY_1 = 'foo'
     TEST_KEY_2 = 'bar'
@@ -251,7 +251,7 @@ if __name__ == '__main__':
         locka1 = klass(mc1, TEST_KEY_1)
         locka2 = klass(mc2, TEST_KEY_1)
         lockb1 = klass(mc3, TEST_KEY_2)
-        print klass, locka1.uid, locka2.uid, lockb1.uid
+        print(klass, locka1.uid, locka2.uid, lockb1.uid)
 
         def checkLocked(a1=False, a2=False, b1=False):
             assert locka1.locked() == a1
@@ -267,7 +267,7 @@ if __name__ == '__main__':
         checkLocked(a1=True, a2=True)
         try:
             locka2.release()
-        except thread.error:
+        except _thread.error:
             pass
         else:
             raise AssertionError('Should have raised')
@@ -310,4 +310,4 @@ if __name__ == '__main__':
         success.clear()
         mc1.delete(TEST_KEY_1)
 
-    print 'Passed.'
+    print('Passed.')

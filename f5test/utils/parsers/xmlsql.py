@@ -48,7 +48,7 @@ def _dict_per_row(results, colNames):
         for colName in colNames:
             try:
                 indexes.append(cols.index(colName))
-            except ValueError, e:
+            except ValueError as e:
                 raise MysqlValueError("'%s' was not found: %s" %
                                         (colName, e))
         rows = results[1]
@@ -57,7 +57,7 @@ def _dict_per_row(results, colNames):
             for idx in indexes:
                 try:
                     values[cols[idx]] = row[idx]
-                except IndexError, e:
+                except IndexError as e:
                     raise MysqlValueError("idx '%s' was not found: %s" %
                                             (idx, e))
             yield values

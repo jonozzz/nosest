@@ -18,7 +18,7 @@ Created on May 14, 2012
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from __future__ import absolute_import
+
 import select
 import logging
 
@@ -82,7 +82,7 @@ class ParamikoSpawn(pexpect.spawn):
         if self.child_fd in r:
             try:
                 s = self.child_fd.recv(size)
-            except OSError, e:
+            except OSError as e:
                 self.flag_eof = True
                 raise pexpect.EOF('End Of File (EOF) in read(). '
                                   'Exception style platform.')

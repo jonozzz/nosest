@@ -114,7 +114,7 @@ class JsonReporter(ExtendedPlugin):
 
                 tb = None
                 if isinstance(err, tuple):
-                    message = unicode(err[1]).encode('utf-8')
+                    message = str(err[1]).encode('utf-8')
                     tb = ''.join(traceback.format_exception(*err))
                 elif isinstance(err, Exception):
                     message = str(err)
@@ -164,7 +164,7 @@ class JsonReporter(ExtendedPlugin):
                        timeout=1)
             except requests.exceptions.ReadTimeout:
                 LOG.debug("No response received from the callback endpoint. Ignoring.")
-            except (requests.exceptions.ConnectionError, requests.exceptions.ConnectTimeout), e:
+            except (requests.exceptions.ConnectionError, requests.exceptions.ConnectTimeout) as e:
                 LOG.warning("Cannot connect to callback endpoint (%s).", e)
 
     def finalize(self, result):

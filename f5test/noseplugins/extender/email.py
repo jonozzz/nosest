@@ -3,7 +3,7 @@ Created on Aug 29, 2014
 
 @author: jonodefault
 '''
-from __future__ import absolute_import
+
 
 import copy
 from email.mime.multipart import MIMEMultipart
@@ -48,14 +48,14 @@ def customfilter_bzify(string):
     links = {'((?:BZ|BUG)\s*(\d{6}))':
              r"<a href='http://bugzilla/show_bug.cgi?id=\2'>\1</a>"}
     result = string
-    for expr, href in links.items():
+    for expr, href in list(links.items()):
         result = re.sub(expr, href, result, flags=re.IGNORECASE)
     return result if result == string else jinja2.filters.do_mark_safe(result)
 
 
 def customfilter_product(duts, product='bigip'):
     if duts is None or isinstance(duts, jinja2.Undefined) or\
-            not isinstance(duts, list) or not isinstance(product, basestring):
+            not isinstance(duts, list) or not isinstance(product, str):
         return duts
 
     result = list()
@@ -111,7 +111,7 @@ class Email(ExtendedPlugin):
                                      result.failCount())
 
         x = {}
-        for label, storage in result.blocked.items():
+        for label, storage in list(result.blocked.items()):
             for truple in storage:
                 test, err, context = truple
                 y = x.setdefault(label, {})
@@ -139,7 +139,7 @@ class Email(ExtendedPlugin):
                 LOG.warning('Email plugin not configured.')
                 return
             headers['From'] = spec.get('from', DEFAULT_FROM)
-            if isinstance(spec.get('to', []), basestring):
+            if isinstance(spec.get('to', []), str):
                 recipients = set([spec.to])
             else:
                 recipients = set(spec.to)
@@ -178,7 +178,7 @@ class Email(ExtendedPlugin):
                 headers['Importance'] = 'high'
 
             msg = MIMEMultipart('alternative')
-            for key, value in headers.items():
+            for key, value in list(headers.items()):
                 if isinstance(value, (tuple, list)):
                     value = ','.join(value)
                 msg.add_header(key, value)

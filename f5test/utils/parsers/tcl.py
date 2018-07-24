@@ -546,12 +546,12 @@ class ParseString(str):
             try:
                 if self.line_breaks:
                     self.line_breaks.append(
-                       string.index(text, eol,
+                        text.index(eol,
                                     self.line_breaks[-1]
                                     + len(eol)) + len(eol) - 1)
 
                 else:
-                    self.line_breaks = [string.index(text, eol) + len(eol) - 1]
+                    self.line_breaks = [text.index(eol) + len(eol) - 1]
 
             except ValueError:
                 break
@@ -1277,4 +1277,4 @@ if __name__ == '__main__':  # pragma: nocover
                 if bit[0] == 'BracedLiteral':
                     stop = bit[1][0] - 1
                     content = bit[1]
-            print text[start:stop], '->', text[content[0]:content[1]]
+            print(text[start:stop], '->', text[content[0]:content[1]])

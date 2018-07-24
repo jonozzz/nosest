@@ -76,7 +76,7 @@ class EMDiscocveryStage(Stage, Macro):
             # Set the autoRefreshEnabled to false to avoid AutoRefresh tasks.
             try:
                 EMAPI.device.set_config(device=self.device)
-            except Exception, e:
+            except Exception as e:
                 LOG.warning("set_config() failed: %s", e)
 
             devices_ips = set([x.get_discover_address() for x in devices])

@@ -34,7 +34,7 @@ def cycle_partition_stamps(dictionary, infinite=True, include_common=True):
     from_common = dictionary[PARTITION_COMMON]
     return dict((k, f(v) if k == PARTITION_COMMON
                 else f(g(from_common, v)))
-                for k, v in dictionary.iteritems())
+                for k, v in dictionary.items())
 
 
 def take(n, iterable):
@@ -112,8 +112,8 @@ class SystemConfig(Macro):
             common.hook(Mail(self.smtpserver))
 
         LOG.info('Generating users...')
-        for name, specs in self.users.iteritems():
-            if isinstance(specs, basestring):
+        for name, specs in self.users.items():
+            if isinstance(specs, str):
                 u = User(name, role=specs)
             else:
                 u = User(name, **specs)
@@ -124,7 +124,7 @@ class SystemConfig(Macro):
         common.hook(p)
 
         LOG.info('Generating provision...')
-        for name, level in self.provision.iteritems():
+        for name, level in self.provision.items():
             if name in FEATURE_MODULES:
                 p = FeatureModule(name)
                 common.hook(p)
@@ -160,7 +160,7 @@ class NetworkConfig(Macro):
         if self.interfaces:
             LOG.info('Generating interfaces...')
             if isinstance(self.interfaces, dict):
-                for name, specs in self.interfaces.iteritems():
+                for name, specs in self.interfaces.items():
                     if isinstance(specs, Stamp):
                         i = specs
                     else:
@@ -176,7 +176,7 @@ class NetworkConfig(Macro):
         if self.trunks:
             LOG.info('Generating trunks...')
             if isinstance(self.trunks, dict):
-                for name, specs in self.trunks.iteritems():
+                for name, specs in self.trunks.items():
                     if isinstance(specs, Stamp):
                         t = specs
                     else:
@@ -200,7 +200,7 @@ class NetworkConfig(Macro):
         LOG.info('Generating VLANs...')
         vlan_name_map = {}
         if isinstance(self.vlans, dict):
-            for name, specs in self.vlans.iteritems():
+            for name, specs in self.vlans.items():
                 if isinstance(specs, Stamp):
                     v = specs
                 else:
@@ -233,8 +233,8 @@ class NetworkConfig(Macro):
         if self.selfips:
             LOG.info('Generating Self IPs...')
             if isinstance(self.selfips, dict):
-                for vlan, specs in self.selfips.iteritems():
-                    if isinstance(specs, (basestring, netaddr.IPNetwork)):
+                for vlan, specs in self.selfips.items():
+                    if isinstance(specs, (str, netaddr.IPNetwork)):
                         s = SelfIP(specs, vlan_name_map[vlan])
                         common.hook(s)
                     elif isinstance(specs, (list, tuple)):
@@ -271,7 +271,7 @@ class SnmpConfig(Macro):
         snmp = Snmp()
         communities = {}
         for community in self.communities.get('v2c', []):
-            key_name = "i%s_%d" % (community, len(communities.keys()) + 1)
+            key_name = "i%s_%d" % (community, len(list(communities.keys())) + 1)
             LOG.info('Generating V1, V2c community %s...', key_name)
             communities[key_name] = {'community-name': community}
         snmp.properties.communities = communities

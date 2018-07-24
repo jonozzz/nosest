@@ -80,7 +80,7 @@ def main():
     import sys
 
     usage = """%prog [options] <address> [ucs]...""" \
-        u"""
+        """
   Converts and loads a UCS file imported from another device.
 
   Examples:

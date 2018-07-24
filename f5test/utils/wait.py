@@ -3,7 +3,7 @@ Created on Aug 10, 2011
 
 @author: jono
 '''
-from __future__ import absolute_import
+
 import sys
 import time
 import traceback
@@ -72,7 +72,7 @@ class Wait(object):
                     self.criteria_not_met()
                     try:
                         self.progress()
-                    except Exception, e:
+                    except Exception as e:
                         LOG.warning("Exception occurred in progress(): %s", e)
 
                 if success:

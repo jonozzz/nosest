@@ -6,7 +6,7 @@ Created on Feb 22, 2012
 from restkit import Resource, ResourceError
 from restkit.filters import BasicAuth
 from restkit.datastructures import MultiDict
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from ...base import AttrDict
 from ..config import ConfigInterface
 import logging
@@ -43,8 +43,8 @@ timing_info[DELETE_STR] = []
 # unsafe characters (such as /$@:)
 # https://github.com/benoitc/restkit/issues/128
 def patched_constructor(self, username, password):
-    username = urllib.unquote_plus(username)
-    password = urllib.unquote_plus(password)
+    username = urllib.parse.unquote_plus(username)
+    password = urllib.parse.unquote_plus(password)
     self.credentials = (username, password)
 BasicAuth.__init__ = patched_constructor
 
@@ -129,13 +129,13 @@ class BaseRestResource(Resource):
 
     @staticmethod
     def _parse_json(data):
-        if not json or isinstance(data, basestring):
+        if not json or isinstance(data, str):
             return data
         return json.dumps(data)
 
     @staticmethod
     def _parse_xml(data):
-        if isinstance(data, basestring):
+        if isinstance(data, str):
             return data
         import xmltodict
         return xmltodict.unparse(data)
@@ -204,7 +204,7 @@ class BaseRestResource(Resource):
                                                              params_dict=params_dict,
                                                              **params)
             wrapped_response = WrappedResponse(response, raw=raw)
-        except ResourceError, e:
+        except ResourceError as e:
             raise e
         finally:
             # If we want to save timing information, compute and save the total

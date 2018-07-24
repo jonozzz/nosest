@@ -75,4 +75,4 @@ if __name__ == '__main__':
     # rendering
     s = tree.render()
     s.seek(0)
-    print s.read()
+    print(s.read())

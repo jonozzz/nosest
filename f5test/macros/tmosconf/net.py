@@ -64,8 +64,8 @@ class SelfIP(Stamp):
         #value['fw-rules'] = dict((x, RawEOL) for x in self.rules)
         if self.rules:
             value['fw-rules'].clear()
-            map(lambda x: value['fw-rules'].update(x.get_for_firewall()),
-                self.rules)
+            list(map(lambda x: value['fw-rules'].update(x.get_for_firewall()),
+                self.rules))
         else:
             #LOG.info('AFM not provisioned')
             value.pop('fw-rules')
@@ -112,7 +112,7 @@ class SelfIP2(PropertiesStamp):
     def tmsh(self, obj):
         ctx = self.folder.context
         v = ctx.version
-        values = obj.values()[0]
+        values = list(obj.values())[0]
         if v.product.is_bigip:
             if v < 'bigip 12.0':  # failed on 11.5.5, 11.6.3
                 values.pop('address-source')
@@ -304,8 +304,8 @@ class RouteDomain(Stamp):
 
             if ctx.provision.afm and self.rules:
                 value['fw-rules'].clear()
-                map(lambda x: value['fw-rules'].update(x.get_for_firewall()),
-                    self.rules)
+                list(map(lambda x: value['fw-rules'].update(x.get_for_firewall()),
+                    self.rules))
             else:
                 #LOG.info('AFM not provisioned')
                 value.pop('fw-rules')
@@ -338,7 +338,7 @@ class RouteDomain2(PropertiesStamp):
     def tmsh(self, obj):
         ctx = self.folder.context
         v = ctx.version
-        values = obj.values()[0]
+        values = list(obj.values())[0]
         if v.product.is_bigip:
             if v < 'bigip 11.6.2':  # failed on 11.5.2, 11.6
                 values.pop('connection-limit')
@@ -386,7 +386,7 @@ class Vlan2(PropertiesStamp):
         key, obj = super(Vlan2, self).compile()
         ctx = self.folder.context
         v = ctx.version
-        values = obj.values()[0]
+        values = list(obj.values())[0]
         if v.product.is_bigip:
             if v < 'bigip 11.6.0':  # failed on 11.5.5
                 values.pop('dag-tunnel')
@@ -394,7 +394,7 @@ class Vlan2(PropertiesStamp):
                 # interfaces:
                 #     1.1:
                 #        tag-mode: xyz
-                for value in values.get('interfaces', {}).values():
+                for value in list(values.get('interfaces', {}).values()):
                     if 'tag-mode' in value:
                         value.pop('tag-mode')
         return key, obj

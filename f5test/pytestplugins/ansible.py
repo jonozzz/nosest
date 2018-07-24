@@ -22,7 +22,7 @@ def __run_ansible_playbooks(request, source=None):
         [basename, 'yaml']))
     plugin = request.config.pluginmanager.get_plugin('ansible-plugin')
     if plugin.enabled and os.path.isfile(playbook):
-        print('Running module playbook=%s setup...' % (playbook,))
+        print(('Running module playbook=%s setup...' % (playbook,)))
         result = run_playbooks(playbook, tags=['setup'], context=request,
                                options=plugin.options)
         if result.rc:
@@ -31,7 +31,7 @@ def __run_ansible_playbooks(request, source=None):
     yield
 
     if plugin.enabled and os.path.isfile(playbook):
-        print('Running module playbook=%s teardown...' % (playbook,))
+        print(('Running module playbook=%s teardown...' % (playbook,)))
         result = run_playbooks(playbook, tags=['teardown'], context=request,
                                options=plugin.options)
         if result.rc:

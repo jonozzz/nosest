@@ -107,7 +107,7 @@ class FailoverState(BaseApiObject):
     def get_failover_state(self, ifc):
         bigip_api = ifc.api
         fos = bigip_api.get(FailoverState.BIGP_FAILOVER_STATUS_URI)
-        for key in fos.entries.keys():
+        for key in list(fos.entries.keys()):
             entries = fos.entries[key]
             return entries.nestedStats.entries.status.description
         return None

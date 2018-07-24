@@ -577,7 +577,7 @@ class Aam(Stamp, BaseProfile):
         a['state'] = self.state
         
         # Place a copy in Drafts
-        draft = self.folder.SEPARATOR.join((self.folder.key(), 'Drafts', unicode(self.name)))
+        draft = self.folder.SEPARATOR.join((self.folder.key(), 'Drafts', str(self.name)))
         obj['wam policy %s-TestPolicy' % draft] = deepcopy(a)
         obj['wam policy %s-TestPolicy' % draft]['state'] = 'development'
         value = obj.format(key=key, wam_profile=self.wam_profile)

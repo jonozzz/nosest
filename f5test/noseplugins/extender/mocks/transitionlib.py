@@ -22,7 +22,7 @@ def up_transition(soap_proxy, pool):
     for r in range(10):
         results = soap_proxy.get_monitor_instance(pool_names=[pool])
         res = results[0][0]["instance_state"]
-        print res
+        print(res)
 
         if res == POOL_UP:
             return True
@@ -37,7 +37,7 @@ def down_transition(soap_proxy, pool):
     for r in range(10):
         results = soap_proxy.get_monitor_instance(pool_names=[pool])
         res = results[0][0]["instance_state"]
-        print res
+        print(res)
 
         if res == POOL_UP:
             time.sleep(5)

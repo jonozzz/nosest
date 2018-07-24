@@ -20,7 +20,7 @@ def parser(text):
 
     # define punctuation as suppressed literals
     lparen, rparen, lbrack, rbrack, lbrace, rbrace, colon = \
-        map(Suppress, "()[]{}:")
+        list(map(Suppress, "()[]{}:"))
 
     identifier = Word(alphanums + "_")
     integer = Combine(Optional(oneOf("+ -")) + Word(nums))\
@@ -62,8 +62,8 @@ if __name__ == '__main__':
               _arg2=(_bb_1, 100)
               argument__3 = 'some quoted string'"""
 
-    print "Input:", test.strip()
+    print("Input:", test.strip())
     result = parser(test)
-    print "Result:"
+    print("Result:")
     for name, value in result:
-        print "  %s = %r" % (name, value)
+        print("  %s = %r" % (name, value))

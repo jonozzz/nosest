@@ -13,8 +13,8 @@ def collapse_lists(items):
         return {}
     result = {}
     for item in items:
-        for key, value in item.items():
-            if not result.has_key(key):
+        for key, value in list(item.items()):
+            if key not in result:
                 result[key] = []
             result[key].append(value)
     return result

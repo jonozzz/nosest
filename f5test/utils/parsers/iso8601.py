@@ -26,7 +26,7 @@ LOG = logging.getLogger(__name__)
 if sys.version_info >= (3, 0, 0):
     _basestring = str
 else:
-    _basestring = basestring
+    _basestring = str
 
 
 # Adapted from http://delete.me.uk/2005/03/iso8601.html

@@ -17,7 +17,7 @@
     venv_name: ansible-test
     home_dir: "{{ ansible_user_dir }}"
     venv_root: "{{ home_dir }}/.virtualenvs/{{ venv_name }}"
-    this_pb: "{{ playbook_dir }}/bootstrap_py2.yaml"
+    this_pb: "{{ playbook_dir }}/bootstrap_py3.yaml"
     templates_dir: "{{ playbook_dir }}/templates"
     first_time: false
 
@@ -137,11 +137,9 @@
           extra_args: -U --force-reinstall --src {{ venv_root }}/tmp
           virtualenv: "{{ venv_root }}"
         with_items:
-          - git+https://github.com/jonozzz/geventhttpclient.git@2to3#egg=geventhttpclient
-          #- git+https://github.com/jonozzz/nose.git#egg=nose
-          - git+https://github.com/jonozzz/SOAPpy.git#egg=SOAPpy@2to3
-          - git+https://gitswarm.f5net.com/turturica/loggerglue.git
-          - git+https://gitswarm.f5net.com/turturica/restkit.git@2to3
+          - git+https://github.com/jonozzz/geventhttpclient.git#egg=geventhttpclient
+          - git+https://github.com/jonozzz/nose.git#egg=nose
+          - git+https://github.com/jonozzz/SOAPpy.git#egg=SOAPpy
           - git+git://github.com/erjac77/ansible-common-f5.git#egg=ansible-common-f5
           - git+https://github.com/jonozzz/pytest.git@features#egg=pytest
           - git+https://github.com/jonozzz/allure-python.git#egg=allure-pytest&subdirectory=allure-pytest
@@ -168,15 +166,15 @@
           dest: "{{ venv_root }}/bin/buildout"
           state: link
 
-#      - copy:
-#          content: |
-#            [nosetests]
-#            config=.noserc
-#          dest: "{{ home_dir }}/.noserc"
-#
-#      - template:
-#          src: "{{ templates_dir }}/noserc.j2"
-#          dest: "{{ venv_root }}/.noserc"
+      - copy:
+          content: |
+            [nosetests]
+            config=.noserc
+          dest: "{{ home_dir }}/.noserc"
+
+      - template:
+          src: "{{ templates_dir }}/noserc.j2"
+          dest: "{{ venv_root }}/.noserc"
 
       - copy:
           src: "{{ templates_dir }}/test_sample.py"
@@ -203,7 +201,7 @@
 
       - command:  "{{ item }} chdir={{ venv_root }}"
         with_items:
-          - bin/pytest --no-logcollect tests/test_sample.py
+          - bin/nosetests --no-logcollect tests/test_sample.py
         register: output
         run_once: true
         failed_when: output.rc not in (0, 1)
@@ -218,5 +216,5 @@
             - source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
             - or source /usr/local/bin/virtualenvwrapper.sh
             - workon {{ venv_name }} && cdvirtualenv
-            - pytest tests/test_sample.py
+            - nosetests tests/test_sample.py
       when: not stat.stat.exists

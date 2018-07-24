@@ -1,5 +1,5 @@
 import os
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
 import logging
 from ..core import URLGetter, Result
@@ -12,13 +12,13 @@ f=os.path.abspath(__file__)
 if f[:1] != '/':
     f = '/' + f
 _prime_url = 'file://'+f
-urllib2.urlopen(_prime_url).read()
+urllib.request.urlopen(_prime_url).read()
 
 class URLLibURLGetter(URLGetter):
     name = 'urllib'
     def __init__(self, signup_list, result_queue):
         URLGetter.__init__(self, signup_list, result_queue)
-        self.opener = urllib2.build_opener()
+        self.opener = urllib.request.build_opener()
 
     def set_rate_limit(self, n):
         LOG.warning('set_rate_limit - Not implemented')
@@ -45,7 +45,7 @@ class URLLibURLGetter(URLGetter):
             result = self.opener.open(url)
             size = len(result.read())
             status = result.code
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             size = len(e.read())
             status = e.code
         except:

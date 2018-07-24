@@ -43,7 +43,7 @@ class YLoad:
                     yfile = "{0}/{1}".format(self.yamlfolder, self.yamlfilename)
                 else:
                     yfile = "{0}{1}".format(self.yamlfolder, self.yamlfilename)
-        except Exception, e:
+        except Exception as e:
             LOG.warning("Could not get OS path for the YAML file. Can't run tests. "
                         "Exception is: \n{0}".format(e))
             raise AssertionError("Could not find the YAML file. Can't run tests. "
@@ -55,7 +55,7 @@ class YLoad:
                         "Exception is: \n{0}".format(iox))
             raise AssertionError("Could not open YAML file. Can't run tests. Exception is:"
                            " \n{0}".format(iox))
-        except Exception, e:
+        except Exception as e:
             LOG.warning('Could not open the YAML file found.'
                         'Exception is: \n{0}'.format(e))
             raise e
@@ -63,7 +63,7 @@ class YLoad:
         try:
             yloader = yaml.load(yamlparamfile)
             yamlparamfile.close()
-        except Exception, e:
+        except Exception as e:
             LOG.error('Could not Load the YAML file. This is critical.'
                         'Exception is: \n{0}'.format(e))
             raise e
@@ -112,7 +112,7 @@ class ParseYaml:
                 if el.get(ui):
                     yaml_obj = el.get(ui)
                     break
-            except Exception, e:
+            except Exception as e:
                     raise e
         return yaml_obj
 

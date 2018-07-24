@@ -4,7 +4,7 @@ Created on Jan 28, 2015
 
 @author: jwong
 '''
-from __future__ import absolute_import
+
 from f5test.macros.base import Macro, MacroError
 from f5test.interfaces.ssh import SSHInterface
 from f5test.interfaces.config import ConfigInterface
@@ -168,7 +168,7 @@ class ScaleCheck(Macro):
 
     def ping_check(self):
         bip_selfips = SCMD.tmsh.list("net self", ifc=self.sshifc)
-        self_ips = [x['address'].split('/')[0] for x in bip_selfips.values()]
+        self_ips = [x['address'].split('/')[0] for x in list(bip_selfips.values())]
         for self_ip in self_ips:
             self_ip = IPAddress(self_ip)
             if self_ip.version == 4:
@@ -193,7 +193,7 @@ class ScaleCheck(Macro):
         if self.device:
             self_ip = IPAddress(self.device.get_discover_address())
             LOG.info("Verify given %s from yaml matches one on BIG-IP" % self_ip)
-            for a in bip_selfips.values():
+            for a in list(bip_selfips.values()):
                 bip_ip = IPAddress(a['address'].split('/')[0])
                 if a['vlan'] == 'internal' and \
                    self_ip.version == bip_ip.version:

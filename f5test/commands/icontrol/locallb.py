@@ -52,7 +52,7 @@ class GetNodes(IcontrolCommand):  # @IgnorePep8
         else:
             raise CommandError('Unsupported version: %s' % v)
 
-        return dict(zip(nodes, statuses))
+        return dict(list(zip(nodes, statuses)))
 
 
 get_pools = None
@@ -89,7 +89,7 @@ class GetPools(IcontrolCommand):  # @IgnorePep8
         else:
             raise CommandError('Unsupported version: %s' % v)
 
-        return dict(zip(pools, statuses))
+        return dict(list(zip(pools, statuses)))
 
 
 get_pool_members = None
@@ -186,7 +186,7 @@ class GetVirtualServers(IcontrolCommand):  # @IgnorePep8
         else:
             raise CommandError('Unsupported version: %s' % v)
 
-        return dict(zip(vips, statuses))
+        return dict(list(zip(vips, statuses)))
 
 
 create_ltm_app = None

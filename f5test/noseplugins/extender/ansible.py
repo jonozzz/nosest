@@ -5,7 +5,7 @@ Created on Dec 30, 2017
 
 Ansible connected to Nose.
 '''
-from __future__ import absolute_import
+
 
 import inspect
 import logging

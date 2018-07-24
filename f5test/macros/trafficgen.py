@@ -40,7 +40,7 @@ class TrafficGen(Macro):
         m.start()
         LOG.info("Started.")
         
-        pattern = map(lambda x:int(x), o.pattern.split(':'))
+        pattern = [int(x) for x in o.pattern.split(':')]
         
         stopped = False
         i = 0
@@ -99,20 +99,20 @@ class TrafficGen(Macro):
         LOG.info("Done.")
 
         if o.stats:
-            print'Average Document Length: %.0f bytes' % (stats.avg_req_length,)
-            print
-            print'Max Concurrency Level:    %d' % (max_concurrency,)
-            print'Time taken for tests: %.3f seconds' % (stats.total_wall_time,)
-            print'Complete requests:    %d' % (len(stats.results),)
-            print'Failed requests:      %d' % (stats.failed_requests,)
-            print'Total transferred:    %d bytes' % (stats.total_req_length,)
-            print'Requests per second:  %.2f [#/sec] (mean)' % (len(stats.results) /
-                                                                stats.total_wall_time,)
-            print'Time per request:     %.3f [ms] (mean)' % (stats.avg_req_time * 1000,)
-            print'Time per request:     %.3f [ms] (mean,'\
-                         ' across all concurrent requests)' % (stats.avg_req_time * 1000 / max_concurrency,)
-            print'Transfer rate:        %.2f [Kbytes/sec] received' % \
-                          (stats.total_req_length / stats.total_wall_time / 1024,)
+            print('Average Document Length: %.0f bytes' % (stats.avg_req_length,))
+            print()
+            print('Max Concurrency Level:    %d' % (max_concurrency,))
+            print('Time taken for tests: %.3f seconds' % (stats.total_wall_time,))
+            print('Complete requests:    %d' % (len(stats.results),))
+            print('Failed requests:      %d' % (stats.failed_requests,))
+            print('Total transferred:    %d bytes' % (stats.total_req_length,))
+            print('Requests per second:  %.2f [#/sec] (mean)' % (len(stats.results) /
+                                                                stats.total_wall_time,))
+            print('Time per request:     %.3f [ms] (mean)' % (stats.avg_req_time * 1000,))
+            print('Time per request:     %.3f [ms] (mean,'\
+                         ' across all concurrent requests)' % (stats.avg_req_time * 1000 / max_concurrency,))
+            print('Transfer rate:        %.2f [Kbytes/sec] received' % \
+                          (stats.total_req_length / stats.total_wall_time / 1024,))
 
 
 def main():

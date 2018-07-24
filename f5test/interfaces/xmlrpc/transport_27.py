@@ -3,21 +3,21 @@ Created on Jun 6, 2011
 
 @author: jono
 '''
-from cookielib import CookieJar
-import httplib
+from http.cookiejar import CookieJar
+import http.client
 import logging
-import urllib2
-import xmlrpclib
+import urllib.request, urllib.error, urllib.parse
+import xmlrpc.client
 
 
 DEFAULT_TIMEOUT = 90
 LOG = logging.getLogger(__name__)
 
 
-class TimeoutTransport(xmlrpclib.Transport):
+class TimeoutTransport(xmlrpc.client.Transport):
 
     def __init__(self, timeout=DEFAULT_TIMEOUT, *args, **kwargs):
-        xmlrpclib.Transport.__init__(self, *args, **kwargs)
+        xmlrpc.client.Transport.__init__(self, *args, **kwargs)
         self.timeout = timeout
 
     def make_connection(self, host):
@@ -29,7 +29,7 @@ class TimeoutTransport(xmlrpclib.Transport):
         # create a HTTP connection object from a host descriptor
         chost, self._extra_headers, _ = self.get_host_info(host)
         # store the host argument along with the connection object
-        self._connection = host, httplib.HTTPConnection(chost,
+        self._connection = host, http.client.HTTPConnection(chost,
                                                         timeout=self.timeout)
         return self._connection[1]
 
@@ -63,7 +63,7 @@ class CookieTransport(TimeoutTransport):
             h.set_debuglevel(1)
 
         request_url = "%s://%s/" % (self.scheme, host)
-        cookie_request = urllib2.Request(request_url)
+        cookie_request = urllib.request.Request(request_url)
 
         try:
             self.send_request(h, handler, request_body)
@@ -92,7 +92,7 @@ class CookieTransport(TimeoutTransport):
             if response.status == 200:
                 self.verbose = verbose
                 return self.parse_response(response)
-        except xmlrpclib.Fault:
+        except xmlrpc.client.Fault:
             raise
         except Exception:
             # All unexpected errors leave connection in
@@ -103,13 +103,13 @@ class CookieTransport(TimeoutTransport):
         # discard any response data and raise exception
         if (response.getheader("content-length", 0)):
             response.read()
-        raise xmlrpclib.ProtocolError(
+        raise xmlrpc.client.ProtocolError(
             host + handler,
             response.status, response.reason,
             response.msg,
         )
 
 
-class SafeCookieTransport(xmlrpclib.SafeTransport, CookieTransport, object):
+class SafeCookieTransport(xmlrpc.client.SafeTransport, CookieTransport, object):
     '''SafeTransport subclass that supports cookies.'''
     scheme = 'https'

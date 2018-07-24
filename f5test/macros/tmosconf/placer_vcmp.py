@@ -4,7 +4,7 @@ Created on Dec 30, 2015
 
 @author: jwong
 '''
-from __future__ import absolute_import
+
 from f5test.interfaces.config import DeviceAccess
 from f5test.macros.tmosconf.placer import ConfigPlacer
 from f5test.macros.tmosconf.base import SystemConfig
@@ -132,7 +132,7 @@ class VcmpPlacer(ConfigPlacer):
 
     def delete_guests(self):
         guests = SCMD.tmsh.list('vcmp guest', ifc=self.sshifc)
-        for guest, items in guests.iteritems():
+        for guest, items in guests.items():
             if 'state' in items and items['state'] in VCMP_ONLINE_STATES:
                 LOG.info("Disabling %s..." % guest.split()[-1])
                 SCMD.tmsh.run(guest + ' state configured', command='modify',
@@ -145,7 +145,7 @@ class VcmpPlacer(ConfigPlacer):
         if self.options.revert:
             LOG.info("Reverting by provisioning to %s" % self.options.provision)
 
-        if self.options.clean_only and 'vcmp' in ctx.provision.keys():
+        if self.options.clean_only and 'vcmp' in list(ctx.provision.keys()):
             # Disable any running vCMP Guests then delete them
             self.delete_guests()
             self.clean_vdisk()
@@ -163,12 +163,12 @@ class VcmpPlacer(ConfigPlacer):
         # TODO: We will need to add more logic here to check if the current
         # running guests are the same as our config. If so, leave it, otherwise
         # clean it out.
-        if 'vcmp' in ctx.provision.keys():
+        if 'vcmp' in list(ctx.provision.keys()):
             # Disable any running vCMP Guests then delete them
             self.delete_guests()
             self.clean_vdisk()
 
-        if self.options.provision in ctx.provision.keys():
+        if self.options.provision in list(ctx.provision.keys()):
             LOG.info("No need for reboot...")
             reboot = False
         # System
@@ -272,7 +272,7 @@ class VcmpPlacer(ConfigPlacer):
 
             # Deploy vCMP Guests.
             guests = SCMD.tmsh.list('vcmp guest', ifc=self.sshifc)
-            for guest, items in guests.iteritems():
+            for guest, items in guests.items():
                 if 'state' not in items or items['state'] != 'deployed':
                     LOG.info("Deploying %s..." % guest.split()[-1])
                     SCMD.tmsh.run(guest + ' state deployed', command='modify',

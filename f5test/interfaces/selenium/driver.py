@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 from selenium.webdriver.remote.webdriver import WebDriver as RemoteWebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.remote.command import Command
@@ -124,7 +124,7 @@ class ElementWait(Wait):
 
 class WebElementWrapper(WebElement):
     def __repr__(self):
-        return u"<WebElement %s>" % self.id
+        return "<WebElement %s>" % self.id
 
     def wait(self, *args, **kwargs):
         """Waits for condition c"""
@@ -364,12 +364,12 @@ class RemoteWrapper(RemoteWebDriver):
         """
         def pretty(x):
             if x:
-                return ', '.join(["%s='%s'" % (n, unicode(v)[:1024])
-                                  for n, v in x.iteritems() if n != 'sessionId'])
+                return ', '.join(["%s='%s'" % (n, str(v)[:1024])
+                                  for n, v in x.items() if n != 'sessionId'])
             else:
                 return ''
 
-        LOG.debug(u'{0}({1})'.format(driver_command, pretty(params)))
+        LOG.debug('{0}({1})'.format(driver_command, pretty(params)))
         ret = super(RemoteWrapper, self).execute(driver_command, params)
-        LOG.debug(u'{0}'.format(pretty(ret)))
+        LOG.debug('{0}'.format(pretty(ret)))
         return ret

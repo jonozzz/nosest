@@ -3,12 +3,12 @@ Created on Feb 6, 2015
 
 @author: jono
 '''
-from __future__ import absolute_import
+
 
 import datetime
 import json
 import logging
-from urlparse import urlparse
+from urllib.parse import urlparse
 import pytz
 
 from . import ExtendedPlugin

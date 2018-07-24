@@ -5,7 +5,7 @@ Depends on pytest-json-report
 
 @author: jono
 '''
-from __future__ import absolute_import
+
 
 import copy
 from email.mime.multipart import MIMEMultipart
@@ -50,10 +50,10 @@ def encode(obj):
         ret.alias = obj.alias
         ret.ports = obj.ports
         ret.credentials = AttrDict()
-        for role, level_cred in obj.credentials.items():
+        for role, level_cred in list(obj.credentials.items()):
             role = ROLE_NAMES[role]
             ret.credentials[role] = AttrDict()
-            for level, cred in level_cred.items():
+            for level, cred in list(level_cred.items()):
                 ret.credentials[role][level] = AttrDict(username=cred.username,
                                                         password=cred.password)
         ret.is_default = obj.is_default()
@@ -91,14 +91,14 @@ def customfilter_bzify(string):
     links = {'((?:BZ|BUG)\s*(\d{6}))':
              r"<a href='http://bugzilla/show_bug.cgi?id=\2'>\1</a>"}
     result = string
-    for expr, href in links.items():
+    for expr, href in list(links.items()):
         result = re.sub(expr, href, result, flags=re.IGNORECASE)
     return result if result == string else jinja2.filters.do_mark_safe(result)
 
 
 def customfilter_product(duts, product='bigip'):
     if duts is None or isinstance(duts, jinja2.Undefined) or\
-            not isinstance(duts, list) or not isinstance(product, basestring):
+            not isinstance(duts, list) or not isinstance(product, str):
         return duts
 
     result = list()
@@ -163,7 +163,7 @@ class EmailPlugin(object):
                                      result.failCount())
 
         x = {}
-        for label, storage in result.blocked.items():
+        for label, storage in list(result.blocked.items()):
             for truple in storage:
                 test, err, context = truple
                 y = x.setdefault(label, {})
@@ -191,7 +191,7 @@ class EmailPlugin(object):
                 LOG.warning('Email plugin not configured.')
                 return
             headers['From'] = spec.get('from', DEFAULT_FROM)
-            if isinstance(spec.get('to', []), basestring):
+            if isinstance(spec.get('to', []), str):
                 recipients = set([spec.to])
             else:
                 recipients = set(spec.to)
@@ -230,7 +230,7 @@ class EmailPlugin(object):
             #    headers['Importance'] = 'high'
 
             msg = MIMEMultipart('alternative')
-            for key, value in headers.items():
+            for key, value in list(headers.items()):
                 if isinstance(value, (tuple, list)):
                     value = ','.join(value)
                 msg.add_header(key, value)
@@ -238,7 +238,7 @@ class EmailPlugin(object):
             template_html = env.get_template('email_html.tmpl')
             html = template_html.render(dict(data=data))
 
-            msg.attach(MIMEText(html.encode('utf-8'), 'html'))
+            msg.attach(MIMEText(html, 'html'))
 
             message = msg.as_string()
             yield AttrDict(headers=headers, body=message, text=html)
@@ -247,7 +247,7 @@ class EmailPlugin(object):
         path = self.data.session.path
         if os.path.exists(path):
             with open(os.path.join(path, DUMP_EMAIL_FILENAME), 'wt') as f:
-                f.write(email.text.encode('utf-8'))
+                f.write(email.text)
 
     def X_pytest_json_modifyreport(self, json_report):
         if self.enabled is False:

@@ -122,18 +122,18 @@ class LicenseGenerator(Macro):
             product = root.bigip.get(options.bigip)
             if not product:
                 pprint.pprint(root.bigip)
-                raise ValueError("Only BIGIP %s are supported." % root.bigip.keys())
+                raise ValueError("Only BIGIP %s are supported." % list(root.bigip.keys()))
         elif self.options.em:
             productline = 'EM'
             product = root.em.get(options.em)
             if not product:
                 pprint.pprint(root.em)
-                raise ValueError("Only EM %s are supported." % root.em.keys())
+                raise ValueError("Only EM %s are supported." % list(root.em.keys()))
         elif self.options.bigiq:
             productline = 'BIG-IQ'
             product = root.bigiq.get(options.bigiq)
             if not product:
-                raise ValueError("Only BIGIQ %s are supported." % root.bigiq.keys())
+                raise ValueError("Only BIGIQ %s are supported." % list(root.bigiq.keys()))
         else:
             raise ValueError("Only BIGIP, EM or BIGIQ are supported.")
 

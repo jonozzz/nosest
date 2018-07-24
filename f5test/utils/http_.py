@@ -3,8 +3,7 @@ Created on Jul 17, 2014
 
 @author: jono
 '''
-from __future__ import absolute_import
-import BaseHTTPServer
+import http.server
 import ssl
 from threading import Thread
 import time
@@ -21,9 +20,9 @@ TIMEOUT = 10
 MGMT_HOST = 'f5.com'
 
 
-class BasicAuthRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class BasicAuthRequestHandler(http.server.BaseHTTPRequestHandler):
     def parse_request(self):
-        BaseHTTPServer.BaseHTTPRequestHandler.parse_request(self)
+        http.server.BaseHTTPRequestHandler.parse_request(self)
         self.auth = None
         if 'Authorization' in self.headers:
             mode, value = self.headers['Authorization'].split(' ')
@@ -45,7 +44,7 @@ class HttpListener(Thread):
     def run(self):
         server_address = ('', self.port)
 
-        server = BaseHTTPServer.HTTPServer(server_address, self.handler_class)
+        server = http.server.HTTPServer(server_address, self.handler_class)
         server.timeout = self.timeout
         server.running = True
         end = time.time() + self.timeout
@@ -69,7 +68,7 @@ def server(handler_class, address=None, port=None, timeout=TIMEOUT,
     return address, port, t
 
 
-def request(url, method='GET', payload=u'', headers={}, timeout=30):
+def request(url, method='GET', payload='', headers={}, timeout=30):
     """A super-simplistic http/s client with no SSL cert validation.
 
     >>> print request('http://google.com').status_code
@@ -89,10 +88,10 @@ def request(url, method='GET', payload=u'', headers={}, timeout=30):
 if __name__ == '__main__':
     class HandlePost(BasicAuthRequestHandler):
         def do_POST(self):
-            print 'Got a post!', self.auth
+            print('Got a post!', self.auth)
             self.send_response(200)
             self.server.running = False
     a, p, t = server(HandlePost, port=8082, timeout=TIMEOUT)
-    print a, p
+    print(a, p)
     t.join()
-    print 'done!'
+    print('done!')

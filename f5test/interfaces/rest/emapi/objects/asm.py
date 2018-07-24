@@ -44,7 +44,7 @@ class AsmTask(Task):
         if BasicProfiler.state == BasicProfilerState.dont_save:
             BasicProfiler.state = BasicProfilerState.enabled
 
-        if "currentStep" in ret.keys():
+        if "currentStep" in list(ret.keys()):
             pending_conflicts = 0
             if check_no_pending_conflicts and ret.currentStep in ('PENDING_CONFLICTS', 'PENDING_CHILD_CONFLICTS'):
                 pending_conflicts = 1
@@ -75,7 +75,7 @@ class AsmTask(Task):
         if BasicProfiler.state == BasicProfilerState.enabled:
             epoch = datetime.datetime.fromtimestamp(0)
             keys = {'startTime' : 'endTime', 'startDateTime' : 'endDateTime'}
-            for start, end in keys.iteritems():
+            for start, end in keys.items():
                 if ret.get(start) and ret.get(end):
                     BasicProfiler.save_result(resource.selfLink,
                                         req_type='_WAIT',

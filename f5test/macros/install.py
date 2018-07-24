@@ -363,11 +363,11 @@ class InstallSoftware(Macro):
         # in the software repository.
         # =======================================================================
         images = ICMD.software.get_software_image(ifc=icifc)
-        haz_it = any(filter(lambda x: x['verified'] and
+        haz_it = any([x for x in images if x['verified'] and
                             x['product'] == iso_version.product.to_tmos and
                             x['version'] == iso_version.version and
                             x['build'] == iso_version.build and
-                            x['filename'] == base, images))
+                            x['filename'] == base])
 
         volume = self.options.volume or ICMD.software.get_inactive_volume(ifc=icifc)
         LOG.info('Preparing volume %s...', volume)
@@ -419,10 +419,10 @@ class InstallSoftware(Macro):
 
         if hfiso:
             images = ICMD.software.get_software_image(ifc=icifc, is_hf=True)
-            haz_it = any(filter(lambda x: x['verified'] and
+            haz_it = any([x for x in images if x['verified'] and
                                 x['product'] == hfiso_version.product.to_tmos and
                                 x['version'] == hfiso_version.version and
-                                x['build'] == hfiso_version.build, images))
+                                x['build'] == hfiso_version.build])
 
             if not haz_it:
                 hfbase = os.path.basename(hfiso)
@@ -438,16 +438,14 @@ class InstallSoftware(Macro):
                     .run_wait(is_available, timeout_message="Timeout ({0}s) while waiting for the hotfix image to be imported.")
 
         def is_still_removing(items):
-            return not any(filter(lambda x: x['status'].startswith('removing'),
-                                  items))
+            return not any([x for x in items if x['status'].startswith('removing')])
 
         def is_still_installing(items):
-            return not any(filter(lambda x: x['status'].startswith('installing') or
+            return not any([x for x in items if x['status'].startswith('installing') or
                                   x['status'].startswith('waiting') or
                                   x['status'].startswith('testing') or
                                   x['status'] in ('audited', 'auditing',
-                                                  'upgrade needed'),
-                                  items))
+                                                  'upgrade needed')])
 
         volumes = ICMD.software.get_software_status(ifc=icifc)
         assert is_still_installing(volumes), "An install is already in " \

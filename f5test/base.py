@@ -16,7 +16,7 @@ if hasattr(ssl, '_create_unverified_context'):
 
 
 def enum(*args, **kwargs):
-    enums = dict(zip(args, args), **kwargs)
+    enums = dict(list(zip(args, args)), **kwargs)
     return type('Enum', (), enums)
 
 
@@ -52,7 +52,7 @@ class TestCase(unittest.TestCase):
         from f5test.noseplugins.extender.known_issue import KnownIssueTest
         raise KnownIssueTest(message)
 
-    def run(self, result=None):
+    def _REMOVE_run(self, result=None):
         """This is the original method from unittest.TestCase modified to
         execute tearDown always (i.e. even when an exception occurs in the setUp)
 
@@ -226,7 +226,7 @@ class AttrDict(dict):
         """
         def combine(d, n):
 
-            for k, v in n.items():
+            for k, v in list(n.items()):
                 d.setdefault(k, AttrDict())
 
                 if isinstance(v, AttrDict):
@@ -250,7 +250,7 @@ class AttrDict(dict):
             else:
                 # Special case for AttrDict([('a',2),('b',4)])
                 if isinstance(arg, Iterable) and \
-                   not isinstance(arg, types.StringTypes):
+                   not isinstance(arg, (str,)):
                     combine(self, dict(arg))
         combine(self, kwargs)
 

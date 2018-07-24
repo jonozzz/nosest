@@ -13,9 +13,9 @@ from ....utils.querydict import QueryDict
 from restkit import ResourceError, RequestError
 from f5test.utils.wait import wait, wait_args
 from threading import Event, Thread
-import urlparse
+import urllib.parse
 import logging
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import base64
 import datetime
 
@@ -29,7 +29,7 @@ MAX_LINE_LENGTH = 65536
 def localize_uri(uri):
     if hasattr(uri, 'selfLink'):
         uri = uri.selfLink
-    return urlparse.urljoin(LOCALHOST_URL_PREFIX, uri)
+    return urllib.parse.urljoin(LOCALHOST_URL_PREFIX, uri)
 
 
 class EmapiResourceError(ResourceError):
@@ -51,7 +51,7 @@ class EmapiResourceError(ResourceError):
                     "Operation ID: {data.restOperationId}\n"
                     "Code: {data.code}\n"
                     "Message: {data.message}\n"
-                    "".format(tb='  \n'.join(map(lambda x: "  " + x, tb)),
+                    "".format(tb='  \n'.join(["  " + x for x in tb]),
                               data=self.response.data,
                               response=self.response.response))
         else:
@@ -90,7 +90,7 @@ class EmapiRestResource(BaseRestResource):
         FAILED_AUTHENTICATION = "java.security.GeneralSecurityException: Invalid registered claims."
 
         if odata_dict:
-            dollar_keys = dict(('$%s' % x, y) for x, y in odata_dict.iteritems())
+            dollar_keys = dict(('$%s' % x, y) for x, y in odata_dict.items())
             if params_dict is None:
                 params_dict = {}
             params_dict.update(dollar_keys)
@@ -106,14 +106,14 @@ class EmapiRestResource(BaseRestResource):
                 params_dict.update(query_dict)
 
         # Strip the schema and hostname part.
-        path = urlparse.urlparse(path).path
+        path = urllib.parse.urlparse(path).path
         try:
             wrapped_response = super(EmapiRestResource, self).request(method, path=path,
                                                                       payload=payload,
                                                                       headers=headers,
                                                                       params_dict=params_dict,
                                                                       **params)
-        except ResourceError, e:
+        except ResourceError as e:
             if e.status_int == 401 and FAILED_AUTHENTICATION in e.msg:
                 LOG.error("Authentication Token Expired! Was there a restart?")
             raise EmapiResourceError(e)
@@ -149,17 +149,17 @@ class EmapiInterface(RestInterface):
         def on_request(self, request):
             # We won't log multi-part requests.
             # We want to trim F5 Authentication headers to their begin/end
-            if isinstance(request.body, (type(None), basestring)):
+            if isinstance(request.body, (type(None), str)):
                 payload = credentials = ''
                 if request.body:
                     payload = "-d '{}'".format(request.body.replace("'", "\\'")[:MAX_LINE_LENGTH])
                 headers = []
-                for name, value in request.headers.items():
+                for name, value in list(request.headers.items()):
                     # Recover credentials from Basic auth header
                     if name == 'Authorization':
                         type_, auth = value.split()
                         if type_ == 'Basic':
-                            credentials = "-u " + base64.b64decode(auth.decode())
+                            credentials = "-u " + base64.b64decode(auth).decode()
                     # curl calculates content-length automatically
                     elif name == 'Content-Length':
                         pass
@@ -278,8 +278,7 @@ class EmapiInterface(RestInterface):
         if self.auth == AUTH.BASIC:
             super(EmapiInterface, self).open()
         elif self.auth == AUTH.TOKEN:
-            quoted = dict(map(lambda (k, v): (k, urllib.quote_plus(str(v))),
-                              self.__dict__.iteritems()))
+            quoted = dict([(k_v[0], urllib.parse.quote_plus(str(k_v[1]))) for k_v in iter(self.__dict__.items())])
             url = "{0[proto]}://{0[username]}:{0[password]}@{0[address]}:{0[port]}".format(quoted)
             api = self.api_class(url, timeout=self.timeout)
             if not self.token:
@@ -320,7 +319,7 @@ class EmapiInterface(RestInterface):
             # BZ650017 - no need to delete access token
             # if self.token:
             #     self.api.delete(self.token.selfLink)
-        except (RequestError, EmapiResourceError), e:
+        except (RequestError, EmapiResourceError) as e:
             LOG.error('Failed to stop refresh token thread or delete token on rstifc close: %s', e)
         finally:
             self.token = None

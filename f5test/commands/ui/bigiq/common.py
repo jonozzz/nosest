@@ -12,7 +12,7 @@ from ....interfaces.config import ConfigInterface, DeviceAccess
 from ....interfaces.selenium import By, Is
 import logging
 import time
-from itertools import izip
+
 from f5test.utils.wait import wait, WaitTimedOut
 from selenium.common.exceptions import (NoSuchElementException,
                                         StaleElementReferenceException,
@@ -226,9 +226,9 @@ class Navigate(SeleniumCommand):  # @IgnorePep8
                     b.wait(link_xpath, By.XPATH, it=Is.PRESENT, timeout=self.timeout)
                     e = b.find_element_by_xpath(link_xpath)  # chrome driver issue
                     e.jquery_click()
-                    tail = ''.join(map(lambda x: "//a[text()='%s']" % x, bits[1:]))
+                    tail = ''.join(["//a[text()='%s']" % x for x in bits[1:]])
                     link_xpath = "%s/div[@id='navMenuSublinks']%s" % (navmenu_xpath, tail)
-                    tail = ''.join(map(lambda x: "//a[contains(@class, 'active') and text()='%s']" % x, bits[1:]))
+                    tail = ''.join(["//a[contains(@class, 'active') and text()='%s']" % x for x in bits[1:]])
                     wait_xpath = "%s/div[@id='navMenuSublinks']%s" % (navmenu_xpath, tail)
                 else:
                     link_xpath = "%s/ul/li/a[text()='%s']" % (navmenu_xpath, bits[0])
@@ -1027,7 +1027,7 @@ class ApplyFiltersToBlade(SeleniumCommand):  # @IgnorePep8
             self.blade = blade
         else:
             raise WrongParameterPassedMethodCheck("/ApplyFiltersToBlade/Blade Name is mandatory and needs to be a string")
-        if isinstance(text, basestring):
+        if isinstance(text, str):
             text = [text]
         self.text = text
 
@@ -1115,7 +1115,7 @@ class RemoveFiltersFromBlade(SeleniumCommand):  # @IgnorePep8
             self.blade = blade
         else:
             raise WrongParameterPassedMethodCheck("/RemoveFiltersFromBlade/Blade Name is mandatory and needs to be a string")
-        if isinstance(text, basestring):
+        if isinstance(text, str):
             text = [text]
         self.text = text
 
@@ -1531,7 +1531,7 @@ class ClickBladeOnText(SeleniumCommand):  # @IgnorePep8
                             already_found_and_clicked = True
                             LOG.debug("{0}Webel after actions: {1}. already_found_and_clicked = {2}"
                                       .format(self.usedin, webel, already_found_and_clicked))
-                        except StaleElementReferenceException, e:
+                        except StaleElementReferenceException as e:
                             if already_found_and_clicked:
                                 LOG.error("{0}Already found and clicked, but got Stale."
                                           " Moving on...".format(self.usedin))
@@ -1540,7 +1540,7 @@ class ClickBladeOnText(SeleniumCommand):  # @IgnorePep8
                                 pass
                             else:
                                 raise StaleElementReferenceException(msg="{0} Got Stale.".format(self.usedin))
-                        except NoSuchElementException, e:
+                        except NoSuchElementException as e:
                             if already_found_and_clicked:
                                 LOG.error("{0}Already found and clicked, but got NoSuch."
                                           "Moving on...".format(self.usedin))
@@ -1700,7 +1700,7 @@ class ClickBladeOnText(SeleniumCommand):  # @IgnorePep8
                                      .format(self.usedin))
                         allgearbtns = bladewebel.find_elements_by_xpath(self.bladelist_gearbtns_x)
                         element_found = False
-                        for el, gearel in izip(all_blade_els, allgearbtns):
+                        for el, gearel in zip(all_blade_els, allgearbtns):
                             received_text = el.text
                             if self.text in received_text:
                                 element_found = True
@@ -1734,7 +1734,7 @@ class ClickBladeOnText(SeleniumCommand):  # @IgnorePep8
                                 LOG.debug("{0}Webel after actions: {1}. already_found_and_clicked = {2}"
                                           .format(self.usedin, webel, already_found_and_clicked))
                                 break
-                    except StaleElementReferenceException, e:
+                    except StaleElementReferenceException as e:
                         if already_found_and_clicked:
                             LOG.debug("{0}Already found and clicked, but got Stale."
                                       " Moving on...".format(self.usedin))
@@ -1747,7 +1747,7 @@ class ClickBladeOnText(SeleniumCommand):  # @IgnorePep8
                                       "Moving on to scroll...E was: {1}".format(self.usedin, e))
                             # raise e
                             pass  # blade refreshed itself
-                    except NoSuchElementException, e:
+                    except NoSuchElementException as e:
                         if already_found_and_clicked:
                             LOG.debug("{0}Already found and clicked, but got NoSuch."
                                       "Moving on...".format(self.usedin))
@@ -1758,7 +1758,7 @@ class ClickBladeOnText(SeleniumCommand):  # @IgnorePep8
                             LOG.debug("{0}Not Already found and clicked, but got NoSuch."
                                       " Not Moving on...E was: {1}".format(self.usedin, e))
                             raise e
-                    except Exception, e:
+                    except Exception as e:
                         raise e
 
                 # ##################### Finished Optimization ######################
@@ -1859,21 +1859,21 @@ class ClickBladeOnText(SeleniumCommand):  # @IgnorePep8
                                     LOG.debug("{0}Scroll Reach on found element was: "
                                               "'{1}'".format(self.usedin, reach))
                             # this is because DOM sometimes changes after fist click on a found el
-                            except StaleElementReferenceException, e:
+                            except StaleElementReferenceException as e:
                                 if elfound:
                                     pass
                                 elif self.expect_none:
                                     pass
                                 else:
                                     raise e
-                            except NoSuchElementException, e:
+                            except NoSuchElementException as e:
                                 if elfound:
                                     pass
                                 elif self.expect_none:
                                     pass
                                 else:
                                     raise e
-                            except Exception, e:
+                            except Exception as e:
                                 raise e
                             i += 1
                             # reach = i * self.CH
@@ -2208,7 +2208,7 @@ class SaveRetract(SeleniumCommand):  # @IgnorePep8
             if not waitfortext:
                 raise NoSuchElementException(msg="/save_retract/waitfortext param is mandatory if with_verify is True.")
             else:
-                if isinstance(waitfortext, basestring):
+                if isinstance(waitfortext, str):
                     waitfortext = [waitfortext]
         if not ver:
             ver = self.ifc.version
@@ -2443,7 +2443,7 @@ class SearchBlade(SeleniumCommand):  # @IgnorePep8
         else:
             raise NoSuchElementException(msg="/SearchBlade/Blade ID is mandatory and needs to be a string")
         if (text is not None):
-            if isinstance(text, basestring):
+            if isinstance(text, str):
                 text = [text]
             self.text = text
         else:
@@ -2765,7 +2765,7 @@ class DeleteObjectOnText(SeleniumCommand):  # @IgnorePep8
             self.blade = blade
         else:
             raise NoSuchElementException(msg="/DeleteObj/Blade Name and 'text' to delete are mandatory.")
-        if isinstance(text, basestring):
+        if isinstance(text, str):
             text = [text]
         self.text = text
         self.visible = visible

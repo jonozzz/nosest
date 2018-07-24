@@ -3,7 +3,7 @@ from ..common import browse_to, get_cell_xpath, wait_for_loading, \
     browse_to_tab
 from ....interfaces.selenium.driver import By
 import logging
-import urlparse
+import urllib.parse
 
 LOG = logging.getLogger(__name__) 
 
@@ -13,7 +13,7 @@ class Refresh(SeleniumCommand):
     """Refresh one device given the access address."""
     def __init__(self, mgmtip, timeout=120, *args, **kwargs):
         super(Refresh, self).__init__(*args, **kwargs)
-        self.mgmtip = [mgmtip] if isinstance(mgmtip, basestring) else mgmtip
+        self.mgmtip = [mgmtip] if isinstance(mgmtip, str) else mgmtip
         self.timeout = timeout
 
     def setup(self):
@@ -92,9 +92,9 @@ class CreatePinnedArchive(SeleniumCommand):
         e = b.find_element_by_xpath("//table[@id='tableForm:archiveTable_table']"
                                     "//a[normalize-space(.)='%s.ucs']" % self.name)
         uri = e.get_attribute('href')
-        qs = urlparse.urlparse(uri).query
+        qs = urllib.parse.urlparse(uri).query
         LOG.info(qs)
-        params = urlparse.parse_qs(qs)
+        params = urllib.parse.parse_qs(qs)
         return params['uid'][0]
 
 

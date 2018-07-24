@@ -109,7 +109,7 @@ class ServerSsl(PropertiesStamp, BaseProfile):
     def tmsh(self, obj):
         ctx = self.folder.context
         v = ctx.version
-        values = obj.values()[0]
+        values = list(obj.values())[0]
         if v.product.is_bigip:
             if v < 'bigip 12.0':
                 values.pop('allow-expired-crl')
@@ -203,7 +203,7 @@ class ClientSsl(PropertiesStamp, BaseProfile):
     def tmsh(self, obj):
         ctx = self.folder.context
         v = ctx.version
-        values = obj.values()[0]
+        values = list(obj.values())[0]
         if v.product.is_bigip:
             if v < 'bigip 12.0':
                 values.pop('allow-expired-crl')
@@ -265,7 +265,7 @@ class Sip(PropertiesStamp, BaseProfile):
     def tmsh(self, obj):
         ctx = self.folder.context
         v = ctx.version
-        values = obj.values()[0]
+        values = list(obj.values())[0]
         if v.product.is_bigip:
             if v < 'bigip 11.6':  # failed on 11.4.1, 11.5
                 values.pop('log-profile')
@@ -326,7 +326,7 @@ class FastL4(PropertiesStamp, BaseProfile):
     def tmsh(self, obj):
         ctx = self.folder.context
         v = ctx.version
-        values = obj.values()[0]
+        values = list(obj.values())[0]
         if v.product.is_bigip:
             if v < 'bigip 11.5':  # failed on 11.4.1
                 values.pop('priority-to-client')

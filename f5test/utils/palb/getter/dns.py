@@ -3,13 +3,13 @@ Created on Aug 11, 2011
 
 @author: jono
 '''
-from __future__ import absolute_import
+
 from ..core import URLGetter, Result
 from dns.resolver import Resolver
 import dns
 import logging
 import time
-import urlparse
+import urllib.parse
 
 LOG = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class DNSURLGetter(URLGetter):
         size = status = 0
         resolver = self.resolver
         
-        u = urlparse.urlparse(url)
+        u = urllib.parse.urlparse(url)
         assert u.scheme == 'dns', "Can't handle scheme: %s" % u.scheme
         resolver.nameservers = [u.netloc]
         qname = u.path.split('/')[1]
@@ -54,7 +54,7 @@ class DNSURLGetter(URLGetter):
             status = 1
             time.sleep(self.delay)
             #LOG.info(answer)
-        except Exception, e:
+        except Exception as e:
             #import traceback
             #traceback.print_exc()
             LOG.warning('Failed: %s', repr(e))

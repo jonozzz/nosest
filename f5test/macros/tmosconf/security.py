@@ -82,7 +82,7 @@ class RuleDestination(AttrDict):
 
     # We don't use the extra attributes for list references
     def _as_dict(self):
-        for k, v in self.iteritems():
+        for k, v in self.items():
             if k in ('address-lists', 'port-lists', 'vlans'):
                 self[k] = dict((x.get(reference=True), RawEOL) for x in v)
             else:
@@ -239,7 +239,7 @@ class RuleList(Stamp):
                 value['description'] = self.description
 
             value['rules'].clear()
-            map(lambda x: value['rules'].update(x.get()), self.rules)
+            list(map(lambda x: value['rules'].update(x.get()), self.rules))
             #print self.rules[0].get()
             #raise
         else:
@@ -276,15 +276,15 @@ class Firewall(Stamp):
             value = obj.rename_key('%(key)s', key=key)
 
             value['rules'].clear()
-            map(lambda x: value['rules'].update(x.get_for_firewall()),
-                self.rules)
+            list(map(lambda x: value['rules'].update(x.get_for_firewall()),
+                self.rules))
 
             # Nuke the vlan property from <rule>.source
             if self.type is Firewall.types.MANAGEMENT_PORT:
-                map(lambda v: 'source' in v and
+                list(map(lambda v: 'source' in v and
                               'vlans' in v['source'] and
                               v['source'].pop('vlans'),
-                    value['rules'].values())
+                    list(value['rules'].values())))
         else:
             key = obj = None
         return key, obj
@@ -315,7 +315,7 @@ class GlobalRules(PropertiesStamp):
     def tmsh(self, obj):
         ctx = self.folder.context
         v = ctx.version
-        values = obj.values()[0]
+        values = list(obj.values())[0]
         if v.product.is_bigip:
             if v < 'bigip 11.6.2':  # failed on 11.5.2, 11.6, 11.6.1
                 values.pop('enforced-policy')

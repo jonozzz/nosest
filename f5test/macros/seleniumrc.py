@@ -145,14 +145,14 @@ class SeleniumRC(Macro):
         LOG.info('Stopping...')
         params = self.params
         
-        for pid_file in params.pids.values():
+        for pid_file in list(params.pids.values()):
             pid_file = os.path.join(params.dirs.run, pid_file)
             if os.path.exists(pid_file):
                 pid = int(open(pid_file).read())
                 LOG.info('Sending SIGTERM to: %d', pid)
                 try:
                     self.do_kill_wait(pid, 15)
-                except OSError, e:
+                except OSError as e:
                     LOG.warning(e)
                 finally:
                     os.remove(pid_file)

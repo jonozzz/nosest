@@ -110,7 +110,7 @@ class ScpPut(SSHCommand):  # @IgnorePep8
                 shell.run('scp %s %s@%s:%s %s' % (' '.join(scpargs),
                                                   self.ifc.username, self.ifc.address,
                                                   self.source, self.destination))
-            except CalledProcessError, e:
+            except CalledProcessError as e:
                 if "Warning: Permanently added" in e.output:
                     LOG.error("SCP GET: {0}.\nTry with dss once more.".format(e))
                     scpargs = ['-p',  # Preserves modification times, access times, and modes from the original file.
@@ -260,7 +260,7 @@ class License(SSHCommand):  # @IgnorePep8
         if self.addkey:
             addkey_str = "--addkey %s"
 
-            if isinstance(self.addkey, basestring):
+            if isinstance(self.addkey, str):
                 addkey_str %= self.addkey
             else:
                 addkey_str %= ' '.join(self.addkey)
@@ -643,7 +643,7 @@ class FileExists(WaitableCommand, SSHCommand):  # @IgnorePep8
         try:
             self.api.stat(self.filename)
             return True
-        except IOError, e:
+        except IOError as e:
             if e.errno == 2:
                 return False
             raise

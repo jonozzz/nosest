@@ -1,7 +1,8 @@
 import shlex
 import shutil
 import glob
-import subprocess32 as subprocess
+#import subprocess32 as subprocess
+import subprocess
 from ...base import Interface
 import logging
 
@@ -20,7 +21,7 @@ class CalledProcessError(Exception):
         self.output = output
 
     def __str__(self):
-        return u"Command '%s' returned non-zero exit status %d" % (self.cmd, self.returncode)
+        return "Command '%s' returned non-zero exit status %d" % (self.cmd, self.returncode)
 
 
 class ShellInterface(Interface):
@@ -83,8 +84,8 @@ class ApiStub(object):
                                            timeout=self.timeout,
                                            shell=shell,
                                            stderr=subprocess.STDOUT,
-                                           env=env)
-        except subprocess.CalledProcessError, e:
+                                           env=env).decode()
+        except subprocess.CalledProcessError as e:
             LOG.debug(e.output)
             raise
 

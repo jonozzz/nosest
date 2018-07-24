@@ -62,7 +62,7 @@ class GetPools(IcontrolCommand):
         else:
             raise CommandError('Unsupported version: %s' % v)
         
-        return dict(zip(pools, statuses))
+        return dict(list(zip(pools, statuses)))
 
 
 get_pool_members = None
@@ -171,7 +171,7 @@ class GetVirtualServers(IcontrolCommand):
         else:
             raise CommandError('Unsupported version: %s' % v)
         
-        return dict(zip(virtuals, statuses))
+        return dict(list(zip(virtuals, statuses)))
 
 
 get_wideips = None
@@ -210,7 +210,7 @@ class GetWideips(IcontrolCommand):
         else:
             raise CommandError('Unsupported version: %s' % v)
         
-        return dict(zip(wips, statuses))
+        return dict(list(zip(wips, statuses)))
 
 
 create_gtm_app = None
@@ -297,14 +297,14 @@ class CreateGtmApp(IcontrolCommand):
         if self.is_solstice:
             selfips = ic.Networking.SelfIPV2.get_list()
             vlans = ic.Networking.SelfIPV2.get_vlan(self_ips=selfips)
-            vlan_ip_map = dict(zip(vlans, selfips))
+            vlan_ip_map = dict(list(zip(vlans, selfips)))
             vlan_selfip = vlan_ip_map[vlan]
             return ic.Networking.SelfIPV2.get_address(self_ips=[vlan_selfip])[0]
         else:
             vlan = vlan.split('/')[-1]
             selfips = ic.Networking.SelfIP.get_list()
             vlans = ic.Networking.SelfIP.get_vlan(self_ips=selfips)
-            vlan_ip_map = dict(zip(vlans, selfips))
+            vlan_ip_map = dict(list(zip(vlans, selfips)))
             vlan_selfip = vlan_ip_map.get(vlan)
             if not vlan_selfip:
                 raise CommandError('No self IP found for VLAN: %s' % vlan)
@@ -449,7 +449,7 @@ class CreateGtmApp(IcontrolCommand):
         pool_name = '%s%s_pool' % (self.folder_prefix, self.name)
         lb_method = 'LB_METHOD_ROUND_ROBIN'
         members = ltm_vs
-        orders = range(0, len(members))
+        orders = list(range(0, len(members)))
         
         if self.is_solstice:
             #re.sub(r'[^\w/]', r'_', x.name)
@@ -520,14 +520,14 @@ class DeleteGtmApp(IcontrolCommand):
         if self.is_solstice:
             selfips = ic.Networking.SelfIPV2.get_list()
             vlans = ic.Networking.SelfIPV2.get_vlan(self_ips=selfips)
-            vlan_ip_map = dict(zip(vlans, selfips))
+            vlan_ip_map = dict(list(zip(vlans, selfips)))
             vlan_selfip = vlan_ip_map[vlan]
             return ic.Networking.SelfIPV2.get_address(self_ips=[vlan_selfip])[0]
         else:
             vlan = vlan.split('/')[-1]
             selfips = ic.Networking.SelfIP.get_list()
             vlans = ic.Networking.SelfIP.get_vlan(self_ips=selfips)
-            vlan_ip_map = dict(zip(vlans, selfips))
+            vlan_ip_map = dict(list(zip(vlans, selfips)))
             vlan_selfip = vlan_ip_map[vlan]
             return vlan_selfip
 

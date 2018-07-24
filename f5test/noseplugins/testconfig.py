@@ -11,7 +11,7 @@ import atexit
 def print_open_contexts():
     if THREAD_STORAGE._attrs:
         print("Found contexts that have not been closed:")
-        print(THREAD_STORAGE._attrs)
+        print((THREAD_STORAGE._attrs))
 
 
 def do_nothing(*args, **kwargs):
@@ -97,7 +97,7 @@ class TestConfig(Plugin):
                     except ValueError:
                         needquotes = True
 
-                    if needquotes or isinstance(val, basestring):
+                    if needquotes or isinstance(val, str):
                         val = '"%s"' % val
 
                 if options.tc_exact:

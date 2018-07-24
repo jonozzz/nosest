@@ -6,9 +6,9 @@ Use this class to access Bugzilla or Testopia via XML-RPC
 __version__ = "2.0"
 
 from ...base import AttrDict
-from cookielib import CookieJar
+from http.cookiejar import CookieJar
 import logging
-import xmlrpclib
+import xmlrpc.client
 import sys
 
 DEFAULT_TIMEOUT = 90
@@ -16,7 +16,7 @@ LOG = logging.getLogger(__name__)
 
 # AttrDict is basically a dict, but xmlrpclib doesn't know about it.
 # Monkey patch it here.
-xmlrpclib.Marshaller.dispatch[AttrDict] = xmlrpclib.Marshaller.dispatch[dict]
+xmlrpc.client.Marshaller.dispatch[AttrDict] = xmlrpc.client.Marshaller.dispatch[dict]
 
 
 # Monkey patch the XmlRpc parser to return AttrDicts instead
@@ -32,10 +32,10 @@ class _Method:
 
     def __call__(self, *args):
         return AttrDict(self.__send(self.__name, args))
-xmlrpclib._Method = _Method
+xmlrpc.client._Method = _Method
 
 
-class XmlRpc(xmlrpclib.ServerProxy):
+class XmlRpc(xmlrpc.client.ServerProxy):
     """Initialize the XmlRpc driver.
 
     @param url: the URL of the XML-RPC interface
@@ -67,8 +67,8 @@ class XmlRpc(xmlrpclib.ServerProxy):
             raise ValueError("Unrecognized URL scheme")
 
         transport.cookiejar = CookieJar()
-        xmlrpclib.ServerProxy.__init__(self, url, transport=transport,
+        xmlrpc.client.ServerProxy.__init__(self, url, transport=transport,
                                        *args, **kwargs)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return 1

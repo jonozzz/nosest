@@ -1721,7 +1721,7 @@ class GetNextDatastore(NetxCommand):
                 for host_mount_info in host_volume_info:
                     # Extract only VMFS volumes
                     if host_mount_info.volume.type == "VMFS":
-                        datastore_obj.capacity = long(host_mount_info.volume.capacity)
+                        datastore_obj.capacity = int(host_mount_info.volume.capacity)
                         datastore_obj.name = str(host_mount_info.volume.name)
                         datastore_obj.associated_host_name = esxi_host._GetMoId()
                         datastore_obj.associated_host_address = str(esxi_host.name)
@@ -1746,12 +1746,12 @@ class GetNextDatastore(NetxCommand):
         """
         for ds in esxi_datastores:
             if ds.summary.name == ds_name:
-                return (long(ds.summary.freeSpace), str(ds._GetMoId()))
+                return (int(ds.summary.freeSpace), str(ds._GetMoId()))
         raise Exception("datastore moid not found on vcenter for {0}".format(ds_name))
 
     def get_largest_datastore(self):
         datastores = []
-        for esxi_name in self.esxi_summary.keys():
+        for esxi_name in list(self.esxi_summary.keys()):
             """
                  get all datastores on esxi. The datastore obj has association with host identifier
             """
@@ -1809,9 +1809,9 @@ class GetVM(NetxCommand):
             return [vm._moId for vm in vmList if vm._moId == self.vm_id]
 
         except pyVmomi.vmodl.MethodFault as e:
-            print("Caught vmodl fault : " + e.msg)
+            print(("Caught vmodl fault : " + e.msg))
         except Exception as e:
-            print("Caught pyvmomi exception : " + str(e))
+            print(("Caught pyvmomi exception : " + str(e)))
 
 product_full_name = None
 
@@ -1848,9 +1848,9 @@ class ProductFullName(NetxCommand):
             return content.about.fullName
 
         except pyVmomi.vmodl.MethodFault as e:
-            print("Caught vmodl fault : " + e.msg)
+            print(("Caught vmodl fault : " + e.msg))
         except Exception as e:
-            print("Caught pyvmomi exception : " + str(e))
+            print(("Caught pyvmomi exception : " + str(e)))
 
 uninstall_cluster = None
 
@@ -2013,9 +2013,9 @@ class ConnectToVcenterServer(NetxCommand):
             return self.get_vCenter_content()
 
         except pyVmomi.vmodl.MethodFault as e:
-            print("Caught vmodl fault : " + e.msg)
+            print(("Caught vmodl fault : " + e.msg))
         except Exception as e:
-            print("Caught pyvmomi exception : " + str(e))
+            print(("Caught pyvmomi exception : " + str(e)))
 
     def get_vCenter_content(self):
         return self._vcenterContent

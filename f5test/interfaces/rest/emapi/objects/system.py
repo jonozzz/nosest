@@ -278,13 +278,13 @@ class BulkDiscovery(Task):
     @staticmethod
     def wait(rest, post_resp, *args, **kwargs):
         def all_done(ret):
-            values = ret.deviceStatesMap.values()
+            values = list(ret.deviceStatesMap.values())
             return sum(1 for x in values if x.status not in
                        BulkDiscovery.PENDING_STATE) == len(values)
 
         wait(lambda: rest.get(post_resp.selfLink), condition=all_done,
              progress_cb=lambda ret: 'Status: {0}'.format(list(x.status
-                                                               for x in ret.deviceStatesMap.values())),
+                                                               for x in list(ret.deviceStatesMap.values()))),
              *args, **kwargs)
 
         ret = wait(lambda: rest.get(post_resp.selfLink),
@@ -292,7 +292,7 @@ class BulkDiscovery(Task):
                    progress_cb=lambda ret: 'Status: {0}'.format(ret.status),
                    *args, **kwargs)
 
-        for value in ret.deviceStatesMap.values():
+        for value in list(ret.deviceStatesMap.values()):
             if value.status not in BulkDiscovery.SUCCESSFUL_STATE:  # @UndefinedVariable
                 Task.fail('Task failed', ret)
 
@@ -616,7 +616,7 @@ class FileTransfer(BaseApiObject):
         CHUNKS = 256 * 1024  # 256KB chunks
 
         def chunks(l, m):
-            for i in xrange(0, len(l), m):
+            for i in range(0, len(l), m):
                 yield l[i:i + m]
 
         offset = 0

@@ -19,7 +19,7 @@ class Range(object):
             stop = start
         self.start = start
         self.stop = stop
-        self._iter = iter(xrange(start, stop + 1))
+        self._iter = iter(range(start, stop + 1))
 
     def __iter__(self):
         return self
@@ -98,18 +98,18 @@ class IPPortRange(Range):
 if __name__ == '__main__':
     print('IP range:')
     rp = IPRange('1.1.1.1', '1.1.1.3')
-    print(list(rp))
-    print('-' * 80)
+    print((list(rp)))
+    print(('-' * 80))
 
     print('IP subnet range:')
     rp = IPRange('1.1.1.1/24')
-    print(len(list(rp)))
-    print('-' * 80)
+    print((len(list(rp))))
+    print(('-' * 80))
 
     print('IP/port custom range:')
     rp = IPPortRange(('1.1.1.200', '1.1.1.201'), 80)
-    print(next(rp))
-    print(next(rp))
-    print('-' * 80)
+    print((next(rp)))
+    print((next(rp)))
+    print(('-' * 80))
 
     print("Cool!")

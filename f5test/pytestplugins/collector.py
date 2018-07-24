@@ -1,7 +1,7 @@
 """
 Collects info on failed tests/sessions
 """
-from __future__ import absolute_import
+
 import logging
 import os
 import pytest
@@ -175,11 +175,11 @@ class Plugin(object):
                         return
                     self.visited_fixtures.add(fixdef)
             else:
-                fixture_values = [x for x in item.funcargs.values() if x is not None]
+                fixture_values = [x for x in list(item.funcargs.values()) if x is not None]
 
             collected = 0
-            for context in filter(lambda x: isinstance(x, ContextHelper), fixture_values):
-                interfaces = context.get_container(container=INTERFACES_CONTAINER).values()
+            for context in [x for x in fixture_values if isinstance(x, ContextHelper)]:
+                interfaces = list(context.get_container(container=INTERFACES_CONTAINER).values())
                 for interface in interfaces:
                     self.try_screenshots(interface)
                     collected += self.try_collect(item, interface)

@@ -3,7 +3,7 @@ Created on Aug 28, 2014
 
 @author: jono
 '''
-from __future__ import absolute_import
+
 
 import datetime
 import logging
@@ -112,7 +112,7 @@ class Report(ExtendedPlugin):
                 v = ICMD.system.parse_version_file(device=device)
                 info.project = v.get('project')
                 info.edition = v.get('edition', '')
-            except Exception, e:
+            except Exception as e:
                 LOG.error("%s: %s", type(e), e)
                 info.version = Version()
                 info.platform = ''

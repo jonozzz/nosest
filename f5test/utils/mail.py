@@ -3,7 +3,7 @@ Created on Jan 21, 2014
 
 @author: jono
 '''
-from __future__ import absolute_import
+
 import asynchat
 import asyncore
 import base64
@@ -128,7 +128,7 @@ class AuthSMTPChannel(asynchat.async_chat):
         self.__fqdn = socket.getfqdn()
         try:
             self.__peer = conn.getpeername()
-        except socket.error, err:
+        except socket.error as err:
             # a race condition  may occur if the other end is closing
             # before we can get the peername
             self.close()
@@ -423,10 +423,10 @@ class SecureSMTPServer(smtpd.SMTPServer):
 class CustomSMTPServer(smtpd.SMTPServer):
 
     def process_message(self, peer, mailfrom, rcpttos, data):
-        print 'Receiving message from:', peer
-        print 'Message addressed from:', mailfrom
-        print 'Message addressed to  :', rcpttos
-        print 'Message length        :', len(data)
+        print('Receiving message from:', peer)
+        print('Message addressed from:', mailfrom)
+        print('Message addressed to  :', rcpttos)
+        print('Message length        :', len(data))
         self.close()
         return
 

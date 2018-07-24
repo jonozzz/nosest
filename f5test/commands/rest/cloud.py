@@ -855,7 +855,7 @@ class GetTemplates(IcontrolRestCommand):  # @IgnorePep8
     def setup(self):
         template_list = self.api.get(self.url)["items"]
         if self.template_name:
-            results = filter(lambda template: template.get(self.name_field) == self.template_name, template_list)
+            results = [template for template in template_list if template.get(self.name_field) == self.template_name]
             result = results[0] if results else None
         else:
             result = template_list

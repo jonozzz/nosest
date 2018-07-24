@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import absolute_import
+
 
 """ Mainline processing for the Shiraz Web Server.  Displays UI pages,
     initiates NOSE test runs, and displays status of those runs on the
@@ -111,7 +111,7 @@ def main():
     import sys
 
     usage = """%prog [options] <config>...""" \
-    u"""
+    """
 
   Examples:
   %prog web.yaml"""

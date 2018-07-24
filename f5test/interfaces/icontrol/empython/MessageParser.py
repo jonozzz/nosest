@@ -13,11 +13,11 @@ class Dictionary:
     
     def __init__(self, data = {}):
         self.data = {}
-        for key in data.keys():
+        for key in list(data.keys()):
             self.put(key, data[key])
     
     def put(self, name, value):
-        if isinstance(value, basestring) or isnumber(value):
+        if isinstance(value, str) or isnumber(value):
             self.data[name] = String(value)
         elif isinstance(value, list):
             anArray = Array()
@@ -34,18 +34,18 @@ class Dictionary:
         return self.get(name)
     
     def keys(self):
-        return self.data.keys()
+        return list(self.data.keys())
     
     def value(self):
         return self.data
     
     def has_key(self, key):
-        return self.data.has_key(key)
+        return key in self.data
     
     def to_string(self):
         strList = []
         strList.append('<dictionary>')
-        for key in self.keys():
+        for key in list(self.keys()):
             strList.append('<entry><key>')
             strList.append(key)
             strList.append('</key><value>')
@@ -166,10 +166,10 @@ class Array:
     def add(self, value):
         if isinstance(value, dict):
             aDict = Dictionary()
-            for key in value.keys():
+            for key in list(value.keys()):
                 aDict.put(key, value.get(key))
             self.data.append(aDict)
-        elif isinstance(value, basestring) or isnumber(value):
+        elif isinstance(value, str) or isnumber(value):
             self.data.append(String(value))
         else:
             self.data.append(value)
@@ -187,7 +187,7 @@ class Array:
         return self.data
     
     def has_key(self, key):
-        return self.data.has_key(key)
+        return key in self.data
     
     def to_string(self):
         strList = []
@@ -236,7 +236,7 @@ class String:
         self.set(val)
     
     def set(self, val): #@ReservedAssignment
-        if isinstance(val, basestring):
+        if isinstance(val, str):
             self.data = val
         else:
             self.data = str(val)
@@ -261,7 +261,7 @@ def to_python(val):
         return s
     elif isinstance(val, Dictionary):
         d = {}
-        for key in val.keys():
+        for key in list(val.keys()):
             d[key] = to_python(val.get(key))
         return d
     elif isinstance(val, Array):

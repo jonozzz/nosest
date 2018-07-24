@@ -233,7 +233,7 @@ class ScreenShot(SeleniumCommand): #@IgnorePep8
             with codecs.open(filename, "w", 'utf-8-sig') as f:
                 f.write(src)
             ret.append(filename)
-        except IOError, e:
+        except IOError as e:
             LOG.error('I/O error dumping source: %s', e)
         return ret
 

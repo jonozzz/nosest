@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 import pytest
 from ..interfaces.config import ConfigLoader, ConfigInterface
 from ..interfaces.testcase import ContextHelper
@@ -27,7 +27,7 @@ def pytest_cmdline_main(config):
         config._tc = cfgifc.open()
 
         # Override config args
-        for key, value in config._tc.get('pytest', {}).items():
+        for key, value in list(config._tc.get('pytest', {}).items()):
            setattr(config.option, key, value)
 
 

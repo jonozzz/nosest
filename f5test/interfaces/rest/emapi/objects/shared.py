@@ -290,40 +290,40 @@ class LicensePool(Task):
             any data, so that the REST call will work properly.
             See BZ553222.
         """
-        if self.has_key('addOnKeys') is True and\
+        if ('addOnKeys' in self) is True and\
            len(self['addOnKeys']) <= 0:
             del self['addOnKeys']
-        if self.has_key('baseRegKey') is True and\
+        if ('baseRegKey' in self) is True and\
            self['baseRegKey'] == '':
             del self['baseRegKey']
-        if self.has_key('deviceGroupReference') is True and\
+        if ('deviceGroupReference' in self) is True and\
            len(self['deviceGroupReference']) <= 0:
             del self['deviceGroupReference']
-        if self.has_key('deviceReference') is True and\
+        if ('deviceReference' in self) is True and\
            len(self['deviceReference']) <= 0:
             del self['deviceReference']
-        if self.has_key('eulaText') is True and\
+        if ('eulaText' in self) is True and\
            self['eulaText'] == '':
             del self['eulaText']
-        if self.has_key('dossier') is True and\
+        if ('dossier' in self) is True and\
            self['dossier'] == '':
             del self['dossier']
-        if self.has_key('licenseText') is True and\
+        if ('licenseText' in self) is True and\
            self['licenseText'] == '':
             del self['licenseText']
-        if self.has_key('method') is True and\
+        if ('method' in self) is True and\
            self['method'] == '':
             del self['method']
-        if self.has_key('name') is True and\
+        if ('name' in self) is True and\
            self['name'] == '':
             del self['name']
-        if self.has_key('selfLink') is True and\
+        if ('selfLink' in self) is True and\
            self['selfLink'] == '':
             del self['selfLink']
-        if self.has_key('state') is True and\
+        if ('state' in self) is True and\
            self['state'] == '':
             del self['state']
-        if self.has_key('uuid') is True and\
+        if ('uuid' in self) is True and\
            self['uuid'] == '':
             del self['uuid']
 

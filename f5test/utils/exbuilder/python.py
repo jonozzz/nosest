@@ -111,7 +111,7 @@ class Null(Literal):
     def __init__(self):
         super(Null, self).__init__('None')
 
-    def __nonzero__(self):
+    def __bool__(self):
         return False
 
 
@@ -121,7 +121,7 @@ class Empty(Literal):
     def __init__(self):
         super(Empty, self).__init__('')
 
-    def __nonzero__(self):
+    def __bool__(self):
         return False
 
 
@@ -332,4 +332,4 @@ if __name__ == '__main__':
     e &= Is(String('n'), Null())
     e |= In(String('n'), [Null()])
     e |= ~In(String('n'), (Null(),))
-    print e
+    print(e)

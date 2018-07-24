@@ -7,10 +7,10 @@ import copy
 import types
 from decimal import Decimal
 import datetime
-from urllib import urlencode, quote
+from urllib.parse import urlencode, quote
 try:
     # Python 2.6 and greater
-    from urlparse import parse_qsl
+    from urllib.parse import parse_qsl
 except ImportError:
     # Python 2.5, 2.4.  Works on Python 2.6 but raises
     # PendingDeprecationWarning
@@ -23,9 +23,9 @@ def smart_str(s, encoding='utf-8', strings_only=False, errors='strict'):
 
     If strings_only is True, don't convert (some) non-string-like objects.
     """
-    if strings_only and isinstance(s, (types.NoneType, int)):
+    if strings_only and isinstance(s, (type(None), int)):
         return s
-    if not isinstance(s, basestring):
+    if not isinstance(s, str):
         try:
             return str(s)
         except UnicodeEncodeError:
@@ -35,8 +35,8 @@ def smart_str(s, encoding='utf-8', strings_only=False, errors='strict'):
                 # further exception.
                 return ' '.join([smart_str(arg, encoding, strings_only,
                         errors) for arg in s])
-            return unicode(s).encode(encoding, errors)
-    elif isinstance(s, unicode):
+            return str(s).encode(encoding, errors)
+    elif isinstance(s, str):
         return s.encode(encoding, errors)
     elif s and encoding != 'utf-8':
         return s.decode('utf-8', errors).encode(encoding, errors)
@@ -51,8 +51,8 @@ def is_protected_type(obj):
     force_unicode(strings_only=True).
     """
     return isinstance(obj, (
-        types.NoneType,
-        int, long,
+        type(None),
+        int,
         datetime.datetime, datetime.date, datetime.time,
         float, Decimal)
     )
@@ -67,17 +67,17 @@ def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):
     # Handle the common case first, saves 30-40% in performance when s
     # is an instance of unicode. This function gets called often in that
     # setting.
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         return s
     if strings_only and is_protected_type(s):
         return s
     try:
-        if not isinstance(s, basestring):
+        if not isinstance(s, str):
             if hasattr(s, '__unicode__'):
-                s = unicode(s)
+                s = str(s)
             else:
                 try:
-                    s = unicode(str(s), encoding, errors)
+                    s = str(str(s), encoding, errors)
                 except UnicodeEncodeError:
                     if not isinstance(s, Exception):
                         raise
@@ -89,12 +89,12 @@ def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):
                     # output should be.
                     s = ' '.join([force_unicode(arg, encoding, strings_only,
                             errors) for arg in s])
-        elif not isinstance(s, unicode):
+        elif not isinstance(s, str):
             # Note: We use .decode() here, instead of unicode(s, encoding,
             # errors), so that if s is a SafeString, it ends up being a
             # SafeUnicode at the end.
             s = s.decode(encoding, errors)
-    except UnicodeDecodeError, e:
+    except UnicodeDecodeError as e:
         if not isinstance(s, Exception):
             raise UnicodeDecodeError(s, *e.args)
         else:
@@ -111,12 +111,12 @@ def str_to_unicode(s, encoding):
     """
     Converts basestring objects to unicode, using the given encoding. Illegally
     encoded input characters are replaced with Unicode "unknown" codepoint
-    (\ufffd).
+    (\\ufffd).
 
     Returns any non-basestring objects without change.
     """
     if isinstance(s, str):
-        return unicode(s, encoding, 'replace')
+        return str(s, encoding, 'replace')
     else:
         return s
 
@@ -190,7 +190,7 @@ class MultiValueDict(dict):
 
     def __setstate__(self, obj_dict):
         data = obj_dict.pop('_data', {})
-        for k, v in data.items():
+        for k, v in list(data.items()):
             self.setlist(k, v)
         self.__dict__.update(obj_dict)
 
@@ -240,31 +240,31 @@ class MultiValueDict(dict):
         Returns a list of (key, value) pairs, where value is the last item in
         the list associated with the key.
         """
-        return [(key, self[key]) for key in self.keys()]
+        return [(key, self[key]) for key in list(self.keys())]
 
     def iteritems(self):
         """
         Yields (key, value) pairs, where value is the last item in the list
         associated with the key.
         """
-        for key in self.keys():
+        for key in list(self.keys()):
             yield (key, self[key])
 
     def lists(self):
         """Returns a list of (key, list) pairs."""
-        return super(MultiValueDict, self).items()
+        return list(super(MultiValueDict, self).items())
 
     def iterlists(self):
         """Yields (key, list) pairs."""
-        return super(MultiValueDict, self).iteritems()
+        return iter(super(MultiValueDict, self).items())
 
     def values(self):
         """Returns a list of the last value on every key list."""
-        return [self[key] for key in self.keys()]
+        return [self[key] for key in list(self.keys())]
 
     def itervalues(self):
         """Yield the last value on every key list."""
-        for key in self.iterkeys():
+        for key in self.keys():
             yield self[key]
 
     def copy(self):
@@ -285,11 +285,11 @@ class MultiValueDict(dict):
                     self.setlistdefault(key, []).extend(value_list)
             else:
                 try:
-                    for key, value in other_dict.items():
+                    for key, value in list(other_dict.items()):
                         self.setlistdefault(key, []).append(value)
                 except TypeError:
                     raise ValueError("MultiValueDict.update() takes either a MultiValueDict or dictionary")
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             self.setlistdefault(key, []).append(value)
 
 
@@ -375,7 +375,7 @@ class QueryDict(MultiValueDict):
                 for value in valuelist:
                     MultiValueDict.update(self, {f(key): f(value)})
         else:
-            d = dict([(f(k), f(v)) for k, v in other_dict.items()])
+            d = dict([(f(k), f(v)) for k, v in list(other_dict.items())])
             MultiValueDict.update(self, d)
 
     def pop(self, key, *args):

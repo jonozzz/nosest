@@ -13,7 +13,7 @@ def colon_pairs_dict(string):
                       restOfLine)
     try:
         ret = toplevel.parseString(string).asDict()
-        return dict(zip(map(lambda x: x.lower(), ret.keys()), ret.values()))
+        return dict(list(zip([x.lower() for x in list(ret.keys())], list(ret.values()))))
 
     except ParseException:
         raise VersionFileParseException(string)
@@ -25,7 +25,7 @@ def equals_pairs_dict(string):
                       restOfLine)
     try:
         ret = toplevel.parseString(string).asDict()
-        return dict(zip(map(lambda x: x.lower(), ret.keys()), ret.values()))
+        return dict(list(zip([x.lower() for x in list(ret.keys())], list(ret.values()))))
 
     except ParseException:
         raise VersionFileParseException(string)

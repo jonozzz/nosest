@@ -38,7 +38,7 @@ class Big3dUtil(Macro):
     def setup(self):
         mgmtips = []
         for device in self.options.devices:
-            if isinstance(device, basestring):
+            if isinstance(device, str):
                 mgmtips.append(device)
             elif isinstance(device, DeviceAccess):
                 mgmtips.append(device.address)

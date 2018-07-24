@@ -6,7 +6,7 @@ Created on Feb 26, 2012
 from ..core import RestInterface
 from ..driver import BaseRestResource, WrappedResponse
 from restkit import ResourceError
-import urlparse
+import urllib.parse
 import logging
 from .objects.nsx import SystemSummary
 
@@ -62,20 +62,20 @@ class NetxRestResource(BaseRestResource):
         """
 
         if odata_dict:
-            dollar_keys = dict(('$%s' % x, y) for x, y in odata_dict.iteritems())
+            dollar_keys = dict(('$%s' % x, y) for x, y in odata_dict.items())
             if params_dict is None:
                 params_dict = {}
             params_dict.update(dollar_keys)
 
         # Strip the schema and hostname part.
-        path = urlparse.urlparse(path).path
+        path = urllib.parse.urlparse(path).path
         try:
             wrapped_response = super(NetxRestResource, self).request(method, path=path,
                                                                      payload=payload,
                                                                      headers=headers,
                                                                      params_dict=params_dict,
                                                                      **params)
-        except ResourceError, e:
+        except ResourceError as e:
             raise NetxResourceError(e)
 
         return wrapped_response.data

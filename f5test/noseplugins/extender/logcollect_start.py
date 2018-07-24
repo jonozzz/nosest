@@ -286,7 +286,7 @@ class LogCollect(ExtendedPlugin):
             if hasattr(root_logger, "handlers"):
                 for handler in root_logger.handlers:
                     root_logger.removeHandler(handler)
-            for logger in logging.Logger.manager.loggerDict.values():  # @UndefinedVariable
+            for logger in list(logging.Logger.manager.loggerDict.values()):  # @UndefinedVariable
                 if hasattr(logger, "handlers"):
                     for handler in logger.handlers:
                         logger.removeHandler(handler)
@@ -324,7 +324,7 @@ class LogCollect(ExtendedPlugin):
 
         run_filename = os.path.join(log_dir, SESSION_LOG)
 
-        config = dict((k, v) for k, v in cfgifc.open().items() if k != CFG_SESSION)
+        config = dict((k, v) for k, v in list(cfgifc.open().items()) if k != CFG_SESSION)
         filename = os.path.join(log_dir, 'config.yaml')
         with open(filename, "wt") as f:
             yaml.dump(config, f, indent=4, width=1024, default_flow_style=False)
@@ -392,7 +392,7 @@ class LogCollect(ExtendedPlugin):
 
         ih = InterfaceHelper()
         ih._setup(test_name.split(':', 1)[0])
-        interfaces = ih.get_container(container=INTERFACES_CONTAINER).values()
+        interfaces = list(ih.get_container(container=INTERFACES_CONTAINER).values())
         extra_files = ih.get_container(container=LOGCOLLECT_CONTAINER)
 
         # Disregard skipped tests
@@ -442,7 +442,7 @@ class LogCollect(ExtendedPlugin):
         # Tests may define extra files to be picked up by the logcollect plugin
         # in case of a failure.
         LOG.debug('Collecting logs...')
-        for item, local_name in extra_files.iteritems():
+        for item, local_name in extra_files.items():
             if isinstance(item, tuple):
                 ifc, src = item
                 assert isinstance(ifc, (SSHInterface, ShellInterface))
@@ -460,7 +460,7 @@ class LogCollect(ExtendedPlugin):
                 if local_name is None:
                     local_name = os.path.basename(src)
                 ifc.api.get(src, os.path.join(log_root, local_name))
-            except IOError, e:
+            except IOError as e:
                 LOG.error("Could not copy file '%s' (%s)", src, e)
             finally:
                 if not was_opened:
@@ -499,7 +499,7 @@ class LogCollect(ExtendedPlugin):
                             try:
                                 self.UI.common.screen_shot(log_root, window=window,
                                                            ifc=interface)
-                            except Exception, e:
+                            except Exception as e:
                                 LOG.error('Screenshot faied: %s', e)
 
                             if credentials.device:
@@ -540,7 +540,7 @@ class LogCollect(ExtendedPlugin):
                                 version = self.SSH.get_version(ifc=sshifc)
                                 self.SSH.collect_logs(log_root, ifc=sshifc,
                                                       version=version)
-                            except Exception, e:
+                            except Exception as e:
                                 LOG.error('Collecting logs failed: %s', e)
                             visited['ssh'].add(address)
                 except:
@@ -578,7 +578,7 @@ class LogCollect(ExtendedPlugin):
 
     def _logging_leak_check(self, root_logger):
         LOG.debug("Logger leak check...ugh!")
-        loggers = [('*root*', root_logger)] + root_logger.manager.loggerDict.items()
+        loggers = [('*root*', root_logger)] + list(root_logger.manager.loggerDict.items())
         loggers.sort(key=lambda x: x[0])
         for name, logger in loggers:
             LOG.debug("%s:%s", name, logger)

@@ -23,56 +23,49 @@ class LtmCommons(type):
         return klass
 
 
-class LtmNode(BaseApiObject):
-    __metaclass__ = LtmCommons
+class LtmNode(BaseApiObject, metaclass=LtmCommons):
     URI = '/mgmt/cm/shared/config/current/ltm/node'
 
     def __init__(self, *args, **kwargs):
         super(LtmNode, self).__init__(*args, **kwargs)
 
 
-class LtmPool(BaseApiObject):
-    __metaclass__ = LtmCommons
+class LtmPool(BaseApiObject, metaclass=LtmCommons):
     URI = '/mgmt/cm/shared/config/current/ltm/pool'
 
     def __init__(self, *args, **kwargs):
         super(LtmPool, self).__init__(*args, **kwargs)
 
 
-class LtmPoolMembers(BaseApiObject):
-    __metaclass__ = LtmCommons
+class LtmPoolMembers(BaseApiObject, metaclass=LtmCommons):
     URI = '/mgmt/cm/shared/config/current/ltm/pool/%s/members'
 
     def __init__(self, *args, **kwargs):
         super(LtmPoolMembers, self).__init__(*args, **kwargs)
 
 
-class LtmVirtual(BaseApiObject):
-    __metaclass__ = LtmCommons
+class LtmVirtual(BaseApiObject, metaclass=LtmCommons):
     URI = '/mgmt/cm/shared/config/current/ltm/virtual'
 
     def __init__(self, *args, **kwargs):
         super(LtmVirtual, self).__init__(*args, **kwargs)
 
 
-class LtmRule(BaseApiObject):
-    __metaclass__ = LtmCommons
+class LtmRule(BaseApiObject, metaclass=LtmCommons):
     URI = '/mgmt/cm/shared/config/current/ltm/rule'
 
     def __init__(self, *args, **kwargs):
         super(LtmRule, self).__init__(*args, **kwargs)
 
 
-class LtmProfile(BaseApiObject):
-    __metaclass__ = LtmCommons
+class LtmProfile(BaseApiObject, metaclass=LtmCommons):
     URI = '/mgmt/cm/shared/config/current/ltm/profile'
 
     def __init__(self, *args, **kwargs):
         super(LtmProfile, self).__init__(*args, **kwargs)
 
 
-class LtmMonitor(BaseApiObject):
-    __metaclass__ = LtmCommons
+class LtmMonitor(BaseApiObject, metaclass=LtmCommons):
     URI = '/mgmt/cm/shared/config/current/ltm/monitor'
 
     def __init__(self, *args, **kwargs):

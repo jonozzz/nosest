@@ -122,7 +122,7 @@ class Pool(Stamp):
 
     def set_monitor(self, value, monitor):
         monitors = ''
-        if isinstance(monitor, basestring):
+        if isinstance(monitor, str):
             monitors += monitor
         else:
             if monitor:
@@ -138,7 +138,7 @@ class Pool(Stamp):
             value = obj.rename_key('ltm pool %(key)s', key=key)
 
             if self.pool_monitors:
-                if isinstance(self.pool_monitors[0], basestring):
+                if isinstance(self.pool_monitors[0], str):
                     value.update({'monitor': ' and '.join(self.pool_monitors)})
                 else:
                     value.update({'monitor': ' and '.join(monitor.get_full_path()
@@ -154,13 +154,13 @@ class Pool(Stamp):
 
             members = value['members']
             members.clear()
-            for node, port, monitor, desc in itertools.izip(self.nodes,
+            for node, port, monitor, desc in zip(self.nodes,
                                                             self.ports,
                                                             self.monitors,
                                                             self.descriptions):
                 member = node.get(reference=True)
-                if isinstance(member, basestring) and \
-                   isinstance(node.address, basestring) and \
+                if isinstance(member, str) and \
+                   isinstance(node.address, str) and \
                    (node.address in member):
                     address = node.address[:node.address.find('%')]
                     sep = self.get_separator(address)
@@ -184,7 +184,7 @@ class Pool(Stamp):
             if self.pool_monitors:
                 value.update({tmsh.RawString('monitor all'): ' and '.join(self.pool_monitors)})
             value.update({'members': RawEOL})
-            for node, port, monitor in itertools.izip(self.nodes,
+            for node, port, monitor in zip(self.nodes,
                                                       self.ports,
                                                       self.monitors):
                 address = node.address
@@ -332,8 +332,8 @@ class VirtualServer(Stamp):
 
             if ctx.provision.afm and self.rules:
                 value['fw-rules'].clear()
-                map(lambda x: value['fw-rules'].update(x.get_for_firewall()),
-                    self.rules)
+                list(map(lambda x: value['fw-rules'].update(x.get_for_firewall()),
+                    self.rules))
             else:
                 # LOG.info('AFM not provisioned')
                 value.pop('fw-rules')
@@ -436,7 +436,7 @@ class Pool2(PropertiesStamp):
     def tmsh(self, obj):
         ctx = self.folder.context
         v = ctx.version
-        values = obj.values()[0]
+        values = list(obj.values())[0]
         if v.product.is_bigip:
             if v < 'bigip 11.6.2':  # failed on 11.5, 11.6
                 values.pop('autoscale-group-id')
@@ -543,7 +543,7 @@ class VirtualServer2(PropertiesStamp):
     def tmsh(self, obj):
         ctx = self.folder.context
         v = ctx.version
-        values = obj.values()[0]
+        values = list(obj.values())[0]
         if v.product.is_bigip:
             if v < 'bigip 11.6':  # failed on 11.5
                 values.pop('address-status')

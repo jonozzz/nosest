@@ -47,10 +47,8 @@ def audit_parse(data):
 
 
 def get_inactive_volume(audit):
-        return list(filter(lambda x: x.get('is_active') != 'true' and not x.get('is_CF'),
-                    audit['Slot']['audit_slots']))[0]['visible_name']
+        return list([x for x in audit['Slot']['audit_slots'] if x.get('is_active') != 'true' and not x.get('is_CF')])[0]['visible_name']
 
 
 def get_active_volume(audit):
-        return list(filter(lambda x: x.get('is_active') == 'true',
-                    audit['Slot']['audit_slots']))[0]['visible_name']
+        return list([x for x in audit['Slot']['audit_slots'] if x.get('is_active') == 'true'])[0]['visible_name']

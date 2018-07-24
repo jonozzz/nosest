@@ -18,6 +18,7 @@ from hashlib import md5
 from .respool import RespoolFactory
 import platform as p
 import uuid
+from functools import reduce
 
 LOG = logging.getLogger(__name__)
 STDOUT = logging.getLogger('stdout')
@@ -51,7 +52,7 @@ def expand_devices(specs, section=CFG_DEVICES):
     all_devices = sorted(cfgifc.get_devices(kind=KIND_ANY),
                          key=lambda x: x.alias)
     aliases = specs.get(section) if isinstance(specs, dict) else specs
-    aliases = [aliases] if isinstance(specs, basestring) else aliases
+    aliases = [aliases] if isinstance(specs, str) else aliases
     if aliases is None:
         return
     for device in aliases:
@@ -130,7 +131,7 @@ class DeviceAccess(object):
         return _bool(self.specs.get('default'))
 
     def get_by_username(self, username):
-        for cred in self.credentials.values():
+        for cred in list(self.credentials.values()):
             if cred.username == username:
                 return cred
 
@@ -188,7 +189,7 @@ class Session(object):
         self.name = "%s-%s" % (self.level1, self.level2)
         session = os.path.join('session-%s' % self.level1, self.level2)
         self.session = session
-        self.name_md5 = md5(self.name).hexdigest()
+        self.name_md5 = md5(self.name.encode()).hexdigest()
         self.respool_handler = None
 
         if self.config.paths and self.config.paths.logs:
@@ -215,7 +216,7 @@ class Session(object):
             return self.config.testrun.harness
         else:
             if self.config.devices:
-                return md5(''.join(sorted([x.address for x in self.config.devices.values()
+                return md5(''.join(sorted([x.address for x in list(self.config.devices.values())
                                            if _bool(x.enabled)]))).hexdigest()
 
     def get_respool_handler(self):
@@ -240,7 +241,7 @@ class Session(object):
         sb.append(str(uuid.getnode()))    # MAC address
         text = '#'.join(sb)
         if hash:
-            return md5(text).hexdigest()
+            return md5(text.encode()).hexdigest()
         else:
             return text
 
@@ -280,19 +281,17 @@ class ConfigInterface(Interface):
         return self.api
 
     def copy(self):
-        config = dict((k, v) for k, v in self.api.items() if k != CFG_SESSION)
+        config = dict((k, v) for k, v in list(self.api.items()) if k != CFG_SESSION)
         return config
 
     def get_default_key(self, collection):
         if not collection:
             return
-        _ = list(filter(lambda x: _bool(x[1] and x[1].get('default')),
-                        collection.items()))
+        _ = list([x for x in list(collection.items()) if _bool(x[1] and x[1].get('default'))])
         return _[0][0] if _ else Options()
 
     def get_default_value(self, collection):
-        return list(filter(lambda x: _bool(x.get('default')),
-                           collection.values()))[0]
+        return list([x for x in list(collection.values()) if _bool(x.get('default'))])[0]
 
     def _get_roles(self, specs):
         default = Options()
@@ -376,7 +375,7 @@ class ConfigInterface(Interface):
 
     @staticmethod
     def get_devices_instances(devices):
-        return reduce(set.union, map(lambda x: x.instances, devices))
+        return reduce(set.union, [x.instances for x in devices])
 
     def get_selenium_head(self, head=None):
         if CFG_SELENIUM not in self.config:
@@ -401,7 +400,7 @@ class ConfigInterface(Interface):
 
     def get_respools(self):
         pools = self.get_session().get_respool_handler().pools
-        for pool in pools.values():
+        for pool in list(pools.values()):
             if hasattr(pool, 'sync'):
                 pool.sync()
         return pools

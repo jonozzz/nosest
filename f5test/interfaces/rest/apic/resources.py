@@ -11,7 +11,7 @@ from f5test.interfaces.rest.apic.objects.system import (aaaLogin, aaaLogout,
 from restkit import ResourceError
 from threading import Event, Thread
 from f5test.base import AttrDict
-import urlparse
+import urllib.parse
 import logging
 import datetime
 
@@ -67,13 +67,13 @@ class ApicRestResource(BaseRestResource):
         """
 
         if odata_dict:
-            dollar_keys = dict(('$%s' % x, y) for x, y in odata_dict.iteritems())
+            dollar_keys = dict(('$%s' % x, y) for x, y in odata_dict.items())
             if params_dict is None:
                 params_dict = {}
             params_dict.update(dollar_keys)
 
         # Strip the schema and hostname part.
-        path = urlparse.urlparse(path).path
+        path = urllib.parse.urlparse(path).path
 
         # Default ending path to .xml if it is not already there.
         if not path.endswith('.xml') and not path.endswith('.json'):
@@ -92,7 +92,7 @@ class ApicRestResource(BaseRestResource):
                                                                      headers=headers,
                                                                      params_dict=params_dict,
                                                                      **params)
-        except ResourceError, e:
+        except ResourceError as e:
             raise ApicResourceError(e)
 
         return wrapped_response.data
@@ -120,12 +120,12 @@ class ApicInterface(RestInterface):
 
         def on_request(self, request):
             # We won't log multi-part requests.
-            if isinstance(request.body, (type(None), basestring)):
+            if isinstance(request.body, (type(None), str)):
                 payload = credentials = ''
                 if request.body:
                     payload = "-d '{}'".format(request.body.replace("'", "\\'")[:MAX_LINE_LENGTH])
                 headers = []
-                for name, value in request.headers.items():
+                for name, value in list(request.headers.items()):
                     # curl calculates content-length automatically
                     if name == 'Content-Length':
                         pass

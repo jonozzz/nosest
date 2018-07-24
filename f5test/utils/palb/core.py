@@ -1,6 +1,6 @@
-from __future__ import division
+
 from .stats import ResultStats
-import Queue
+import queue
 import itertools
 import logging
 import sys
@@ -94,7 +94,7 @@ class URLGetterPool(object):
         self.balancing_enabled = False
         self.balance_delay = 0.01
         self.url_queue = url_queue
-        self.result_queue = Queue.Queue()
+        self.result_queue = queue.Queue()
         self.getters = []
         self.ratios = {}
         
@@ -115,7 +115,7 @@ class URLGetterPool(object):
         while True:
             try:
                 url = self.url_queue.get_nowait()
-            except Queue.Empty:
+            except queue.Empty:
                 return
 
             # Die when a None URL is gotten.
@@ -189,7 +189,7 @@ class URLProducer(threading.Thread):
         self.url_queue = url_queue
         self.n = n
         self.done = False
-        if isinstance(urls, basestring):
+        if isinstance(urls, str):
             urls = itertools.repeat(urls)
         elif isinstance(urls, list):
             urls = itertools.cycle(urls)
@@ -208,8 +208,8 @@ class URLProducer(threading.Thread):
             try:
                 if keep_processing:
                     try:
-                        self.url_queue.put(self.url_iter.next(), timeout=1)
-                    except Queue.Full:
+                        self.url_queue.put(next(self.url_iter), timeout=1)
+                    except queue.Full:
                         continue
                 else:
                     break
@@ -234,7 +234,7 @@ class LoadManager(object):
         self.pool = None
         self.producer = None
 
-        url_queue = Queue.Queue(100)
+        url_queue = queue.Queue(100)
         self.stats = ResultStats()
         self.producer = URLProducer(url_queue, urls, requests)
         self.pool = URLGetterPool(url_queue, concurrency, rate, len(urls), 
@@ -321,7 +321,7 @@ class LoadManager(object):
         while True:
             try:
                 self.stats.add(self.pool.result_queue.get_nowait())
-            except Queue.Empty:
+            except queue.Empty:
                 break
 
         return self.stats
@@ -342,12 +342,12 @@ class PALB(object):
 
         producer = URLProducer(pool.url_queue, self.urls, n = self.n)
 
-        print >> out, 'This is palb, Version', __version__
+        print('This is palb, Version', __version__, file=out)
         #print >> out, 'Copyright (c) 2009', __author__
-        print >> out, 'Licensed under MIT License'
-        print >> out
+        print('Licensed under MIT License', file=out)
+        print(file=out)
         #print >> out, 'Using %s as URL getter.' % url_getter.name
-        print >> out, 'Benchmarking (be patient).....',
+        print('Benchmarking (be patient).....', end=' ', file=out)
         out.flush()
 
         stats = ResultStats()
@@ -359,45 +359,45 @@ class PALB(object):
             stats.add(pool.result_queue.get())
         stats.stop()
 
-        print >> out, 'done'
-        print >> out
-        print >> out
-        print >> out, 'Average Document Length: %.0f bytes' % (stats.avg_req_length,)
-        print >> out
-        print >> out, 'Concurrency Level:    %d' % (self.c,)
-        print >> out, 'Time taken for tests: %.3f seconds' % (stats.total_wall_time,)
-        print >> out, 'Complete requests:    %d' % (len(stats.results),)
-        print >> out, 'Failed requests:      %d' % (stats.failed_requests,)
-        print >> out, 'Total transferred:    %d bytes' % (stats.total_req_length,)
-        print >> out, 'Requests per second:  %.2f [#/sec] (mean)' % (len(stats.results) /
-                                                                    stats.total_wall_time,)
-        print >> out, 'Time per request:     %.3f [ms] (mean)' % (stats.avg_req_time * 1000,)
-        print >> out, 'Time per request:     %.3f [ms] (mean,'\
-                     ' across all concurrent requests)' % (stats.avg_req_time * 1000 / self.c,)
-        print >> out, 'Transfer rate:        %.2f [Kbytes/sec] received' % \
-                      (stats.total_req_length / stats.total_wall_time / 1024,)
-        print >> out
+        print('done', file=out)
+        print(file=out)
+        print(file=out)
+        print('Average Document Length: %.0f bytes' % (stats.avg_req_length,), file=out)
+        print(file=out)
+        print('Concurrency Level:    %d' % (self.c,), file=out)
+        print('Time taken for tests: %.3f seconds' % (stats.total_wall_time,), file=out)
+        print('Complete requests:    %d' % (len(stats.results),), file=out)
+        print('Failed requests:      %d' % (stats.failed_requests,), file=out)
+        print('Total transferred:    %d bytes' % (stats.total_req_length,), file=out)
+        print('Requests per second:  %.2f [#/sec] (mean)' % (len(stats.results) /
+                                                                    stats.total_wall_time,), file=out)
+        print('Time per request:     %.3f [ms] (mean)' % (stats.avg_req_time * 1000,), file=out)
+        print('Time per request:     %.3f [ms] (mean,'\
+                     ' across all concurrent requests)' % (stats.avg_req_time * 1000 / self.c,), file=out)
+        print('Transfer rate:        %.2f [Kbytes/sec] received' % \
+                      (stats.total_req_length / stats.total_wall_time / 1024,), file=out)
+        print(file=out)
 
         connection_times = stats.connection_times()
         if connection_times is not None:
-            print >> out, 'Connection Times (ms)'
-            print >> out, '              min  mean[+/-sd] median   max'
+            print('Connection Times (ms)', file=out)
+            print('              min  mean[+/-sd] median   max', file=out)
             names = ('Connect', 'Processing', 'Waiting', 'Total')
             for name, data in zip(names, connection_times):
                 t_min, t_mean, t_sd, t_median, t_max = [v * 1000 for v in data] # to [ms]
-                t_min, t_mean, t_median, t_max = [round(v) for v in t_min, t_mean,
-                                                  t_median, t_max]
-                print >> out, '%-11s %5d %5d %5.1f %6d %7d' % (name + ':', t_min, t_mean, t_sd,
-                                                               t_median, t_max)
-            print >> out
+                t_min, t_mean, t_median, t_max = [round(v) for v in (t_min, t_mean,
+                                                  t_median, t_max)]
+                print('%-11s %5d %5d %5.1f %6d %7d' % (name + ':', t_min, t_mean, t_sd,
+                                                               t_median, t_max), file=out)
+            print(file=out)
 
-        print >> out, 'Percentage of the requests served within a certain time (ms)'
+        print('Percentage of the requests served within a certain time (ms)', file=out)
         for percent, seconds in stats.distribution():
-            print >> out, ' %3d%% %6.0f' % (percent, seconds * 1024),
+            print(' %3d%% %6.0f' % (percent, seconds * 1024), end=' ', file=out)
             if percent == 100:
-                print >> out, '(longest request)'
+                print('(longest request)', file=out)
             else:
-                print >> out
+                print(file=out)
 
 
 def main():

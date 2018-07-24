@@ -3,7 +3,7 @@ Created on Mar 29, 2018
 
 @author: jono
 '''
-from __future__ import absolute_import
+
 import pytest
 import logging
 

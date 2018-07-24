@@ -28,7 +28,7 @@ class LookHere(object):
             for p in self.to_pop:
                 if module.startswith(p):
                     sys.modules.pop(module)
-        for k, v in self.paths.items():
+        for k, v in list(self.paths.items()):
             sys.path.insert(0, os.path.join(PATH, k, v, SITE_PACKAGES))
             #sys.path.append(os.path.join(PATH, k, v, SITE_PACKAGES))
             self.inserts += 1

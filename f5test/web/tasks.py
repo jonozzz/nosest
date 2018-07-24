@@ -55,7 +55,7 @@ def _setup_logging(**kw):
 
 # This unloads all our modules, thus forcing nose to reload all tests.
 def _clean_sys_modules(tests_path=TESTS_DIR):
-    for name, module in sys.modules.items():
+    for name, module in list(sys.modules.items()):
         if (module and inspect.ismodule(module) and hasattr(module, '__file__')) \
                 and module.__file__.startswith(tests_path):
             del sys.modules[name]
@@ -274,7 +274,7 @@ def pytests(data, args, user_input=None):
                 self._tc = config._tc
 
                 # Override config args
-                for key, value in config._tc.get('pytest', {}).items():
+                for key, value in list(config._tc.get('pytest', {}).items()):
                     setattr(config.option, key, value)
 
     p = MyConfigPlugin()
@@ -292,7 +292,7 @@ def pytests(data, args, user_input=None):
                           'tests/cascade_pytest/test_template.py',
                           ])
 
-    print p._tc
+    print(p._tc)
     logging.shutdown()
     # XXX: nose logger leaks handlers. See nose/config.py:362
     #logging.getLogger('nose').handlers[:] = []

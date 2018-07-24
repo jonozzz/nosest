@@ -243,7 +243,7 @@ class FileExists(WaitableCommand, IcontrolCommand):
             ic.System.ConfigSync.download_file(file_name=self.filename,
                                                chunk_size=10, file_offset=0)
             return True
-        except IControlFault, e:
+        except IControlFault as e:
             if 'Error opening file for read operations' in e.faultstring:
                 return False
             raise

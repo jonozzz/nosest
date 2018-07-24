@@ -236,7 +236,7 @@ def sql_log_result():
             test_obj = args[0]
 
             name1 = (test_obj._name.split('.')[:-1])
-            name1.append(f.func_name)
+            name1.append(f.__name__)
             method_name = '.'.join(name1)
 
             start_time = time.time()

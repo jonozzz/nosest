@@ -27,9 +27,7 @@ class CommandTimedOut(CommandError):
         super(CommandTimedOut, self).__init__(message)
 
 
-class Command(threading.Thread):
-
-    __metaclass__ = Aliasificator
+class Command(threading.Thread, metaclass=Aliasificator):
 
     def __init__(self, version=None):
         if version and not isinstance(version, Version):
@@ -57,7 +55,7 @@ class Command(threading.Thread):
             self.prep()
             self.result = self.setup()
             return self.result
-        except Exception, e:
+        except Exception as e:
             LOG.error("%s %r", self, e)
             self.revert()
             raise
@@ -98,7 +96,7 @@ class CachedCommand(Command):
     def run(self, *args, **kwargs):
 
         LOG.debug('CachedCommand KEY: %s', self)
-        key = hashlib.md5(str(self)).hexdigest()
+        key = hashlib.md5(str(self).encode()).hexdigest()
 
         config = ConfigInterface().open()
 

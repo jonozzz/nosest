@@ -35,7 +35,7 @@ Tested with SOAPpy 0.12.5:
 import socket
 import SOAPpy
 import logging
-import urllib
+import urllib.request, urllib.parse, urllib.error
 LOG = logging.getLogger(__name__)
 
 ICONTROL_URL = "%(proto)s://%(username)s:%(password)s@%(hostname)s:%(port)s/iControl/iControlPortal.cgi"
@@ -87,8 +87,8 @@ class Icontrol(object):
     def __init__(self, hostname, username, password, port=443, timeout=90,
                  debug=0, proto='https', session=None):
         self.hostname = hostname
-        self.username = urllib.quote_plus(username)
-        self.password = urllib.quote_plus(password)
+        self.username = urllib.parse.quote_plus(username)
+        self.password = urllib.parse.quote_plus(password)
         self.port = port
         self.proto = proto
         self.timeout = timeout
@@ -119,7 +119,7 @@ class Icontrol(object):
                 url = parent._icontrol_url % parent.__dict__
                 ns = parent._icontrol_ns + ':' + '/'.join(chain)
                 if parent._url_params:
-                    url = "%s?%s" % (url, urllib.urlencode(parent._url_params))
+                    url = "%s?%s" % (url, urllib.parse.urlencode(parent._url_params))
                     parent._cache.clear()
 
                 p = parent
@@ -148,16 +148,16 @@ class Icontrol(object):
                     socket.setdefaulttimeout(p.timeout)
                     if p._debug:
                         LOG.debug("%s -> %s.%s(%s)", url, '.'.join(chain), self._name,
-                                 ', '.join(['%s=%s' % (x, y) for x, y in kw.items()]))
+                                 ', '.join(['%s=%s' % (x, y) for x, y in list(kw.items())]))
                     ret = getattr(ic, self._name)(*args, **kw)
                     if p._debug:
                         LOG.debug(ret)
                     return ret
-                except SOAPpy.Types.faultType, e:
+                except SOAPpy.Types.faultType as e:
                     if 'Unknown method' in e.faultstring:
                         raise UnknownMethod(e)
                     raise IControlFault(e)
-                except SOAPpy.Errors.HTTPError, e:
+                except SOAPpy.Errors.HTTPError as e:
                     if 401 == e.code:
                         raise AuthFailed(e)
                     raise IControlTransportError(e)
@@ -183,7 +183,7 @@ class Icontrol(object):
 def main():
     import sys
     if len(sys.argv) < 4:
-        print "Usage: %s <hostname> <username> <password>" % sys.argv[0]
+        print("Usage: %s <hostname> <username> <password>" % sys.argv[0])
         sys.exit()
 
     a = sys.argv[1:]
@@ -194,10 +194,10 @@ def main():
 
     pools = b.LocalLB.Pool.get_list()
     version = b.LocalLB.Pool.get_version()
-    print "Version: %s\n" % version
-    print "Pools:"
+    print("Version: %s\n" % version)
+    print("Pools:")
     for x in pools:
-        print "\t%s" % x
+        print("\t%s" % x)
 
 if __name__ == '__main__':
     main()

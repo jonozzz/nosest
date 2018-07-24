@@ -1,7 +1,7 @@
 #!/bin/env python
 import re
 import functools
-from itertools import izip_longest, chain
+from itertools import zip_longest, chain
 
 
 class InvalidVersionString(Exception):
@@ -109,11 +109,11 @@ class Product(object):
         else:
             return str(self).upper()
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         if not isinstance(other, Product):
             other = Product(other)
 
-        return py2x_cmp(self.product, other.product)
+        return self.product == other.product
 
     def __repr__(self):
         return self.product
@@ -228,7 +228,7 @@ class Version(object):
         else:
             return result >= 0
 
-    def __nonzero__(self):
+    def __bool__(self):
         return not self.is_none
 
     def _cmp(self, other):
@@ -245,8 +245,8 @@ class Version(object):
             return None
 
         pairs = chain(
-            izip_longest(self.version_digits, other.version_digits, fillvalue=0),
-            izip_longest(self.build_digits, other.build_digits, fillvalue=0),
+            zip_longest(self.version_digits, other.version_digits, fillvalue=0),
+            zip_longest(self.build_digits, other.build_digits, fillvalue=0),
         )
         return functools.reduce(lambda s, x: s or py2x_cmp(*x), pairs, 0)
 
@@ -270,9 +270,9 @@ class Version(object):
         if self.is_none:
             return '<Version: None>'
 
-        dots = '.'.join(str(self.version_digits))
+        dots = '.'.join([str(x) for x in self.version_digits])
         if self.build_digits:
-            dots += ' ' + '.'.join(str(self.build_digits))
+            dots += ' ' + '.'.join([str(x) for x in self.build_digits])
         if self.product.is_none:
             return "<Version: %s>" % dots
         return "<Version: {0} {1}>".format(self.product, dots)
@@ -311,4 +311,4 @@ if __name__ == '__main__':
     assert not Version("BIGIP 12.1.2.1") > 'BIGIP 13.0.0'
     assert Version('BigIP 12.3.4.1 0.0.1 HF4').build == '0.0.1'
     assert Version('BigIP 12.3.4.1').version == '12.3.4.1'
-    print 'Cool!'
+    print('Cool!')

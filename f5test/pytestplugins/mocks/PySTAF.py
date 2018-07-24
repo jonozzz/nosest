@@ -232,17 +232,17 @@ class STAFHandle(object):
     def _update_respool(self):
         rp = self.cfgifc.get_respools()
         if rp.get('vips'):
-            for item in rp.vips.pool.local_items.values():
+            for item in list(rp.vips.pool.local_items.values()):
                 self._handle_vars['name/%s/vip' % item.name] = "{0.ip}:{0.port}".format(item)
 
         if rp.get('socats'):
-            for item in rp.socats.pool.local_items.values():
+            for item in list(rp.socats.pool.local_items.values()):
                 #self._handle_vars['name/socat%d/vip' % (i + 1)] = "{0.ip}:{0.port}".format(item)
                 self._handle_vars['name/%s/vip' % item.name] = "{0.ip}:{0.port}".format(item)
 
         docroots = []
         if rp.get('members'):
-            for member in rp.members.pool.local_items.values():
+            for member in list(rp.members.pool.local_items.values()):
                 self._handle_vars['name/%s/member/ip' % member.name] = member.ip
                 self._handle_vars['name/%s/member' % member.name] = "{0.ip}:{0.port}".format(member)
                 self._handle_vars['name/%s/docroot' % member.name] = member.local_dir

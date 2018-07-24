@@ -112,7 +112,7 @@ class ITE(ExtendedPlugin):
             module.compat_func_name = 'main'
             f = FunctionTestCase(test_eval, descriptor=module)
             dummy = Dummy()
-            for k, v in tokens.items():
+            for k, v in list(tokens.items()):
                 setattr(dummy, k, v)
             setattr(module, ITE_METADATA, dummy)
             if not self.attr_plugin.enabled:
