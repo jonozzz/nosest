@@ -83,6 +83,12 @@ class Plugin(object):
             root_logger.setLevel(level)
         LOG.info("Session started.")
 
+    def allure_generate_environment(self):
+        env = {}
+        for device in self.context.get_config().get_devices():
+            env["%s.address" % device.alias] = device.address
+        pytest.allure.environment(**env)
+
     def allure_generate(self):
         if not self.enabled:
             return
@@ -120,6 +126,7 @@ class Plugin(object):
         if self.handler:
             self.handler.close()
             root_logger.removeHandler(self.handler)
+        self.allure_generate_environment()
         self.allure_generate()
         self.yaml_config_generate()
         shutil.rmtree(self.config.option.allure_report_dir)
