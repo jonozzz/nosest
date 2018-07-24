@@ -7,7 +7,7 @@ Created on Feb 9, 2012
 from f5test.interfaces.config import (expand_devices, ConfigInterface)
 from f5test.macros.base import Macro, MacroThread
 from f5test.utils.stage.base import Stage, StageError
-from nose.config import _bool
+from f5test.utils.convert import to_bool
 import inspect
 import os
 import random
@@ -125,7 +125,7 @@ def process_stages(stages, section, context, stop_on_error=True):
         pool = []
         for stage in stages:
             description, specs = stage
-            if not specs or not _bool(specs.get(ENABLE_KEY)):
+            if not specs or not to_bool(specs.get(ENABLE_KEY)):
                 continue
 
             LOG.info("Processing stage: %s", description)

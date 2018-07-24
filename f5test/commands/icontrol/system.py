@@ -95,7 +95,7 @@ class DownloadFile(IcontrolCommand):
                                                      file_offset=offset)
             done = ret['return']['chain_type'] in ('FILE_FIRST_AND_LAST',
                                                    'FILE_LAST')
-            chunks.append(ret['return']['file_data'])
+            chunks.append(ret['return']['file_data'].decode())
             offset = ret['file_offset']
 
         return ''.join(chunks)

@@ -115,10 +115,7 @@ def str_to_unicode(s, encoding):
 
     Returns any non-basestring objects without change.
     """
-    if isinstance(s, str):
-        return str(s, encoding, 'replace')
-    else:
-        return s
+    return s
 
 
 class MultiValueDictKeyError(KeyError):

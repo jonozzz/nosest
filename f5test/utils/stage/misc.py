@@ -5,7 +5,7 @@ Created on Feb 21, 2014
 '''
 import logging
 
-from nose.config import _bool
+from f5test.utils.convert import to_bool
 
 import f5test.commands.shell as SCMD
 import f5test.commands.rest as RCMD
@@ -47,18 +47,18 @@ class TweaksStage(Stage, Macro):
         super(TweaksStage, self).setup()
         LOG.info('Tweaks stage for: %s', self.device)
         # mcp: Enable MCPD debug logging
-        if self.specs.mcp and _bool(self.specs.mcp):
+        if self.specs.mcp and to_bool(self.specs.mcp):
             with SSHInterface(device=self.device) as sshifc:
                 sshifc.api.run('setdb log.mcpd.level debug')
 
         # icontrol: Enable icontrol debug logging
-        if self.specs.icontrol and _bool(self.specs.icontrol):
+        if self.specs.icontrol and to_bool(self.specs.icontrol):
             with SSHInterface(device=self.device) as sshifc:
                 sshifc.api.run('setdb icontrol.loglevel debug')
                 sshifc.api.run('bigstart restart httpd')
 
         # logrotate: Force logrotate all logs
-        if self.specs.logrotate and _bool(self.specs.logrotate):
+        if self.specs.logrotate and to_bool(self.specs.logrotate):
             with SSHInterface(device=self.device) as sshifc:
                 sshifc.api.run('/usr/sbin/logrotate /etc/logrotate.conf -f')
                 # BIG-IQ is so "special" - it doesn't use the usual logrotate ways.
@@ -66,7 +66,7 @@ class TweaksStage(Stage, Macro):
                 # sshifc.api.run('[ -f /service/restjavad/run ] && bigstart stop restjavad && rm -f /var/log/restjavad* && bigstart start restjavad')
 
         # log_finest: Force restjavad log files to use FINEST level.
-        if self.specs.log_finest and _bool(self.specs.log_finest):
+        if self.specs.log_finest and to_bool(self.specs.log_finest):
             with SSHInterface(device=self.device) as sshifc:
                 sshifc.api.run("sed -i 's/^.level=.*/.level=FINEST/g' /etc/restjavad.log.conf && bigstart restart restjavad")
 
@@ -148,10 +148,10 @@ class RebootStage(Stage, Macro):
         LOG.info('Reboot stage for: %s', self.device)
         SCMD.ssh.reboot(device=self.device)
 
-        if self.specs.mcpd and _bool(self.specs.mcpd):
+        if self.specs.mcpd and to_bool(self.specs.mcpd):
             self._wait_after_reboot(self.device)
 
-        if self.specs.restjavad and _bool(self.specs.restjavad):
+        if self.specs.restjavad and to_bool(self.specs.restjavad):
             RCMD.system.wait_restjavad([self.device])
 
 
