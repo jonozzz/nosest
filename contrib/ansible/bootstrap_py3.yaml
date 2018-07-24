@@ -143,7 +143,8 @@
           - git+https://gitswarm.f5net.com/turturica/loggerglue.git
           - git+https://gitswarm.f5net.com/turturica/restkit.git@2to3
           - git+git://github.com/erjac77/ansible-common-f5.git#egg=ansible-common-f5
-          - git+https://github.com/jonozzz/pytest.git@features#egg=pytest
+          #- git+https://github.com/jonozzz/pytest.git@features#egg=pytest
+          - git+https://github.com/pytest-dev/pytest.git@features#egg=pytest
           - git+https://github.com/jonozzz/allure-python.git#egg=allure-pytest&subdirectory=allure-pytest
           - git+https://github.com/jonozzz/allure-python.git#egg=allure-python-commons&subdirectory=allure-python-commons
           - git+https://github.com/jonozzz/pytest-json-report.git#egg=pytest-json-report
