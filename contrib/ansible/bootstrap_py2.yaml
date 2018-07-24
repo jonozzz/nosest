@@ -137,11 +137,9 @@
           extra_args: -U --force-reinstall --src {{ venv_root }}/tmp
           virtualenv: "{{ venv_root }}"
         with_items:
-          - git+https://github.com/jonozzz/geventhttpclient.git@2to3#egg=geventhttpclient
+          - git+https://github.com/jonozzz/geventhttpclient.git#egg=geventhttpclient
           #- git+https://github.com/jonozzz/nose.git#egg=nose
-          - git+https://github.com/jonozzz/SOAPpy.git#egg=SOAPpy@2to3
-          - git+https://gitswarm.f5net.com/turturica/loggerglue.git
-          - git+https://gitswarm.f5net.com/turturica/restkit.git@2to3
+          - git+https://github.com/jonozzz/SOAPpy.git#egg=SOAPpy
           - git+git://github.com/erjac77/ansible-common-f5.git#egg=ansible-common-f5
           - git+https://github.com/jonozzz/pytest.git@features#egg=pytest
           - git+https://github.com/jonozzz/allure-python.git#egg=allure-pytest&subdirectory=allure-pytest

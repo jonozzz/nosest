@@ -127,7 +127,7 @@
 
       - command:  "{{ venv_root }}/bin/python -c 'import {{ item }}'"
         with_items:
-          - loggerglue, geventhttpclient, nose, SOAPpy, ansible_common_f5
+          - loggerglue, geventhttpclient, pytest, SOAPpy, ansible_common_f5
           - f5test
         failed_when: pymodule_exists.rc not in (0, 1)
         register: pymodule_exists
@@ -137,9 +137,11 @@
           extra_args: -U --force-reinstall --src {{ venv_root }}/tmp
           virtualenv: "{{ venv_root }}"
         with_items:
-          - git+https://github.com/jonozzz/geventhttpclient.git#egg=geventhttpclient
-          - git+https://github.com/jonozzz/nose.git#egg=nose
-          - git+https://github.com/jonozzz/SOAPpy.git#egg=SOAPpy
+          - git+https://github.com/jonozzz/geventhttpclient.git@2to3#egg=geventhttpclient
+          #- git+https://github.com/jonozzz/nose.git#egg=nose
+          - git+https://github.com/jonozzz/SOAPpy.git@2to3#egg=SOAPpy
+          - git+https://gitswarm.f5net.com/turturica/loggerglue.git
+          - git+https://gitswarm.f5net.com/turturica/restkit.git
           - git+git://github.com/erjac77/ansible-common-f5.git#egg=ansible-common-f5
           - git+https://github.com/jonozzz/pytest.git@features#egg=pytest
           - git+https://github.com/jonozzz/allure-python.git#egg=allure-pytest&subdirectory=allure-pytest
@@ -167,16 +169,6 @@
           state: link
 
       - copy:
-          content: |
-            [nosetests]
-            config=.noserc
-          dest: "{{ home_dir }}/.noserc"
-
-      - template:
-          src: "{{ templates_dir }}/noserc.j2"
-          dest: "{{ venv_root }}/.noserc"
-
-      - copy:
           src: "{{ templates_dir }}/test_sample.py"
           dest: "{{ venv_root }}/tests/"
 
@@ -201,12 +193,12 @@
 
       - command:  "{{ item }} chdir={{ venv_root }}"
         with_items:
-          - bin/nosetests --no-logcollect tests/test_sample.py
+          - bin/pytest tests/test_sample.py
         register: output
         run_once: true
         failed_when: output.rc not in (0, 1)
 
-      - command: ansible-galaxy install erjac77.module-f5bigip
+      - command: ansible-galaxy install -f erjac77.module-f5bigip
 
       - file: path="{{ venv_root }}/.bootstrapped" state=touch
 
@@ -216,5 +208,5 @@
             - source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
             - or source /usr/local/bin/virtualenvwrapper.sh
             - workon {{ venv_name }} && cdvirtualenv
-            - nosetests tests/test_sample.py
+            - pytest tests/test_sample.py
       when: not stat.stat.exists
