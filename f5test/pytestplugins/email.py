@@ -139,7 +139,6 @@ class EmailPlugin(object):
                 info.project = v.get('project')
                 info.edition = v.get('edition', '')
             except Exception as e:
-                raise
                 LOG.error("%s: %s", type(e), e)
                 info.version = encode(Version())
                 info.platform = ''
