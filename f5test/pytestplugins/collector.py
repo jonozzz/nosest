@@ -152,6 +152,10 @@ class Plugin(object):
 
         return collected
 
+    def pytest_report_header(self, config):
+        return ["sessiondir: %s" % self.session.path,
+                "sessionurl: %s" % self.session.get_url()]
+
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_makereport(self, item, call):
         report = (yield).get_result()
