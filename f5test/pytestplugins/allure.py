@@ -141,7 +141,7 @@ def pytest_cmdline_main(config):
             allure_report_dir = os.path.join(options.get('tmp', REPORT_DIR_ROOT),
                                              "allure-%s" % session.name)
             if config.option.allure_report_dir:
-                LOG.warn('Allure report dir changed to: %s', allure_report_dir)
+                LOG.warning('Allure report dir changed to: %s', allure_report_dir)
 
             config.option.allure_report_dir = allure_report_dir
 
