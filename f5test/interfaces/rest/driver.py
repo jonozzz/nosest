@@ -98,7 +98,7 @@ class WrappedResponse(object):
         mimetype = RAW_MIMETYPE if self.raw \
             else mimetype_from_headers(self.response.headers)
         # indent body
-        body = self.body.decode()
+        body = self.body
         if body:
             self._data = WrappedResponse._parse(mimetype, body)
             return self._data
