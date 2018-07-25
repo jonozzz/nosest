@@ -8,13 +8,10 @@ import inspect
 import logging.config
 from logging.handlers import BufferingHandler
 import os
-import pluggy
 import sys
 import time
 
-import nose
 import pytest
-from nose.plugins import logcapture
 
 from billiard.process import current_process
 import celery
@@ -26,11 +23,10 @@ from f5test.interfaces.config.driver import EXTENDS_KEYWORD
 from f5test.macros.ictester import Ictester
 from f5test.macros.install import InstallSoftware
 from f5test.macros.tmosconf import ConfigPlacer
-from f5test.noseplugins.testconfig import TestConfig
 from f5test.pytestplugins import config as config_plugin
 from f5test.utils.dicts import merge
 
-logcapture.LogCapture.enabled = False
+#logcapture.LogCapture.enabled = False
 logging.raiseExceptions = 0
 
 LOG = get_task_logger(__name__)
@@ -181,6 +177,7 @@ def _run(*arg, **kw):
 
 @celery.task(base=DebugTask)
 def nosetests(data, args, user_input=None):
+    from f5test.noseplugins.testconfig import TestConfig
     LOG.info("TASKS-Running Shiraz nosetests")
     _clean_sys_modules()
     nosetests.save_meta(user_input=user_input)
