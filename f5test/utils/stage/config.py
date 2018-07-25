@@ -226,7 +226,8 @@ class TmosConfigStage(Stage, ConfigPlacer):
             self.reset_trust()
             return
 
-        for klass_path, specs in self.specs.get('classes', {}).items():
+        for dict_items in self.specs.get('classes', []):
+            klass_path, specs = list(dict_items.items())[0]
             path, klass_name = klass_path.rsplit('.', 1)
             module = importlib.import_module('...macros.tmosconf.%s' % path,
                                              __package__)
