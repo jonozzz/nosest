@@ -19,6 +19,7 @@ def pytest_addoption(parser):
         help='test config yaml')
 
 
+@pytest.hookimpl(tryfirst=True)
 def pytest_cmdline_main(config):
     if config.option.tc:
         loader = ConfigLoader(config.option.tc)
