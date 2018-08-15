@@ -39,7 +39,7 @@ from pyparsing import (Literal, Word, Group, ZeroOrMore, printables, OneOrMore,
 
 from f5test.utils.decorators import synchronized_with
 from f5test.utils.parsers import PYPARSING_LOCK
-from .tcl import parse as tcl_parse
+from f5test.utils.parsers.tcl import parse as tcl_parse
 #from ..decorators import synchronized_with
 #from . import PYPARSING_LOCK
 
@@ -68,13 +68,14 @@ class RawEOL(object, metaclass=Meta):
 
 class GlobDict(collections.OrderedDict):
 
-    def __setitem__(self, key, value):
-        super(GlobDict, self).__setitem__(RawString(key), value)
+    def set_key(self, key, value):
+        self[RawString(key)] = value
 
     def rename_key(self, old, **kwargs):
         """Not optimum, but it should work fine for small dictionaries"""
         value = self[old]
-        items = [(k % kwargs, v) if k == old else (k, v) for k, v in self.items()]
+        items = [(RawString(k % kwargs), v) if k == old else (RawString(k), v)
+                 for k, v in self.items()]
         self.clear()
         self.update(items)
         return value
@@ -100,7 +101,8 @@ class GlobDict(collections.OrderedDict):
             curdepth += 1
             T = type(obj)
             if isinstance(obj, collections.Mapping):
-                return T((k % fmt, traverse(v, curdepth, maxdepth)) for k, v in obj.items())
+                return T((type(k)(k % fmt), traverse(v, curdepth, maxdepth))
+                         for k, v in obj.items())
             elif isinstance(obj, (list, tuple, collections.Set)):
                 return T((traverse(elem, curdepth, maxdepth) for elem in obj))
             else:
@@ -114,6 +116,7 @@ class GlobDict(collections.OrderedDict):
 def braces_parser(text, opener=BLOB_OPENER, closer=BLOB_CLOSER):
     cvtTuple = lambda toks: tuple(toks.asList())  # @IgnorePep8
     cvtRaw = lambda toks: RawString(' '.join(map(str, toks.asList())))  # @IgnorePep8
+    cvtStr = lambda toks: str(' '.join(map(str, toks.asList())))  # @IgnorePep8
     cvtDict = lambda toks: GlobDict(toks.asList())  # @IgnorePep8
     extractText = lambda s, l, t: RawString(s[t._original_start:t._original_end])  # @IgnorePep8
 
@@ -140,8 +143,8 @@ def braces_parser(text, opener=BLOB_OPENER, closer=BLOB_CLOSER):
     identifier = Word(printables, excludeChars='{}"\'')
     quotedStr = QuotedString('"', escChar='\\', multiline=True) | \
         QuotedString('\'', escChar='\\', multiline=True)
-    quotedIdentifier = QuotedString('"', escChar='\\', unquoteResults=False) | \
-        QuotedString('\'', escChar='\\', unquoteResults=False)
+    quotedIdentifier = QuotedString('"', escChar='\\', unquoteResults=True) | \
+        QuotedString('\'', escChar='\\', unquoteResults=True)
     dictStr = Forward()
     setStr = Forward()
     objStr = Forward()
@@ -149,7 +152,7 @@ def braces_parser(text, opener=BLOB_OPENER, closer=BLOB_CLOSER):
     oddIdentifier = identifier + quotedIdentifier
     dictKey = quotedIdentifier | \
         Combine(oddIdentifier).setParseAction(cvtRaw)
-    dictKey.setParseAction(cvtRaw)
+    dictKey.setParseAction(cvtStr)
 
     dictValue = quotedStr | dictStr | setStr | \
         Combine(oddIdentifier).setParseAction(cvtRaw)
@@ -214,7 +217,7 @@ def parser(text):
                     break
             else:
                 continue
-            key = text[start:stop]
+            key = RawString(text[start:stop])
             value = text[content[0]:content[1]]
             if any(key.startswith(x) for x in blacklist):
                 d[key] = RawString(value)
@@ -491,7 +494,9 @@ if __name__ == '__main__':
     import pprint
 
     test = r"""
-    key /Common/address {
+    # TMOS version: blab
+
+    "/Common/address 2" {
     # test
         a-set {
             a1
@@ -574,6 +579,8 @@ if __name__ == '__main__':
         }
     }
 
+    sys management-ip 6.0.1.208/16 { }
+
     mgmt 172.27.66.162 {
        netmask 255.255.255.128
     }
@@ -594,4 +601,4 @@ if __name__ == '__main__':
 
     print("Filter:")
     print(dumps(result.glob('cli script *')))
-    print(dumps(result.glob('ltm rule *')))
+    print(dumps(result))
