@@ -273,6 +273,14 @@ def parse_braced_word(script, cursor, len_script, in_command_subst):
             brace_level -= 1
             cursor += 1
 
+        # Exception from the TCL syntax!
+        # Covers stuff like: `set x {"asdasd{"}` which is OK in tmsh syntax
+        elif c == '"':
+            start = cursor
+            type, cursor, sub_tree = parse_enclosed_word(script, cursor, len_script, in_command_subst,
+                                                         '"', only_whitespace_chars_after_end_char=False)
+            portions.append((type, (start, cursor), sub_tree))
+
         elif c == '\\':
             if script[cursor + 1] in ['\r', '\n']:
                 start = cursor
@@ -415,7 +423,7 @@ def parse_variable_subst(script, cursor, len_script, in_command_subst):
     while cursor < len_script:
         c = script[cursor]
 
-        if c in (string.letters + string.digits + "_"):
+        if c in (string.ascii_letters + string.digits + "_"):
             cursor += 1
 
         elif c == ':':
@@ -1265,16 +1273,13 @@ def dodekalogue():  # pragma: nocover
 if __name__ == '__main__':  # pragma: nocover
     import doctest
     from pprint import pprint
-    #print doctest.testmod()
-    with file('b.scf') as f:
-        text = f.read()
-        ret = parse(text)
-    #pprint(ret)
-    for command in ret[2]:
-        if command[0] == 'Command':
-            start = command[1][0]
-            for bit in command[2]:
-                if bit[0] == 'BracedLiteral':
-                    stop = bit[1][0] - 1
-                    content = bit[1]
-            print(text[start:stop], '->', text[content[0]:content[1]])
+    #print(doctest.testmod())
+    print(parse("""set x {"asdasd{"}"""))
+    #print(parse("""set x "asdasd{" asd """))
+    # parse("""
+    # security dos bot-signature "/Common/D3DL0 G00D N1C3" {
+    # category "/Common/DOS Tool"
+    # risk high
+    # rule "headercontent:\\"}[D3DL0 G00D N1C3]}\\"; useragentonly; nocase;"
+    # user-defined false
+    # }""")
