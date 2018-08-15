@@ -34,11 +34,15 @@ class Extractor(Macro):
         super(Extractor, self).__init__()
 
     def prep(self):
-        self.sshifc = SSHInterface(**self.sshparams)
-        self.api = self.sshifc.open()
+        if not self.options.conf:
+            self.sshifc = SSHInterface(**self.sshparams)
+            self.api = self.sshifc.open()
+        else:
+            self.sshifc = None
 
     def cleanup(self):
-        self.sshifc.close()
+        if self.sshifc:
+            self.sshifc.close()
 
     def dump_config(self, filename):
         LOG.info('Dumping configuration...')
@@ -49,6 +53,9 @@ class Extractor(Macro):
             self.api.run('cp /var/local/ucs/tmp/config/bigip.conf {}'.format(filename))
             self.api.run('rm -rf /var/local/ucs/tmp')
             text = self.api.run('cat {}'.format(filename)).stdout
+        elif self.options.conf:
+            with open(self.options.conf) as f:
+                text = f.read()
         else:
             if self.sshifc.version > 'bigip 12.1.0':
                 text = self.api.run('tmsh save sys config file {0} no-passphrase && cat {0}'.format(filename)).stdout
@@ -66,11 +73,11 @@ class Extractor(Macro):
         else:
             text = self.dump_config(output)
 
-        if not self.options.cache:
+        if self.sshifc and not self.options.cache:
             self.api.run('rm -f {0}*'.format(output)).stdout
 
         LOG.info('Parsing...')
-        config = tmsh.parser(str(text, errors='ignore'))
+        config = tmsh.parser(text)
         LOG.debug(config)
         all_keys = list(config.keys())
         LOG.info('Last key: %s', all_keys[-1])
@@ -175,6 +182,8 @@ def main():
                  % ROOT_PASSWORD)
     p.add_option("", "--ucs", metavar="FILE", type="string",
                  help="UCS File to look at (Optional)")
+    p.add_option("", "--conf", metavar="FILE", type="string",
+                 help="bigip.conf file to look at (Optional)")
 
     p.add_option("-t", "--timeout", metavar="SECONDS", type="int", default=60,
                  help="Timeout (default: 60)")
