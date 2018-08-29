@@ -568,12 +568,12 @@ class CollectLogs(SSHCommand):  # @IgnorePep8
             if not (v > 'bigiq 4.0' or is_bigiq_or):
                 files.append('/var/log/tomcat/catalina.out')
                 files.append('/var/log/webui.log')
-            if v >= 'bigiq 4.2' or is_bigiq_or:
+            if 'bigiq 4.2' <= v <= 'bigiq 6.0' or is_bigiq_or:
                 files.append('/var/log/guiserver.out')
             if v >= 'bigiq 4.3' and v <= 'bigiq 4.4':
                 files.append('/var/log/nginx_errors.log')
             if v >= 'bigiq 4.5' or is_bigiq_or:
-                files.append('/var/log/webd/errors.log*')
+                files.append('/var/log/webd/errors.log{,.1}')
         elif not v.product.is_apic:
             files.append('/var/log/tomcat4/catalina.out')
 
@@ -621,12 +621,6 @@ class CollectLogs(SSHCommand):  # @IgnorePep8
         if ret.status:
             LOG.error(ret)
             raise SSHCommandError(ret)
-
-        # Collect ucs files for asm for more info on discovery issues
-        if "functional.standalone.asm." in self.dir:
-            file_loc = "/shared/%s.ucs" % ('bigip' if v.product.is_bigip else 'bigiq')
-            ret = self.api.run("tmsh save sys ucs %s" % file_loc)
-            self.api.get(file_loc, os.path.join(self.dir, os.path.basename(file_loc)), move=True)
 
 
 file_exists = None
