@@ -539,10 +539,6 @@ class CollectLogs(SSHCommand):  # @IgnorePep8
     LINE_COUNT = 200
     APIC_LINE_COUNT = 400
 
-    def __init__(self, dir, *args, **kwargs):  # @ReservedAssignment
-        super(CollectLogs, self).__init__(*args, **kwargs)
-        self.dir = dir
-
     def setup(self):
         # Common
         v = abs(self.version)
@@ -606,10 +602,8 @@ class CollectLogs(SSHCommand):  # @IgnorePep8
                 ret = self.api.run('tail -n %d %s' % (self.APIC_LINE_COUNT, filename))
             else:
                 ret = self.api.run('tail -n %d %s' % (self.LINE_COUNT, filename))
-            local_file = os.path.join(self.dir, os.path.basename(filename))
-            local_file = local_file.replace('*', '_')
-            with open(local_file, "wt") as f:
-                f.write(ret.stdout)
+            local_file = os.path.basename(filename).replace('*', '_')
+            yield local_file, ret.stdout
 
         # Gather the qkview-lite *.tech.out output.
         # Not available in solstice+

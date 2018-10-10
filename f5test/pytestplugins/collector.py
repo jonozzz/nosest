@@ -28,6 +28,25 @@ def sanitize_test_name(item):
     return item.nodeid.replace('/', '.').replace(':', '@')
 
 
+def rp_logger(item):
+    import logging
+    # Import Report Portal logger and handler to the test module.
+    try:
+        from pytest_reportportal import RPLogger, RPLogHandler
+        # Setting up a logging.
+        logging.setLoggerClass(RPLogger)
+        logger = logging.getLogger(__name__ + '_rp')
+        logger.setLevel(logging.DEBUG)
+        # Create handler for Report Portal.
+        if item.config._reportportal_configured:
+            rp_handler = RPLogHandler(item.config.py_test_service)
+            # Set INFO level for Report Portal handler.
+            rp_handler.setLevel(logging.INFO)
+    except ImportError:
+        logger = logging.getLogger(__name__)
+    return logger
+
+
 class Plugin(object):
     """
     Collects screenshots, logs, qkviews.
@@ -42,19 +61,29 @@ class Plugin(object):
         self.visited_selenium = set()
         self.visited_fixtures = set()
 
-    def try_screenshots(self, interface):
+    def try_screenshots(self, item, interface):
         if isinstance(interface, SeleniumInterface):
             for window in interface.api.window_handles:
                 credentials = interface.get_credentials(window)
 
                 if credentials.device:
-                    name = credentials.device.get_alias()
+                    #name = credentials.device.get_alias()
+                    name = credentials.device.get_address()
                 else:
                     name = credentials.address or window
 
                 png, html = UI.common.screen_shot2(window=window, ifc=interface)
-                pytest.allure.attach(png, "screenshot-%s" % name, AttachmentType.PNG)
-                pytest.allure.attach(html, "page-%s" % name, AttachmentType.HTML)
+                logger = rp_logger(item)
+                logger.info("Screenshot: %s" % name, attachment={
+                    "name": "screenshot-%s" % name,
+                    "data": png,
+                    "mime": "image/png",
+                })
+                logger.info("Webpage: %s" % name, attachment={
+                    "name": "page-%s" % name,
+                    "data": html,
+                    "mime": "text/html",
+                })
 
             # Switching back to main window
             if len(interface.api.window_handles) > 1:
@@ -133,6 +162,7 @@ class Plugin(object):
             return collected
 
         test_root = self.create_item_dir(item)
+        logger = rp_logger(item)
 
         for sshifc in sshifcs:
             address = sshifc.address
@@ -144,13 +174,26 @@ class Plugin(object):
                 LOG.debug('Collecting logs from %s', address)
                 try:
                     version = SSH.get_version(ifc=sshifc)
-                    SSH.collect_logs(log_root, ifc=sshifc, version=version)
+                    for filename, content in SSH.collect_logs(ifc=sshifc,
+                                                              version=version):
+                        logger.info("Log: %s > %s" % (sshifc.address, filename),
+                                    attachment={
+                                        "name": filename,
+                                        "data": content,
+                                        "mime": "text/plain",
+                        })
+
                     collected += 1
                 except Exception as e:
                     LOG.error('Collecting logs failed: %s', e)
                 self.visited_ssh.add(address)
 
         return collected
+
+    def pytest_sessionstart(self, session):
+        config = self.context.get_config().api
+        if config.testrun:
+            session.config.addinivalue_line('rp_launch_tags', 'harness:%s' % config.testrun.harness)
 
     def pytest_report_header(self, config):
         return ["sessiondir: %s" % self.session.path,
@@ -185,7 +228,7 @@ class Plugin(object):
             for context in [x for x in fixture_values if isinstance(x, ContextHelper)]:
                 interfaces = list(context.get_container(container=INTERFACES_CONTAINER).values())
                 for interface in interfaces:
-                    self.try_screenshots(interface)
+                    self.try_screenshots(item, interface)
                     collected += self.try_collect(item, interface)
 
             if collected > 0:
