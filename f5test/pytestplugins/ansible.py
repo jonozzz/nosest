@@ -81,6 +81,17 @@ class Plugin(object):
         else:
             self.enabled = False
 
+        if self.enabled:
+            # https://codewithoutrules.com/2018/09/04/python-multiprocessing/
+            # tldr; ansible is using fork to create worker processes
+            # if your current program is using threads, a deadlock is very probable
+            # The following is only available in Python 3.4+
+            try:
+                from multiprocessing import set_start_method
+                set_start_method('spawn')
+            except ImportError:
+                pass
+
     # @pytest.fixture(scope='module', autouse=True)
     # def __look_for_ansible(self, request, respool):
     #     #vip = respool.vips.get()
