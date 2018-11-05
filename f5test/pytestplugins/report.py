@@ -20,7 +20,7 @@ def mark_to_str(marker):
 def get_markers(item):
     for keyword in list(item.keywords.keys()):
         if not any((keyword == 'parametrize',)):
-            marker = item.get_marker(keyword)
+            marker = item.get_closest_marker(keyword)
             if marker:
                 yield mark_to_str(marker)
 
