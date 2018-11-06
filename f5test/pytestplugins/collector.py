@@ -6,7 +6,7 @@ import logging
 import os
 import pytest
 from _pytest.fixtures import FixtureLookupError
-from allure_commons.types import AttachmentType
+#from allure_commons.types import AttachmentType
 
 from ..interfaces.testcase import (ContextHelper, INTERFACES_CONTAINER)
 from ..interfaces.selenium import SeleniumInterface
@@ -231,10 +231,10 @@ class Plugin(object):
                     self.try_screenshots(item, interface)
                     collected += self.try_collect(item, interface)
 
-            if collected > 0:
-                test_name = sanitize_test_name(item)
-                url = self.session.get_url() + '/' + test_name
-                pytest.allure.attach(url, "logs", AttachmentType.URI_LIST)
+            #if collected > 0:
+            #    test_name = sanitize_test_name(item)
+            #    url = self.session.get_url() + '/' + test_name
+            #    pytest.allure.attach(url, "logs", AttachmentType.URI_LIST)
 
 def pytest_configure(config):
     config.pluginmanager.register(Plugin(config), 'collector-plugin')

@@ -49,7 +49,7 @@ class IteItem(pytest.Function):
             mark = getattr(pytest.mark, name)(value)
             self.add_marker(mark)
 
-        self.add_marker(getattr(pytest.allure, 'label')('suite', 'ITE'))
+        self.add_marker(getattr(pytest, 'mark')('suite', 'ITE'))
 
     def runtest(self):
         g = globals()
