@@ -1,0 +1,73 @@
+---
+- hosts: localhost
+
+  vars:
+    # Make sure we're using the system's python
+    ansible_python_interpreter: "/usr/bin/env python"
+    openssl_version: 1.1.1a
+    python_version: 3.7.2
+
+  tasks:
+    - apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - libffi-dev
+      become: true
+
+    - file:
+        path: "{{ ansible_user_dir }}/.local/"
+        state: directory
+        mode: 0755
+
+    - get_url:
+        url: "https://www.openssl.org/source/openssl-{{openssl_version}}.tar.gz"
+        dest: "/tmp/openssl-{{openssl_version}}.tar.gz"
+
+    - unarchive:
+        src: "/tmp/openssl-{{openssl_version}}.tar.gz"
+        dest: /tmp/
+        copy: no
+
+    - name: config openssl
+      command: "./config shared --prefix={{ ansible_user_dir }}/.local/openssl-{{openssl_version}} -Wl,-rpath='\\$$ORIGIN/../lib'"
+      args:
+        chdir: "/tmp/openssl-{{openssl_version}}"
+
+    - name: make openssl
+      command: "make install_sw"
+      args:
+        chdir: "/tmp/openssl-{{openssl_version}}"
+      creates: "{{ ansible_user_dir }}/.local/openssl-{{openssl_version}}/bin/openssl"
+
+
+
+    - get_url:
+        url: "https://www.python.org/ftp/python/{{python_version}}/Python-{{python_version}}.tar.xz"
+        dest: "/tmp/python-{{python_version}}.tar.gz"
+
+    - unarchive:
+        src: "/tmp/python-{{python_version}}.tar.gz"
+        dest: /tmp/
+        copy: no
+
+    - name: config python
+      command: "./configure --prefix={{ ansible_user_dir }}/.local/python-{{python_version}} --with-openssl={{ ansible_user_dir }}/.local/openssl-{{openssl_version}} --enable-optimizations --enable-shared"
+      environment:
+        LDFLAGS: -Wl,-rpath={{ ansible_user_dir }}/.local/openssl-{{openssl_version}}/lib
+      args:
+        chdir: "/tmp/Python-{{python_version}}"
+
+    - name: make python
+      command: "make -j8 altinstall"
+      args:
+        chdir: "/tmp/Python-{{python_version}}"
+      creates: "{{ ansible_user_dir }}/.local/python-{{python_version}}/bin/python3.7"
+
+    - pip:
+        name: "{{ item }}"
+        state: latest
+        #virtualenv: "{{ venv_root }}"
+        executable: "{{ ansible_user_dir }}/.local/python-{{python_version}}/bin/pip3.7"
+      with_items:
+        - virtualenv
