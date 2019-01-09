@@ -145,7 +145,7 @@
           - git+https://gitswarm.f5net.com/turturica/restkit.git@2to3
           - git+git://github.com/erjac77/ansible-common-f5.git#egg=ansible-common-f5
           #- git+https://github.com/jonozzz/pytest.git@features#egg=pytest
-          - git+https://github.com/pytest-dev/pytest.git@features#egg=pytest
+          - git+https://github.com/pytest-dev/pytest.git@master#egg=pytest
           - git+https://github.com/jonozzz/allure-python.git#egg=allure-pytest&subdirectory=allure-pytest
           - git+https://github.com/jonozzz/allure-python.git#egg=allure-python-commons&subdirectory=allure-python-commons
           - git+https://github.com/jonozzz/pytest-json-report.git#egg=pytest-json-report
@@ -200,7 +200,7 @@
         run_once: true
         failed_when: output.rc not in (0, 1)
 
-      - command: ansible-galaxy install -f erjac77.module-f5bigip
+      - command: ansible-galaxy -c install -f erjac77.module-f5bigip
 
       - file: path="{{ venv_root }}/.bootstrapped" state=touch
 
