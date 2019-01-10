@@ -17,6 +17,7 @@
     venv_name: ansible-test
     home_dir: "{{ ansible_user_dir }}"
     venv_root: "{{ home_dir }}/.virtualenvs/{{ venv_name }}"
+    venv_python: "{{ omit }}"
     this_pb: "{{ playbook_dir }}/bootstrap_py3.yaml"
     templates_dir: "{{ playbook_dir }}/templates"
     first_time: false
@@ -94,6 +95,7 @@
         name: "{{ item }}"
         state: latest
         virtualenv: "{{ venv_root }}"
+        virtualenv_python: "{{ venv_python }}"
       with_items:
         - pip
         - setuptools
@@ -136,13 +138,9 @@
           name: "{{ item }}"
           extra_args: -U --force-reinstall --src {{ venv_root }}/tmp
           virtualenv: "{{ venv_root }}"
+          virtualenv_python: "{{ venv_python }}"
         with_items:
-          - git+https://github.com/jonozzz/geventhttpclient.git@2to3#egg=geventhttpclient
           #- git+https://github.com/jonozzz/nose.git#egg=nose
-          - git+https://github.com/jonozzz/SOAPpy.git@2to3#egg=SOAPpy
-          - git+https://gitswarm.f5net.com/turturica/loggerglue.git
-          - git+git://github.com/benoitc/http-parser.git
-          - git+https://gitswarm.f5net.com/turturica/restkit.git@2to3
           - git+git://github.com/erjac77/ansible-common-f5.git#egg=ansible-common-f5
           #- git+https://github.com/jonozzz/pytest.git@features#egg=pytest
           - git+https://github.com/pytest-dev/pytest.git@master#egg=pytest
@@ -151,11 +149,26 @@
           - git+https://github.com/jonozzz/pytest-json-report.git#egg=pytest-json-report
         when: pymodule_exists.results[0].rc
 
+      # restkit depends on a broken http-parser package that's not in PyPI yet.
+      - pip:
+          name: "{{ item }}"
+          extra_args: -U --src {{ venv_root }}/tmp
+          virtualenv: "{{ venv_root }}"
+          virtualenv_python: "{{ venv_python }}"
+        with_items:
+          - git+https://github.com/jonozzz/geventhttpclient.git@2to3#egg=geventhttpclient
+          - git+https://github.com/jonozzz/SOAPpy.git@2to3#egg=SOAPpy
+          - git+https://gitswarm.f5net.com/turturica/loggerglue.git
+          - git+git://github.com/jonozzz/http-parser.git
+          - git+https://gitswarm.f5net.com/turturica/restkit.git@2to3
+        when: pymodule_exists.results[0].rc
+
       - pip:
           name: "{{ venv_root }}/src"
           extra_args: "{{ '-U' if latest|default(false)|bool else omit }}"
           editable: yes
           virtualenv: "{{ venv_root }}"
+          virtualenv_python: "{{ venv_python }}"
 
       - copy:
           content: |
