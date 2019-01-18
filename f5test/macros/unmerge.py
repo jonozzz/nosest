@@ -43,7 +43,7 @@ class Tool(Macro):
         LOG.info('Processing...')
 
         with self.api.sftp().open(self.filename) as f:
-            result = parser(f.read())
+            result = parser(f.read().decode())
             shell = self.api.interactive()
             shell.expect_exact(PROMPT)
             shell.sendline('tmsh')
