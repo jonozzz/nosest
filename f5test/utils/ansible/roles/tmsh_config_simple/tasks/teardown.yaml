@@ -4,6 +4,7 @@
     state: absent
   delegate_to: "{{ item.key }}"
   with_dict: "{{ dict(resources.members | groupby('docker')) }}"
+  when: resources is defined
 
 - set_fact:
     _: '{{ f5test_respools.get(item) and f5test_respools[item].free_all() }}'
@@ -11,6 +12,7 @@
   delegate_to: localhost
   run_once: true
   with_items: '{{ resources }}'
+  when: resources is defined
 
 # Caveat: In order to unmerge objects they must be listed in order of dependencies in the template.
 # E.g.: Nodes, pools, virtuals
