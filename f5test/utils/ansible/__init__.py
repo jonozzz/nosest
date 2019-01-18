@@ -238,7 +238,7 @@ def run_playbooks(playbook, tags=[], context=None, options=None):
 
     for g, v in list(cfgifc.api.get(GROUP_VARS, {}).items()):
         group = inventory.groups.get(g)
-        if group:
+        if group and isinstance(v, dict):
             group.vars.update(v)
 
     # Look for playbooks relative to caller's base directory
