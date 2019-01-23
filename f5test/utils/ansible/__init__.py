@@ -216,6 +216,7 @@ def run_playbooks(playbook, tags=[], context=None, options=None):
             inventory.add_host(device.alias, str(device.kind).replace(':', '.'))
         h = inventory.get_host(device.alias)
         h.set_variable('f5test_device', device)
+        h.set_variable('f5test_localhost', cfgifc.get_device('localhost'))
         h.set_variable('f5test_kind', device.kind)
         h.set_variable('f5test_mgmt_address', device.get_address())
         h.set_variable('f5test_port_https', device.ports['https'])
