@@ -192,7 +192,7 @@ class Plugin(object):
 
     def pytest_sessionstart(self, session):
         config = self.context.get_config().api
-        if config.testrun:
+        if config.testrun and session.config.pluginmanager.has_plugin('pytest_reportportal'):
             session.config.addinivalue_line('rp_launch_tags', 'harness:%s' % config.testrun.harness)
 
     def pytest_report_header(self, config):
