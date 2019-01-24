@@ -156,6 +156,8 @@
           virtualenv: "{{ venv_root }}"
           virtualenv_python: "{{ venv_python }}"
         with_items:
+          - git+https://github.com/Lukasa/hyper.git
+          - git+https://github.com/jonozzz/hypercorn.git
           - git+https://github.com/jonozzz/geventhttpclient.git@2to3#egg=geventhttpclient
           - git+https://github.com/jonozzz/SOAPpy.git@2to3#egg=SOAPpy
           - git+https://gitswarm.f5net.com/turturica/loggerglue.git
