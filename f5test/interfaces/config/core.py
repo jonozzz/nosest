@@ -22,7 +22,7 @@ from functools import reduce
 
 LOG = logging.getLogger(__name__)
 STDOUT = logging.getLogger('stdout')
-REACHABLE_HOST = 'mail'
+REACHABLE_HOST = 'f5.com'
 KEYSET_DEFAULT = 0
 KEYSET_COMMON = 1
 KEYSET_LOCK = 2
